@@ -27,10 +27,10 @@ setwd("/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/integrative_analysis
 
 # Ensure all output directories exist
 dir.create("data", showWarnings = FALSE, recursive = TRUE)
-dir.create("all_genes/results/direct_targets", showWarnings = FALSE, recursive = TRUE)
-dir.create("all_genes/results/pathway_analysis", showWarnings = FALSE, recursive = TRUE)
-dir.create("all_genes/results/regulatory_networks", showWarnings = FALSE, recursive = TRUE)
-dir.create("all_genes/plots", showWarnings = FALSE, recursive = TRUE)
+dir.create("output/results/direct_targets", showWarnings = FALSE, recursive = TRUE)
+dir.create("output/results/pathway_analysis", showWarnings = FALSE, recursive = TRUE)
+dir.create("output/results/regulatory_networks", showWarnings = FALSE, recursive = TRUE)
+dir.create("output/plots", showWarnings = FALSE, recursive = TRUE)
 dir.create("logs", showWarnings = FALSE, recursive = TRUE)
 
 cat("=== FINAL INTEGRATIVE ANALYSIS: Cut&Tag + RNA-seq (ALL GENES) ===\n")
@@ -132,7 +132,7 @@ get_peak_genes <- function(peaks, distance_threshold = 50000, tf_name = "TF") {
   # Get unique genes
   promoter_genes <- unique(promoter_peaks$ensembl_id)
   enhancer_genes <- unique(enhancer_peaks$ensembl_id)
-  all_genes <- unique(c(promoter_genes, enhancer_genes))
+  output <- unique(c(promoter_genes, enhancer_genes))
 
   # Report statistics
   cat(sprintf("%s peak analysis:\n", tf_name))
@@ -140,12 +140,12 @@ get_peak_genes <- function(peaks, distance_threshold = 50000, tf_name = "TF") {
   cat(sprintf("  Promoter peaks: %d (genes: %d)\n", nrow(promoter_peaks), length(promoter_genes)))
   cat(sprintf("  Enhancer peaks (<%dkb): %d (genes: %d)\n",
               distance_threshold/1000, nrow(enhancer_peaks), length(enhancer_genes)))
-  cat(sprintf("  Total bound genes: %d\n\n", length(all_genes)))
+  cat(sprintf("  Total bound genes: %d\n\n", length(output)))
 
   return(list(
     promoter_genes = promoter_genes,
     enhancer_genes = enhancer_genes,
-    all_genes = all_genes,
+    output = output,
     promoter_peaks = promoter_peaks,
     enhancer_peaks = enhancer_peaks,
     valid_peaks = valid_peaks
@@ -163,8 +163,8 @@ tead1_gene_mapping <- get_peak_genes(tead1_peaks, tf_name = "TEAD1")
 cat("=== PHASE 3: Direct Target Identification ===\n")
 
 # Get bound gene lists
-tes_bound_genes <- tes_gene_mapping$all_genes
-tead1_bound_genes <- tead1_gene_mapping$all_genes
+tes_bound_genes <- tes_gene_mapping$output
+tead1_bound_genes <- tead1_gene_mapping$output
 
 # Identify bound genes in RNA-seq data
 rna_results$tes_bound <- rna_results$ensembl_id %in% tes_bound_genes
@@ -205,10 +205,10 @@ tes_regulation <- analyze_regulation_mode(tes_direct_targets, "TES")
 tead1_regulation <- analyze_regulation_mode(tead1_direct_targets, "TEAD1")
 
 # Save direct target lists
-write.csv(tes_direct_targets, "all_genes/results/direct_targets/TES_direct_targets_all_genes.csv", row.names = FALSE)
-write.csv(tead1_direct_targets, "all_genes/results/direct_targets/TEAD1_direct_targets_all_genes.csv", row.names = FALSE)
-write.csv(tes_specific, "all_genes/results/direct_targets/TES_specific_targets_all_genes.csv", row.names = FALSE)
-write.csv(tead1_specific, "all_genes/results/direct_targets/TEAD1_specific_targets_all_genes.csv", row.names = FALSE)
+write.csv(tes_direct_targets, "output/results/direct_targets/TES_direct_targets_all_genes.csv", row.names = FALSE)
+write.csv(tead1_direct_targets, "output/results/direct_targets/TEAD1_direct_targets_all_genes.csv", row.names = FALSE)
+write.csv(tes_specific, "output/results/direct_targets/TES_specific_targets_all_genes.csv", row.names = FALSE)
+write.csv(tead1_specific, "output/results/direct_targets/TEAD1_specific_targets_all_genes.csv", row.names = FALSE)
 cat("✓ Direct target lists saved\n\n")
 
 # =============================================================================
@@ -243,7 +243,7 @@ print(class_summary)
 cat("\n")
 
 # Save classification table
-write.csv(classification, "all_genes/results/regulatory_networks/gene_classification_all_genes.csv", row.names = FALSE)
+write.csv(classification, "output/results/regulatory_networks/gene_classification_all_genes.csv", row.names = FALSE)
 cat("✓ Gene classification table saved\n\n")
 
 # =============================================================================
@@ -278,7 +278,7 @@ perform_enrichment <- function(gene_list, background, analysis_name) {
 
   if(nrow(ego) > 0) {
     cat(sprintf("✓ %s: %d enriched pathways found\n", analysis_name, nrow(ego)))
-    write.csv(ego@result, sprintf("all_genes/results/pathway_analysis/%s_GO_enrichment_all_genes.csv", analysis_name), row.names = FALSE)
+    write.csv(ego@result, sprintf("output/results/pathway_analysis/%s_GO_enrichment_all_genes.csv", analysis_name), row.names = FALSE)
     return(ego)
   } else {
     cat(sprintf("✗ %s: no enriched pathways found\n", analysis_name))
@@ -315,7 +315,7 @@ pie_data <- data.frame(
   percentage = round(100 * as.numeric(class_counts) / sum(class_counts), 1)
 )
 
-pdf("all_genes/plots/01_gene_classification_pie_all_genes.pdf", width = 10, height = 8)
+pdf("output/plots/01_gene_classification_pie_all_genes.pdf", width = 10, height = 8)
 p1 <- ggplot(pie_data, aes(x = "", y = count, fill = class)) +
   geom_bar(stat = "identity", width = 1) +
   coord_polar("y", start = 0) +
@@ -336,7 +336,7 @@ dev.off()
 # Plot 2: Expression changes histograms by regulatory class
 cat("Creating expression histograms by regulatory class...\n")
 sig_genes <- classification[classification$is_significant, ]
-pdf("all_genes/plots/02_expression_histograms_all_genes.pdf", width = 14, height = 10)
+pdf("output/plots/02_expression_histograms_all_genes.pdf", width = 14, height = 10)
 p2 <- ggplot(sig_genes, aes(x = log2FoldChange, fill = regulatory_class)) +
   geom_histogram(bins = 40, alpha = 0.8, color = "white") +
   facet_wrap(~regulatory_class, scales = "free_y", ncol = 2) +
@@ -358,7 +358,7 @@ dev.off()
 # Plot 3: Boxplot comparison
 cat("Creating boxplot comparison...\n")
 boxplot_data <- sig_genes[sig_genes$regulatory_class %in% c("TES_direct", "TEAD1_direct", "TES_TEAD1_shared", "Indirect"), ]
-pdf("all_genes/plots/03_expression_boxplots_all_genes.pdf", width = 12, height = 8)
+pdf("output/plots/03_expression_boxplots_all_genes.pdf", width = 12, height = 8)
 p3 <- ggplot(boxplot_data, aes(x = regulatory_class, y = log2FoldChange, fill = regulatory_class)) +
   geom_boxplot(alpha = 0.8, outlier.alpha = 0.6) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "red", linewidth = 1) +
@@ -385,7 +385,7 @@ venn_list <- list(
   "All DE Genes" = rna_results$ensembl_id[rna_results$is_significant]
 )
 
-pdf("all_genes/plots/04_target_overlap_venn_all_genes.pdf", width = 10, height = 8)
+pdf("output/plots/04_target_overlap_venn_all_genes.pdf", width = 10, height = 8)
 grid.newpage()
 venn_plot <- venn.diagram(
   x = venn_list,
@@ -417,7 +417,7 @@ summary_data <- data.frame(
   Type = c("Direct", "Direct", "Direct", "Specific", "Specific", "Indirect", "Unbound")
 )
 
-pdf("all_genes/plots/05_summary_barchart_all_genes.pdf", width = 12, height = 8)
+pdf("output/plots/05_summary_barchart_all_genes.pdf", width = 12, height = 8)
 p5 <- ggplot(summary_data, aes(x = reorder(Category, Count), y = Count, fill = Type)) +
   geom_bar(stat = "identity", alpha = 0.8) +
   labs(title = "Summary of Target Gene Categories (All Genes)",
@@ -438,7 +438,7 @@ dev.off()
 
 # Create pathway enrichment plots
 if(!is.null(tes_go) && nrow(tes_go) > 0) {
-  pdf("all_genes/plots/TES_pathway_enrichment_all_genes.pdf", width = 14, height = 10)
+  pdf("output/plots/TES_pathway_enrichment_all_genes.pdf", width = 14, height = 10)
   print(dotplot(tes_go, showCategory = 20) +
         ggtitle("TES Direct Targets: GO Biological Process Enrichment (All Genes)") +
         theme(plot.title = element_text(size = 16)))
@@ -446,7 +446,7 @@ if(!is.null(tes_go) && nrow(tes_go) > 0) {
 }
 
 if(!is.null(tead1_go) && nrow(tead1_go) > 0) {
-  pdf("all_genes/plots/TEAD1_pathway_enrichment_all_genes.pdf", width = 14, height = 10)
+  pdf("output/plots/TEAD1_pathway_enrichment_all_genes.pdf", width = 14, height = 10)
   print(dotplot(tead1_go, showCategory = 20) +
         ggtitle("TEAD1 Direct Targets: GO Biological Process Enrichment (All Genes)") +
         theme(plot.title = element_text(size = 16)))
@@ -454,7 +454,7 @@ if(!is.null(tead1_go) && nrow(tead1_go) > 0) {
 }
 
 if(!is.null(shared_go) && nrow(shared_go) > 0) {
-  pdf("all_genes/plots/Shared_pathway_enrichment_all_genes.pdf", width = 14, height = 10)
+  pdf("output/plots/Shared_pathway_enrichment_all_genes.pdf", width = 14, height = 10)
   print(dotplot(shared_go, showCategory = 20) +
         ggtitle("TES/TEAD1 Shared Targets: GO Biological Process Enrichment (All Genes)") +
         theme(plot.title = element_text(size = 16)))
@@ -568,7 +568,7 @@ writeLines(c(
   sprintf("  TES pathways: %d", summary_stats$tes_enriched_pathways),
   sprintf("  TEAD1 pathways: %d", summary_stats$tead1_enriched_pathways),
   sprintf("  Shared pathways: %d", summary_stats$shared_enriched_pathways)
-), "all_genes/results/FINAL_ANALYSIS_SUMMARY_ALL_GENES.txt")
+), "output/results/FINAL_ANALYSIS_SUMMARY_ALL_GENES.txt")
 
 # Save R object with all results
 save(rna_results, rna_significant, tes_peaks, tead1_peaks,
@@ -576,14 +576,14 @@ save(rna_results, rna_significant, tes_peaks, tead1_peaks,
      tes_direct_targets, tead1_direct_targets,
      classification, summary_stats,
      tes_go, tead1_go, shared_go,
-     file = "all_genes/results/FINAL_ANALYSIS_RESULTS_ALL_GENES.RData")
+     file = "output/results/FINAL_ANALYSIS_RESULTS_ALL_GENES.RData")
 
-cat("\n✓ Complete analysis results saved to all_genes/results/FINAL_ANALYSIS_RESULTS_ALL_GENES.RData\n")
-cat("✓ Summary report saved to all_genes/results/FINAL_ANALYSIS_SUMMARY_ALL_GENES.txt\n")
+cat("\n✓ Complete analysis results saved to output/results/FINAL_ANALYSIS_RESULTS_ALL_GENES.RData\n")
+cat("✓ Summary report saved to output/results/FINAL_ANALYSIS_SUMMARY_ALL_GENES.txt\n")
 
 cat("\n" , rep("=", 80), "\n")
 cat("INTEGRATIVE ANALYSIS (ALL GENES) COMPLETED SUCCESSFULLY!\n")
 cat("Analysis finished:", as.character(Sys.time()), "\n")
 cat("Results available in: integrative_analysis/results/\n")
-cat("Plots available in: integrative_analysis/all_genes/plots/\n")
+cat("Plots available in: integrative_analysis/output/plots/\n")
 cat(rep("=", 80), "\n")
