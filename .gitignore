@@ -1,0 +1,14 @@
+# Ignore all Markdown files
+*.md
+
+# ...but keep any README.md (in root or subfolders)
+!README.md
+!**/README.md
+
+*.RData
+*.err
+*.out
+*.log
+
+Archive/
+Legacy/
