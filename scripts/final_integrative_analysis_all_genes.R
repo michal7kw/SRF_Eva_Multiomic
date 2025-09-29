@@ -1,7 +1,9 @@
 #!/usr/bin/env Rscript
 #
-# FINAL INTEGRATIVE ANALYSIS: Cut&Tag + RNA-seq
+# FINAL INTEGRATIVE ANALYSIS: Cut&Tag + RNA-seq (ALL GENES VERSION)
 # Comprehensive analysis of TES/TEAD1 transcriptional regulatory networks
+# Author: Claude Code Analysis Pipeline
+#
 
 # Load required libraries
 suppressPackageStartupMessages({
@@ -25,13 +27,13 @@ setwd("/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/integrative_analysis
 
 # Ensure all output directories exist
 dir.create("data", showWarnings = FALSE, recursive = TRUE)
-dir.create("only_degs/results/direct_targets", showWarnings = FALSE, recursive = TRUE)
-dir.create("only_degs/results/pathway_analysis", showWarnings = FALSE, recursive = TRUE)
-dir.create("only_degs/results/regulatory_networks", showWarnings = FALSE, recursive = TRUE)
-dir.create("only_degs/plots", showWarnings = FALSE, recursive = TRUE)
+dir.create("all_genes/results/direct_targets", showWarnings = FALSE, recursive = TRUE)
+dir.create("all_genes/results/pathway_analysis", showWarnings = FALSE, recursive = TRUE)
+dir.create("all_genes/results/regulatory_networks", showWarnings = FALSE, recursive = TRUE)
+dir.create("all_genes/plots", showWarnings = FALSE, recursive = TRUE)
 dir.create("logs", showWarnings = FALSE, recursive = TRUE)
 
-cat("=== FINAL INTEGRATIVE ANALYSIS: Cut&Tag + RNA-seq ===\n")
+cat("=== FINAL INTEGRATIVE ANALYSIS: Cut&Tag + RNA-seq (ALL GENES) ===\n")
 cat("Analysis started:", as.character(Sys.time()), "\n\n")
 
 # =============================================================================
@@ -40,22 +42,17 @@ cat("Analysis started:", as.character(Sys.time()), "\n\n")
 
 cat("=== PHASE 1: Data Loading and Processing ===\n")
 
-# Load RNA-seq differential expression data
+# Load RNA-seq differential expression data (ALL GENES)
 cat("Loading RNA-seq differential expression data...\n")
-rna_all <- read.delim("../SRF_Eva_RNA/results/05_deseq2/deseq2_results_TES_vs_GFP.txt",
-                     stringsAsFactors = FALSE)
-rna_significant_list <- read.delim("../SRF_Eva_RNA/results/05_deseq2/significant_genes_TES_vs_GFP.txt",
-                                  stringsAsFactors = FALSE, header = FALSE)
-colnames(rna_significant_list) <- "gene_symbol"
-
-# Filter to use only significant DEGs for analysis
-rna_all$is_significant <- !is.na(rna_all$padj) & rna_all$padj < 0.05
-rna_results <- rna_all[rna_all$is_significant, ]
+rna_results <- read.delim("../SRF_Eva_RNA/results/05_deseq2/deseq2_results_TES_vs_GFP.txt",
+                         stringsAsFactors = FALSE)
+rna_significant <- read.delim("../SRF_Eva_RNA/results/05_deseq2/significant_genes_TES_vs_GFP.txt",
+                            stringsAsFactors = FALSE, header = FALSE)
+colnames(rna_significant) <- "gene_symbol"
 
 cat(sprintf("✓ RNA-seq data loaded: %d total genes, %d significant DE genes\n",
-            nrow(rna_all), nrow(rna_results)))
-cat(sprintf("✓ Using only significant DEGs for integrative analysis (%d genes)\n",
-            nrow(rna_results)))
+            nrow(rna_results), nrow(rna_significant)))
+cat("✓ Using ALL genes for comprehensive analysis\n")
 
 # Load Cut&Tag peak annotation data
 cat("Loading Cut&Tag peak annotation data...\n")
@@ -72,7 +69,7 @@ cat("Processing gene IDs for integration...\n")
 
 # Clean Ensembl IDs (remove version numbers)
 rna_results$ensembl_id <- gsub("\\..*", "", rna_results$gene_id)
-# Note: All genes in rna_results are already significant by definition
+rna_results$is_significant <- !is.na(rna_results$padj) & rna_results$padj < 0.05
 
 # Gene ID conversion functions
 convert_ensembl_to_symbol <- function(ensembl_ids) {
@@ -113,9 +110,9 @@ cat(sprintf("✓ TEAD1 peaks: %d unique Entrez genes, %d converted to Ensembl (%
             100 * sum(!is.na(tead1_peaks$ensembl_id)) / nrow(tead1_peaks)))
 
 # Save processed data
-save(rna_results, rna_significant_list, tes_peaks, tead1_peaks,
-     file = "data/integrated_data.RData")
-cat("✓ Processed data saved to data/integrated_data.RData\n\n")
+save(rna_results, rna_significant, tes_peaks, tead1_peaks,
+     file = "data/integrated_data_all_genes.RData")
+cat("✓ Processed data saved to data/integrated_data_all_genes.RData\n\n")
 
 # =============================================================================
 # PHASE 2: PEAK-GENE ASSOCIATION ANALYSIS
@@ -174,9 +171,8 @@ rna_results$tes_bound <- rna_results$ensembl_id %in% tes_bound_genes
 rna_results$tead1_bound <- rna_results$ensembl_id %in% tead1_bound_genes
 
 # Identify direct targets (bound + differentially expressed)
-# Note: All genes are already significant, so we only need binding criteria
-tes_direct_targets <- rna_results[rna_results$tes_bound, ]
-tead1_direct_targets <- rna_results[rna_results$tead1_bound, ]
+tes_direct_targets <- rna_results[rna_results$tes_bound & rna_results$is_significant, ]
+tead1_direct_targets <- rna_results[rna_results$tead1_bound & rna_results$is_significant, ]
 
 # Calculate overlaps and specific targets
 shared_targets <- intersect(tes_direct_targets$ensembl_id, tead1_direct_targets$ensembl_id)
@@ -209,10 +205,10 @@ tes_regulation <- analyze_regulation_mode(tes_direct_targets, "TES")
 tead1_regulation <- analyze_regulation_mode(tead1_direct_targets, "TEAD1")
 
 # Save direct target lists
-write.csv(tes_direct_targets, "only_degs/results/direct_targets/TES_direct_targets.csv", row.names = FALSE)
-write.csv(tead1_direct_targets, "only_degs/results/direct_targets/TEAD1_direct_targets.csv", row.names = FALSE)
-write.csv(tes_specific, "only_degs/results/direct_targets/TES_specific_targets.csv", row.names = FALSE)
-write.csv(tead1_specific, "only_degs/results/direct_targets/TEAD1_specific_targets.csv", row.names = FALSE)
+write.csv(tes_direct_targets, "all_genes/results/direct_targets/TES_direct_targets_all_genes.csv", row.names = FALSE)
+write.csv(tead1_direct_targets, "all_genes/results/direct_targets/TEAD1_direct_targets_all_genes.csv", row.names = FALSE)
+write.csv(tes_specific, "all_genes/results/direct_targets/TES_specific_targets_all_genes.csv", row.names = FALSE)
+write.csv(tead1_specific, "all_genes/results/direct_targets/TEAD1_specific_targets_all_genes.csv", row.names = FALSE)
 cat("✓ Direct target lists saved\n\n")
 
 # =============================================================================
@@ -222,7 +218,6 @@ cat("✓ Direct target lists saved\n\n")
 cat("=== PHASE 4: Comprehensive Gene Classification ===\n")
 
 # Create comprehensive classification table
-# Note: Only working with significant DEGs, so all genes are DE by definition
 classification <- data.frame(
   gene_id = rna_results$ensembl_id,
   gene_symbol = rna_results$gene_symbol,
@@ -230,14 +225,16 @@ classification <- data.frame(
   padj = rna_results$padj,
   tes_bound = rna_results$tes_bound,
   tead1_bound = rna_results$tead1_bound,
+  is_significant = rna_results$is_significant,
   stringsAsFactors = FALSE
 )
 
-# Assign regulatory classes (all genes are significant DE)
-classification$regulatory_class <- "Indirect"  # Default: DE but not bound
-classification$regulatory_class[classification$tes_bound & !classification$tead1_bound] <- "TES_direct"
-classification$regulatory_class[classification$tead1_bound & !classification$tes_bound] <- "TEAD1_direct"
-classification$regulatory_class[classification$tes_bound & classification$tead1_bound] <- "TES_TEAD1_shared"
+# Assign regulatory classes
+classification$regulatory_class <- "Unbound"
+classification$regulatory_class[classification$tes_bound & classification$is_significant] <- "TES_direct"
+classification$regulatory_class[classification$tead1_bound & classification$is_significant] <- "TEAD1_direct"
+classification$regulatory_class[classification$tes_bound & classification$tead1_bound & classification$is_significant] <- "TES_TEAD1_shared"
+classification$regulatory_class[!classification$tes_bound & !classification$tead1_bound & classification$is_significant] <- "Indirect"
 
 # Report classification statistics
 class_summary <- table(classification$regulatory_class)
@@ -246,7 +243,7 @@ print(class_summary)
 cat("\n")
 
 # Save classification table
-write.csv(classification, "only_degs/results/regulatory_networks/gene_classification.csv", row.names = FALSE)
+write.csv(classification, "all_genes/results/regulatory_networks/gene_classification_all_genes.csv", row.names = FALSE)
 cat("✓ Gene classification table saved\n\n")
 
 # =============================================================================
@@ -281,7 +278,7 @@ perform_enrichment <- function(gene_list, background, analysis_name) {
 
   if(nrow(ego) > 0) {
     cat(sprintf("✓ %s: %d enriched pathways found\n", analysis_name, nrow(ego)))
-    write.csv(ego@result, sprintf("only_degs/results/pathway_analysis/%s_GO_enrichment.csv", analysis_name), row.names = FALSE)
+    write.csv(ego@result, sprintf("all_genes/results/pathway_analysis/%s_GO_enrichment_all_genes.csv", analysis_name), row.names = FALSE)
     return(ego)
   } else {
     cat(sprintf("✗ %s: no enriched pathways found\n", analysis_name))
@@ -289,10 +286,10 @@ perform_enrichment <- function(gene_list, background, analysis_name) {
   }
 }
 
-# Define background gene set (all significant DEGs with symbols)
+# Define background gene set (all genes with symbols)
 background_genes <- rna_results$ensembl_id[!is.na(rna_results$gene_symbol)]
 
-cat(sprintf("Background for pathway analysis: %d significant DEGs with gene symbols\n", length(background_genes)))
+cat(sprintf("Background for pathway analysis: %d genes with gene symbols\n", length(background_genes)))
 
 # Run pathway enrichment for different gene sets
 tes_go <- perform_enrichment(tes_direct_targets$ensembl_id, background_genes, "TES_direct")
@@ -318,12 +315,12 @@ pie_data <- data.frame(
   percentage = round(100 * as.numeric(class_counts) / sum(class_counts), 1)
 )
 
-pdf("only_degs/plots/01_gene_classification_pie.pdf", width = 10, height = 8)
+pdf("all_genes/plots/01_gene_classification_pie_all_genes.pdf", width = 10, height = 8)
 p1 <- ggplot(pie_data, aes(x = "", y = count, fill = class)) +
   geom_bar(stat = "identity", width = 1) +
   coord_polar("y", start = 0) +
-  labs(title = "Gene Classification: Direct vs Indirect Regulation",
-       subtitle = sprintf("Significant DEGs analyzed: %d", nrow(classification)),
+  labs(title = "Gene Classification: Binding vs Expression (All Genes)",
+       subtitle = sprintf("Total genes analyzed: %d", nrow(classification)),
        fill = "Regulatory Class") +
   theme_void() +
   theme(plot.title = element_text(size = 18, hjust = 0.5, face = "bold"),
@@ -338,12 +335,12 @@ dev.off()
 
 # Plot 2: Expression changes histograms by regulatory class
 cat("Creating expression histograms by regulatory class...\n")
-sig_genes <- classification  # All genes are significant DEGs
-pdf("only_degs/plots/02_expression_histograms.pdf", width = 14, height = 10)
+sig_genes <- classification[classification$is_significant, ]
+pdf("all_genes/plots/02_expression_histograms_all_genes.pdf", width = 14, height = 10)
 p2 <- ggplot(sig_genes, aes(x = log2FoldChange, fill = regulatory_class)) +
   geom_histogram(bins = 40, alpha = 0.8, color = "white") +
   facet_wrap(~regulatory_class, scales = "free_y", ncol = 2) +
-  labs(title = "Expression Changes by Regulatory Class",
+  labs(title = "Expression Changes by Regulatory Class (All Genes)",
        subtitle = "Distribution of Log2 Fold Changes (TES vs GFP)",
        x = "Log2 Fold Change (TES vs GFP)",
        y = "Number of Genes") +
@@ -360,12 +357,12 @@ dev.off()
 
 # Plot 3: Boxplot comparison
 cat("Creating boxplot comparison...\n")
-boxplot_data <- sig_genes  # All regulatory classes are relevant
-pdf("only_degs/plots/03_expression_boxplots.pdf", width = 12, height = 8)
+boxplot_data <- sig_genes[sig_genes$regulatory_class %in% c("TES_direct", "TEAD1_direct", "TES_TEAD1_shared", "Indirect"), ]
+pdf("all_genes/plots/03_expression_boxplots_all_genes.pdf", width = 12, height = 8)
 p3 <- ggplot(boxplot_data, aes(x = regulatory_class, y = log2FoldChange, fill = regulatory_class)) +
   geom_boxplot(alpha = 0.8, outlier.alpha = 0.6) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "red", size = 1) +
-  labs(title = "Expression Changes by Regulatory Mechanism",
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red", linewidth = 1) +
+  labs(title = "Expression Changes by Regulatory Mechanism (All Genes)",
        subtitle = "Comparison of direct vs indirect regulation",
        x = "Regulatory Class",
        y = "Log2 Fold Change (TES vs GFP)") +
@@ -385,10 +382,10 @@ cat("Creating Venn diagram...\n")
 venn_list <- list(
   "TES Direct" = tes_direct_targets$ensembl_id,
   "TEAD1 Direct" = tead1_direct_targets$ensembl_id,
-  "All Significant DEGs" = rna_results$ensembl_id
+  "All DE Genes" = rna_results$ensembl_id[rna_results$is_significant]
 )
 
-pdf("only_degs/plots/04_target_overlap_venn.pdf", width = 10, height = 8)
+pdf("all_genes/plots/04_target_overlap_venn_all_genes.pdf", width = 10, height = 8)
 grid.newpage()
 venn_plot <- venn.diagram(
   x = venn_list,
@@ -403,7 +400,7 @@ venn_plot <- venn.diagram(
   cat.cex = 1.4,
   cat.fontfamily = "serif",
   cat.col = c("#E31A1C", "#1F78B4", "#33A02C"),
-  main = "Overlap: Direct Targets vs All Significant DEGs",
+  main = "Overlap: Direct Targets vs All DE Genes",
   main.cex = 1.8,
   main.fontfamily = "serif"
 )
@@ -413,16 +410,17 @@ dev.off()
 # Plot 5: Summary bar chart
 cat("Creating summary bar chart...\n")
 summary_data <- data.frame(
-  Category = c("TES Direct", "TEAD1 Direct", "Shared", "TES Specific", "TEAD1 Specific", "Indirect"),
+  Category = c("TES Direct", "TEAD1 Direct", "Shared", "TES Specific", "TEAD1 Specific", "Indirect", "Unbound"),
   Count = c(nrow(tes_direct_targets), nrow(tead1_direct_targets), length(shared_targets),
-            nrow(tes_specific), nrow(tead1_specific), sum(classification$regulatory_class == "Indirect")),
-  Type = c("Direct", "Direct", "Direct", "Specific", "Specific", "Indirect")
+            nrow(tes_specific), nrow(tead1_specific), sum(classification$regulatory_class == "Indirect"),
+            sum(classification$regulatory_class == "Unbound")),
+  Type = c("Direct", "Direct", "Direct", "Specific", "Specific", "Indirect", "Unbound")
 )
 
-pdf("only_degs/plots/05_summary_barchart.pdf", width = 12, height = 8)
+pdf("all_genes/plots/05_summary_barchart_all_genes.pdf", width = 12, height = 8)
 p5 <- ggplot(summary_data, aes(x = reorder(Category, Count), y = Count, fill = Type)) +
   geom_bar(stat = "identity", alpha = 0.8) +
-  labs(title = "Summary of Target Gene Categories",
+  labs(title = "Summary of Target Gene Categories (All Genes)",
        subtitle = "Number of genes in each regulatory class",
        x = "Regulatory Category",
        y = "Number of Genes") +
@@ -440,38 +438,38 @@ dev.off()
 
 # Create pathway enrichment plots
 if(!is.null(tes_go) && nrow(tes_go) > 0) {
-  pdf("only_degs/plots/TES_pathway_enrichment.pdf", width = 14, height = 10)
+  pdf("all_genes/plots/TES_pathway_enrichment_all_genes.pdf", width = 14, height = 10)
   print(dotplot(tes_go, showCategory = 20) +
-        ggtitle("TES Direct Targets: GO Biological Process Enrichment") +
+        ggtitle("TES Direct Targets: GO Biological Process Enrichment (All Genes)") +
         theme(plot.title = element_text(size = 16)))
   dev.off()
 }
 
 if(!is.null(tead1_go) && nrow(tead1_go) > 0) {
-  pdf("only_degs/plots/TEAD1_pathway_enrichment.pdf", width = 14, height = 10)
+  pdf("all_genes/plots/TEAD1_pathway_enrichment_all_genes.pdf", width = 14, height = 10)
   print(dotplot(tead1_go, showCategory = 20) +
-        ggtitle("TEAD1 Direct Targets: GO Biological Process Enrichment") +
+        ggtitle("TEAD1 Direct Targets: GO Biological Process Enrichment (All Genes)") +
         theme(plot.title = element_text(size = 16)))
   dev.off()
 }
 
 if(!is.null(shared_go) && nrow(shared_go) > 0) {
-  pdf("only_degs/plots/Shared_pathway_enrichment.pdf", width = 14, height = 10)
+  pdf("all_genes/plots/Shared_pathway_enrichment_all_genes.pdf", width = 14, height = 10)
   print(dotplot(shared_go, showCategory = 20) +
-        ggtitle("TES/TEAD1 Shared Targets: GO Biological Process Enrichment") +
+        ggtitle("TES/TEAD1 Shared Targets: GO Biological Process Enrichment (All Genes)") +
         theme(plot.title = element_text(size = 16)))
   dev.off()
 }
 
 cat("✓ Individual visualization plots created:\n")
-cat("  - 01_gene_classification_pie.pdf\n")
-cat("  - 02_expression_histograms.pdf\n")
-cat("  - 03_expression_boxplots.pdf\n")
-cat("  - 04_target_overlap_venn.pdf\n")
-cat("  - 05_summary_barchart.pdf\n")
-cat("  - TES_pathway_enrichment.pdf (if enrichment found)\n")
-cat("  - TEAD1_pathway_enrichment.pdf (if enrichment found)\n")
-cat("  - Shared_pathway_enrichment.pdf (if enrichment found)\n\n")
+cat("  - 01_gene_classification_pie_all_genes.pdf\n")
+cat("  - 02_expression_histograms_all_genes.pdf\n")
+cat("  - 03_expression_boxplots_all_genes.pdf\n")
+cat("  - 04_target_overlap_venn_all_genes.pdf\n")
+cat("  - 05_summary_barchart_all_genes.pdf\n")
+cat("  - TES_pathway_enrichment_all_genes.pdf (if enrichment found)\n")
+cat("  - TEAD1_pathway_enrichment_all_genes.pdf (if enrichment found)\n")
+cat("  - Shared_pathway_enrichment_all_genes.pdf (if enrichment found)\n\n")
 
 # =============================================================================
 # PHASE 7: COMPREHENSIVE SUMMARY REPORT
@@ -484,9 +482,9 @@ summary_stats <- list(
   analysis_timestamp = as.character(Sys.time()),
 
   # Data overview
-  total_genes_in_full_dataset = nrow(rna_all),
-  significant_de_genes_analyzed = nrow(rna_results),
+  total_genes_analyzed = nrow(rna_results),
   genes_with_symbols = sum(!is.na(rna_results$gene_symbol)),
+  significant_de_genes = sum(rna_results$is_significant),
 
   # Peak statistics
   tes_total_peaks = nrow(tes_peaks),
@@ -510,8 +508,9 @@ summary_stats <- list(
   tead1_upregulated = tead1_regulation["up"],
   tead1_downregulated = tead1_regulation["down"],
 
-  # Classification (all genes are DE, so no "unbound" category)
+  # Classification
   indirect_targets = sum(classification$regulatory_class == "Indirect"),
+  unbound_genes = sum(classification$regulatory_class == "Unbound"),
 
   # Pathway enrichment
   tes_enriched_pathways = ifelse(!is.null(tes_go), nrow(tes_go), 0),
@@ -520,23 +519,24 @@ summary_stats <- list(
 )
 
 # Print summary
-cat("FINAL ANALYSIS SUMMARY:\n")
-cat("=======================\n")
+cat("FINAL ANALYSIS SUMMARY (ALL GENES):\n")
+cat("===================================\n")
 for(name in names(summary_stats)) {
   cat(sprintf("%-25s: %s\n", name, summary_stats[[name]]))
 }
 
 # Save detailed summary
 writeLines(c(
-  "INTEGRATIVE ANALYSIS SUMMARY REPORT (SIGNIFICANT DEGs ONLY)",
-  "===========================================================",
+  "INTEGRATIVE ANALYSIS SUMMARY REPORT (ALL GENES)",
+  "===============================================",
   paste("Generated:", summary_stats$analysis_timestamp),
   "",
   "DATA OVERVIEW:",
-  sprintf("  Total genes in full dataset: %d", summary_stats$total_genes_in_full_dataset),
-  sprintf("  Significant DE genes analyzed: %d", summary_stats$significant_de_genes_analyzed),
+  sprintf("  Total genes analyzed: %d", summary_stats$total_genes_analyzed),
   sprintf("  Genes with symbols: %d (%.1f%%)", summary_stats$genes_with_symbols,
-          100 * summary_stats$genes_with_symbols / summary_stats$significant_de_genes_analyzed),
+          100 * summary_stats$genes_with_symbols / summary_stats$total_genes_analyzed),
+  sprintf("  Significant DE genes: %d (%.1f%%)", summary_stats$significant_de_genes,
+          100 * summary_stats$significant_de_genes / summary_stats$total_genes_analyzed),
   "",
   "BINDING ANALYSIS:",
   sprintf("  TES peaks: %d total, %d with Ensembl ID, %d bound genes",
@@ -559,26 +559,31 @@ writeLines(c(
           summary_stats$tead1_upregulated, summary_stats$tead1_downregulated,
           100 * summary_stats$tead1_upregulated / (summary_stats$tead1_upregulated + summary_stats$tead1_downregulated)),
   "",
+  "GENE CLASSIFICATION:",
+  sprintf("  Direct targets: %d", summary_stats$tes_direct_targets + summary_stats$tead1_direct_targets - summary_stats$shared_targets),
+  sprintf("  Indirect targets: %d", summary_stats$indirect_targets),
+  sprintf("  Unbound genes: %d", summary_stats$unbound_genes),
+  "",
   "PATHWAY ENRICHMENT:",
   sprintf("  TES pathways: %d", summary_stats$tes_enriched_pathways),
   sprintf("  TEAD1 pathways: %d", summary_stats$tead1_enriched_pathways),
   sprintf("  Shared pathways: %d", summary_stats$shared_enriched_pathways)
-), "only_degs/results/FINAL_ANALYSIS_SUMMARY.txt")
+), "all_genes/results/FINAL_ANALYSIS_SUMMARY_ALL_GENES.txt")
 
 # Save R object with all results
-save(rna_results, rna_all, rna_significant_list, tes_peaks, tead1_peaks,
+save(rna_results, rna_significant, tes_peaks, tead1_peaks,
      tes_gene_mapping, tead1_gene_mapping,
      tes_direct_targets, tead1_direct_targets,
      classification, summary_stats,
      tes_go, tead1_go, shared_go,
-     file = "only_degs/results/FINAL_ANALYSIS_RESULTS.RData")
+     file = "all_genes/results/FINAL_ANALYSIS_RESULTS_ALL_GENES.RData")
 
-cat("\n✓ Complete analysis results saved to only_degs/results/FINAL_ANALYSIS_RESULTS.RData\n")
-cat("✓ Summary report saved to only_degs/results/FINAL_ANALYSIS_SUMMARY.txt\n")
+cat("\n✓ Complete analysis results saved to all_genes/results/FINAL_ANALYSIS_RESULTS_ALL_GENES.RData\n")
+cat("✓ Summary report saved to all_genes/results/FINAL_ANALYSIS_SUMMARY_ALL_GENES.txt\n")
 
 cat("\n" , rep("=", 80), "\n")
-cat("INTEGRATIVE ANALYSIS COMPLETED SUCCESSFULLY!\n")
+cat("INTEGRATIVE ANALYSIS (ALL GENES) COMPLETED SUCCESSFULLY!\n")
 cat("Analysis finished:", as.character(Sys.time()), "\n")
 cat("Results available in: integrative_analysis/results/\n")
-cat("Plots available in: integrative_analysis/only_degs/plots/\n")
+cat("Plots available in: integrative_analysis/all_genes/plots/\n")
 cat(rep("=", 80), "\n")

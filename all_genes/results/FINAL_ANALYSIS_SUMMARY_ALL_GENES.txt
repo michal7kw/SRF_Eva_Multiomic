@@ -1,6 +1,6 @@
-INTEGRATIVE ANALYSIS SUMMARY REPORT
-===================================
-Generated: 2025-09-29 15:01:36.342222
+INTEGRATIVE ANALYSIS SUMMARY REPORT (ALL GENES)
+===============================================
+Generated: 2025-09-29 17:02:18.465406
 
 DATA OVERVIEW:
   Total genes analyzed: 33968
@@ -21,6 +21,11 @@ DIRECT TARGETS:
 REGULATORY MODES:
   TES: 1141 upregulated, 1542 downregulated (42.5% activation)
   TEAD1: 1486 upregulated, 2056 downregulated (42.0% activation)
+
+GENE CLASSIFICATION:
+  Direct targets: 4138
+  Indirect targets: 8232
+  Unbound genes: 21598
 
 PATHWAY ENRICHMENT:
   TES pathways: 550
