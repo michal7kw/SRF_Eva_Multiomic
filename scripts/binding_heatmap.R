@@ -174,22 +174,40 @@ cat("\nSignal matrix created:\n")
 cat("  Dimensions:", nrow(signal_matrix), "genes x", ncol(signal_matrix), "samples\n")
 cat("  Value range:", min(signal_matrix), "to", max(signal_matrix), "\n")
 cat("  Mean signal:", mean(signal_matrix), "\n")
+cat("  Median signal:", median(signal_matrix), "\n")
+cat("  Genes with zero signal in all samples:", sum(rowSums(signal_matrix) == 0), "\n")
+cat("  Sample correlations (Pearson):\n")
+cor_matrix <- cor(signal_matrix, method = "pearson")
+print(round(cor_matrix, 3))
 
 # ===================== Prepare Data for Heatmap =====================
 
 cat("\nPreparing data for heatmap...\n")
 
+# Check for genes with zero variance (will cause issues with z-score)
+row_vars <- apply(signal_matrix, 1, var)
+zero_var_genes <- sum(row_vars == 0 | is.na(row_vars))
+if (zero_var_genes > 0) {
+  cat("WARNING:", zero_var_genes, "genes have zero variance across samples\n")
+  cat("These genes will be set to zero after scaling\n")
+}
+
 # Z-score normalization (center and scale by row)
+# This shows relative binding strength: each gene's pattern across samples
 signal_matrix_scaled <- t(scale(t(signal_matrix)))
 
 cat("After scaling:\n")
 cat("  Range:", min(signal_matrix_scaled, na.rm = TRUE), "to",
     max(signal_matrix_scaled, na.rm = TRUE), "\n")
 cat("  Mean:", mean(signal_matrix_scaled, na.rm = TRUE), "\n")
+cat("  SD:", sd(signal_matrix_scaled, na.rm = TRUE), "\n")
 
 # Handle any NA or Inf values (genes with no variance)
+# These occur when a gene has identical signal across all samples
 signal_matrix_scaled[is.na(signal_matrix_scaled)] <- 0
 signal_matrix_scaled[is.infinite(signal_matrix_scaled)] <- 0
+
+cat("  Genes with zero variance:", sum(row_vars == 0, na.rm = TRUE), "\n")
 
 # Create annotation data frame
 annotation_df <- data.frame(
@@ -318,22 +336,32 @@ cat("  Saved:", file.path(OUTPUT_DIR, "promoter_binding_heatmap_with_fc.pdf"), "
 
 cat("\nSaving binding signal matrix...\n")
 
-# Create output data frame
-output_df <- data.frame(
+# Create output data frame with raw signals
+output_df_raw <- data.frame(
   gene = rownames(signal_matrix),
   regulation = annotation_df$regulation,
   log2FoldChange = annotation_df$log2FC,
   signal_matrix,
+  check.names = FALSE,
+  stringsAsFactors = FALSE
+)
+
+# Create data frame with scaled signals
+output_df_scaled <- data.frame(
+  gene = rownames(signal_matrix_scaled),
+  regulation = annotation_df$regulation,
+  log2FoldChange = annotation_df$log2FC,
   signal_matrix_scaled,
   check.names = FALSE,
   stringsAsFactors = FALSE
 )
 
-# Rename scaled columns
-colnames(output_df)[grep("TES_", colnames(output_df))] <-
-  paste0(colnames(output_df)[grep("TES_", colnames(output_df))], "_scaled")
-colnames(output_df)[grep("TEAD1_", colnames(output_df))] <-
-  paste0(colnames(output_df)[grep("TEAD1_", colnames(output_df))], "_scaled")
+# Rename scaled columns to avoid confusion
+colnames(output_df_scaled)[4:ncol(output_df_scaled)] <-
+  paste0(colnames(output_df_scaled)[4:ncol(output_df_scaled)], "_zscore")
+
+# Combine both raw and scaled
+output_df <- cbind(output_df_raw, output_df_scaled[, 4:ncol(output_df_scaled)])
 
 write.table(output_df,
             file.path(OUTPUT_DIR, "promoter_binding_signals.txt"),
@@ -347,19 +375,60 @@ cat("\n=== Analysis Summary ===\n")
 cat("Total genes analyzed:", nrow(signal_matrix), "\n")
 cat("UP-regulated:", sum(annotation_df$regulation == "UP"), "\n")
 cat("DOWN-regulated:", sum(annotation_df$regulation == "DOWN"), "\n")
-cat("\nMean promoter binding signal (CPM):\n")
+
+cat("\n--- Mean promoter binding signal (CPM) ---\n")
 for (i in 1:ncol(signal_matrix)) {
-  cat(sprintf("  %s: %.2f\n", colnames(signal_matrix)[i], mean(signal_matrix[,i])))
+  cat(sprintf("  %s: %.2f (SD: %.2f)\n",
+              colnames(signal_matrix)[i],
+              mean(signal_matrix[,i]),
+              sd(signal_matrix[,i])))
 }
 
-cat("\nTop 10 genes with highest TES binding:\n")
+cat("\n--- Replicate concordance ---\n")
+tes_cor <- cor(signal_matrix[, 1:3])
+tead1_cor <- cor(signal_matrix[, 4:6])
+cat(sprintf("  TES replicates (mean r): %.3f\n", mean(tes_cor[upper.tri(tes_cor)])))
+cat(sprintf("  TEAD1 replicates (mean r): %.3f\n", mean(tead1_cor[upper.tri(tead1_cor)])))
+
+cat("\n--- Top 10 genes with highest TES binding ---\n")
 tes_mean <- rowMeans(signal_matrix[, 1:3])
 top_tes <- head(sort(tes_mean, decreasing = TRUE), 10)
 for (i in 1:length(top_tes)) {
   gene <- names(top_tes)[i]
   reg <- annotation_df$regulation[annotation_df$gene == gene]
-  cat(sprintf("  %d. %s (%s): %.2f CPM\n", i, gene, reg, top_tes[i]))
+  fc <- annotation_df$log2FC[annotation_df$gene == gene]
+  cat(sprintf("  %d. %s (%s, log2FC=%.2f): %.2f CPM\n",
+              i, gene, reg, fc, top_tes[i]))
 }
 
-cat("\nAnalysis complete!\n")
+cat("\n--- Top 10 genes with highest TEAD1 binding ---\n")
+tead1_mean <- rowMeans(signal_matrix[, 4:6])
+top_tead1 <- head(sort(tead1_mean, decreasing = TRUE), 10)
+for (i in 1:length(top_tead1)) {
+  gene <- names(top_tead1)[i]
+  reg <- annotation_df$regulation[annotation_df$gene == gene]
+  fc <- annotation_df$log2FC[annotation_df$gene == gene]
+  cat(sprintf("  %d. %s (%s, log2FC=%.2f): %.2f CPM\n",
+              i, gene, reg, fc, top_tead1[i]))
+}
+
+cat("\n--- Binding vs Expression correlation ---\n")
+tes_mean_all <- rowMeans(signal_matrix[, 1:3])
+tead1_mean_all <- rowMeans(signal_matrix[, 4:6])
+tes_expr_cor <- cor(tes_mean_all, annotation_df$log2FC, method = "spearman")
+tead1_expr_cor <- cor(tead1_mean_all, annotation_df$log2FC, method = "spearman")
+cat(sprintf("  TES binding vs log2FC (Spearman rho): %.3f\n", tes_expr_cor))
+cat(sprintf("  TEAD1 binding vs log2FC (Spearman rho): %.3f\n", tead1_expr_cor))
+
+cat("\n--- Differential binding between conditions ---\n")
+up_genes <- annotation_df$regulation == "UP"
+down_genes <- annotation_df$regulation == "DOWN"
+cat(sprintf("  Mean TES binding in UP genes: %.2f CPM\n", mean(tes_mean_all[up_genes])))
+cat(sprintf("  Mean TES binding in DOWN genes: %.2f CPM\n", mean(tes_mean_all[down_genes])))
+cat(sprintf("  Mean TEAD1 binding in UP genes: %.2f CPM\n", mean(tead1_mean_all[up_genes])))
+cat(sprintf("  Mean TEAD1 binding in DOWN genes: %.2f CPM\n", mean(tead1_mean_all[down_genes])))
+
+cat("\n==================================================\n")
+cat("Analysis complete!\n")
 cat("Results saved to:", OUTPUT_DIR, "\n")
+cat("==================================================\n")
