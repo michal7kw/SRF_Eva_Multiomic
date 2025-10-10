@@ -2,7 +2,6 @@
 #
 # FINAL INTEGRATIVE ANALYSIS: Cut&Tag + RNA-seq (ALL GENES VERSION)
 # Comprehensive analysis of TES/TEAD1 transcriptional regulatory networks
-# Author: Claude Code Analysis Pipeline
 #
 
 # Load required libraries
@@ -56,9 +55,9 @@ cat("✓ Using ALL genes for comprehensive analysis\n")
 
 # Load Cut&Tag peak annotation data
 cat("Loading Cut&Tag peak annotation data...\n")
-tes_peaks <- read.csv("../SRF_Eva/results/07_analysis_narrow/TES_peaks_annotated.csv",
+tes_peaks <- read.csv("../SRF_Eva_CUTandTAG/results/07_analysis_narrow/TES_peaks_annotated.csv",
                      stringsAsFactors = FALSE)
-tead1_peaks <- read.csv("../SRF_Eva/results/07_analysis_narrow/TEAD1_peaks_annotated.csv",
+tead1_peaks <- read.csv("../SRF_Eva_CUTandTAG/results/07_analysis_narrow/TEAD1_peaks_annotated.csv",
                        stringsAsFactors = FALSE)
 
 cat(sprintf("✓ Cut&Tag data loaded: %d TES peaks, %d TEAD1 peaks\n",
