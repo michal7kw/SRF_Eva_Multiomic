@@ -4,6 +4,7 @@
 # Uses fgsea package for proper ranking-based enrichment
 # Analyzes ALL genes ranked by fold change (not just significant ones)
 
+# %%
 suppressPackageStartupMessages({
   library(fgsea)
   library(dplyr)
@@ -30,6 +31,7 @@ dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 cat("=== PHASE 1: Creating Ranked Gene List ===\n")
 
+# %%
 # Load complete RNA-seq results (ALL genes, not just significant)
 rna_all <- read.delim("../SRF_Eva_RNA/results/05_deseq2/deseq2_results_TES_vs_GFP.txt",
                       stringsAsFactors = FALSE)
@@ -39,6 +41,8 @@ cat(sprintf("✓ Loaded %d genes from RNA-seq\n", nrow(rna_all)))
 # Clean and prepare for ranking
 rna_all$ensembl_id <- gsub("\\..*", "", rna_all$gene_id)
 
+head(rna_all)
+
 # Get gene symbols
 rna_all$gene_symbol <- mapIds(org.Hs.eg.db,
                                keys = rna_all$ensembl_id,
@@ -46,6 +50,9 @@ rna_all$gene_symbol <- mapIds(org.Hs.eg.db,
                                keytype = "ENSEMBL",
                                multiVals = "first")
 
+head(rna_all)
+
+# %%
 # Remove genes without symbols or log2FC
 rna_ranked <- rna_all %>%
   filter(!is.na(gene_symbol) & !is.na(log2FoldChange)) %>%
@@ -65,9 +72,12 @@ cat(sprintf("  Most upregulated: %s (%.2f)\n", names(gene_ranks)[1], gene_ranks[
 cat(sprintf("  Most downregulated: %s (%.2f)\n\n", names(gene_ranks)[length(gene_ranks)],
             gene_ranks[length(gene_ranks)]))
 
+# %%
+
 # =============================================================================
 # PHASE 2: PREPARE GENE SETS FOR GSEA
 # =============================================================================
+
 
 cat("=== PHASE 2: Preparing Gene Sets ===\n")
 
@@ -130,6 +140,8 @@ cat(sprintf("✓ Total gene sets for GSEA: %d\n", length(all_gene_sets)))
 cat(sprintf("  - GO BP: %d\n", length(go_gene_sets)))
 cat(sprintf("  - Custom cancer sets: %d\n\n", length(cancer_gene_sets)))
 
+# %%
+
 # =============================================================================
 # PHASE 3: RUN FGSEA
 # =============================================================================
@@ -157,6 +169,8 @@ cat(sprintf("  Total gene sets tested: %d\n", nrow(fgsea_results)))
 cat(sprintf("  Significant gene sets (FDR < 0.05): %d\n", nrow(fgsea_sig)))
 cat(sprintf("  Upregulated (positive NES): %d\n", sum(fgsea_sig$NES > 0)))
 cat(sprintf("  Downregulated (negative NES): %d\n\n", sum(fgsea_sig$NES < 0)))
+
+# %%
 
 # =============================================================================
 # PHASE 4: FILTER FOR CANCER-RELEVANT PATHWAYS
@@ -257,6 +271,8 @@ fgsea_cancer$category[grepl("stress|hypoxia|ER stress|unfolded protein|heat shoc
 fgsea_cancer$category[grepl("EMT|epithelial|mesenchymal|transformation|tumor|cancer|oncogenic",
                             fgsea_cancer$pathway, ignore.case = TRUE)] <- "EMT/Transformation"
 
+# %%
+
 # =============================================================================
 # PHASE 5: EXPORT RESULTS
 # =============================================================================
@@ -279,6 +295,8 @@ write.csv(fgsea_sig_export, file.path(output_dir, "fgsea_significant_pathways.cs
 write.csv(fgsea_cancer_export, file.path(output_dir, "fgsea_cancer_pathways.csv"), row.names = FALSE)
 
 cat("✓ Results exported\n\n")
+
+# %%
 
 # =============================================================================
 # PHASE 6: VISUALIZATIONS
@@ -392,6 +410,8 @@ if (!all(is.na(fgsea_cancer$category))) {
 }
 
 cat("✓ All visualizations created\n\n")
+
+# %%
 
 # =============================================================================
 # PHASE 7: SUMMARY REPORT

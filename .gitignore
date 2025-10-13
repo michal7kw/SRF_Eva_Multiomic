@@ -12,3 +12,16 @@
 
 Archive/
 Legacy/
+GENE_SETS/
+GENE_SETS_selected/
+*.grp
+
+# Ignore all Markdown files
+*.md
+
+# ...but keep any README.md (in root or subfolders)
+# !README.md
+# !**/README.md
+QUICK_REFERENCE.txt
+FILES_CREATED.txt
+output/msigdb_by_collection/MASTER_SUMMARY.txt
