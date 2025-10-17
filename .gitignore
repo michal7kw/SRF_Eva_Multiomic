@@ -20,8 +20,11 @@ GENE_SETS_selected/
 *.md
 
 # ...but keep any README.md (in root or subfolders)
-# !README.md
-# !**/README.md
+!README.md
+!**/README.md
 QUICK_REFERENCE.txt
 FILES_CREATED.txt
 output/msigdb_by_collection/MASTER_SUMMARY.txt
+SRF_Eva_integrated_analysis/focused_enrichment_analysis/tier1_progression
+SRF_Eva_integrated_analysis/focused_enrichment_analysis/tier2_progression
+focused_enrichment_analysis/VISUAL_SUMMARY.txt
