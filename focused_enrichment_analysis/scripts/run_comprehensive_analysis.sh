@@ -7,8 +7,8 @@
 #SBATCH --cpus-per-task=32
 #SBATCH --mem=128G
 #SBATCH --time=06:00:00
-#SBATCH --output=logs/comprehensive_analysis_%j.out
-#SBATCH --error=logs/comprehensive_analysis_%j.err
+#SBATCH --output=logs/comprehensive_analysis.out
+#SBATCH --error=logs/comprehensive_analysis.err
 
 echo "========================================================================"
 echo "Comprehensive Enrichment Analysis"

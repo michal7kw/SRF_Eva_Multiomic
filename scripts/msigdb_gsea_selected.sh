@@ -9,8 +9,8 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --time=02:00:00
-#SBATCH --output=logs/msigdb_gsea_selected_%j.out
-#SBATCH --error=logs/msigdb_gsea_selected_%j.err
+#SBATCH --output=logs/msigdb_gsea_selected.out
+#SBATCH --error=logs/msigdb_gsea_selected.err
 
 # ============================================================================
 # MSIGDB GSEA ANALYSIS - SELECTED GENE SETS (Hallmark + C6)

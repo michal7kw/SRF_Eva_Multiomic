@@ -9,8 +9,8 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
 #SBATCH --time=08:00:00
-#SBATCH --output=logs/msigdb_by_collection_%j.out
-#SBATCH --error=logs/msigdb_by_collection_%j.err
+#SBATCH --output=logs/msigdb_by_collection.out
+#SBATCH --error=logs/msigdb_by_collection.err
 
 # ============================================================================
 # MSIGDB GSEA ANALYSIS - ORGANIZED BY COLLECTION

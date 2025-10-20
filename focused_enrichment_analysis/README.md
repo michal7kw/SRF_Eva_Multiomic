@@ -14,7 +14,6 @@ focused_enrichment_analysis/
 ├── approach3_promoter_peaks/      # Positional: Promoter peaks only
 ├── approach4_high_confidence/     # Signal-based: Top 50% peaks
 ├── approach5_diffbind/            # Differential: TES vs TESmut specific
-├── approach6_migration_focused/   # Hypothesis-driven: GSEA
 ```
 
 Each approach folder contains:
@@ -99,20 +98,3 @@ Each approach folder contains:
 - `gene_lists/TES_diffbind_genes.txt`
 - `gene_lists/TES_diffbind_down.txt`
 - `results/approach5_diffbind_down_GO_enrichment.csv`
-
----
-
-### **Approach 6: Migration Gene-Focused**
-
-**Rationale**: Hypothesis-driven - test if TES targets are enriched in migration gene sets
-
-**Method**:
-- MSigDB Hallmark gene sets (EMT, migration, adhesion)
-- Hypergeometric test for overlap
-- GSEA on ranked genes (by log2FC × -log10(padj))
-
-**Files**:
-- `gene_lists/TES_direct_EMT_overlap.txt`
-- `gene_lists/TES_direct_EMT_detailed.csv`
-- `results/GSEA_Hallmarks.csv`
-- `plots/GSEA_EMT.pdf`
