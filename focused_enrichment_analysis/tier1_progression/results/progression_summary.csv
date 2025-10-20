@@ -1,7 +1,0 @@
-Approach,N_genes,N_sig_terms,Top_migration_rank
-All TES peaks,0,NA,NA
-Direct targets (any),2683,560,2
-Direct downregulated,1542,777,7
-Promoter DEGs,1118,230,1
-High-conf DEGs,2018,574,2
-DiffBind + Down,NA,NA,NA
