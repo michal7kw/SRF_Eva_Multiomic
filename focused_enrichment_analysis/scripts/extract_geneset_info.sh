@@ -22,7 +22,7 @@ echo ""
 source /opt/common/tools/ric.cosr/miniconda3/bin/activate
 conda activate r-bio
 
-cd /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top
+cd /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_integrated_analysis/focused_enrichment_analysis/scripts
 
 Rscript extract_geneset_info.R
 

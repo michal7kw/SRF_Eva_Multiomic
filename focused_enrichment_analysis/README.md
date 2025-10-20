@@ -1,9 +1,4 @@
-# Comprehensive Enrichment Analysis - Migration/Cancer Focus
-
-## Overview
-
-**8 different approaches** to demonstrate that TES preferentially regulates migration/cancer-related genes, even though the enrichment signal is diluted in genome-wide peak analysis.
-
+# Enrichment Analysis - Migration/Cancer Focus
 
 ## Directory Structure
 
@@ -16,13 +11,6 @@ focused_enrichment_analysis/
 ├── approach5_diffbind/            # Differential: TES vs TESmut specific
 ```
 
-Each approach folder contains:
-- `results/` - GO enrichment CSVs, migration terms
-- `plots/` - Dotplots, barplots, GSEA plots
-- `gene_lists/` - Gene lists in TXT and detailed CSV formats
-
----
-
 ## Approaches Explained
 
 ### **Approach 1: Direct Targets Only**
@@ -31,7 +19,6 @@ Each approach folder contains:
 
 **Method**:
 - TES peaks ∩ significant DEGs (padj < 0.05)
-- ~2,683 genes
 
 **Files**:
 - `gene_lists/TES_direct_targets.txt`
@@ -46,7 +33,6 @@ Each approach folder contains:
 
 **Method**:
 - Direct targets + log2FC < 0
-- ~1,400 genes
 
 **Files**:
 - `gene_lists/TES_direct_downregulated.txt`
