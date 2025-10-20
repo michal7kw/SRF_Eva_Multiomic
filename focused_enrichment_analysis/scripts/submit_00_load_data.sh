@@ -7,8 +7,8 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=32G
 #SBATCH --time=01:00:00
-#SBATCH --output=SRF_Eva_integrated_analysis/focused_enrichment_analysis/logs/00_load_data.out
-#SBATCH --error=SRF_Eva_integrated_analysis/focused_enrichment_analysis/logs/00_load_data.err
+#SBATCH --output=logs/00_load_data.out
+#SBATCH --error=logs/00_load_data.err
 
 echo "========================================================================"
 echo "Loading Data for Enrichment Analysis"
@@ -26,12 +26,6 @@ conda activate r-bio
 
 # Set working directory
 cd /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top
-
-# Create logs directory
-mkdir -p SRF_Eva_integrated_analysis/focused_enrichment_analysis/logs
-
-# Create data directory
-mkdir -p SRF_Eva_integrated_analysis/focused_enrichment_analysis/data
 
 # Run the R script
 echo "Starting data loading..."

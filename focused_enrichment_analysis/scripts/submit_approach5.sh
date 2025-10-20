@@ -7,8 +7,8 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --time=02:00:00
-#SBATCH --output=SRF_Eva_integrated_analysis/focused_enrichment_analysis/logs/approach5.out
-#SBATCH --error=SRF_Eva_integrated_analysis/focused_enrichment_analysis/logs/approach5.err
+#SBATCH --output=logs/approach5.out
+#SBATCH --error=logs/approach5.err
 
 echo "========================================================================"
 echo "APPROACH 5: Differential Binding + Differential Expression"

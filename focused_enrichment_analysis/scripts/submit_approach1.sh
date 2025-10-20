@@ -7,8 +7,8 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --time=02:00:00
-#SBATCH --output=SRF_Eva_integrated_analysis/focused_enrichment_analysis/logs/approach1.out
-#SBATCH --error=SRF_Eva_integrated_analysis/focused_enrichment_analysis/logs/approach1.err
+#SBATCH --output=logs/approach1.out
+#SBATCH --error=logs/approach1.err
 
 echo "========================================================================"
 echo "APPROACH 1: Direct Targets Only (Baseline)"

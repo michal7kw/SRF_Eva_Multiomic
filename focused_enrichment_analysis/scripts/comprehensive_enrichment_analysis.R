@@ -34,9 +34,9 @@ dirs <- list(
   approach3 = file.path(base_dir, "approach3_promoter_peaks"),
   approach4 = file.path(base_dir, "approach4_high_confidence"),
   approach5 = file.path(base_dir, "approach5_diffbind"),
-  approach6 = file.path(base_dir, "approach6_migration_focused"),
-  tier1 = file.path(base_dir, "tier1_progression"),
-  tier2 = file.path(base_dir, "tier2_validation")
+  # approach6 = file.path(base_dir, "approach6_migration_focused"),
+  # tier1 = file.path(base_dir, "tier1_progression"),
+  # tier2 = file.path(base_dir, "tier2_validation")
 )
 
 # Create all directories
@@ -593,477 +593,477 @@ if ("FDR" %in% colnames(diffbind_tes_vs_tesmut)) {
 ################################################################################
 # APPROACH 6: MIGRATION GENE-FOCUSED (Hypothesis-Driven)
 ################################################################################
-cat("\n=================================================================\n")
-cat("APPROACH 6: Migration Gene-Focused (Hypothesis-Driven)\n")
-cat("=================================================================\n")
+# cat("\n=================================================================\n")
+# cat("APPROACH 6: Migration Gene-Focused (Hypothesis-Driven)\n")
+# cat("=================================================================\n")
 
-approach6_dir <- dirs$approach6
+# approach6_dir <- dirs$approach6
 
-# Load specific gene sets of interest:
-# 1. GOBP_NEURON_MIGRATION (from GO)
-# 2. CELL_PROLIFERATION_GO_0008283 (from GO)
-# 3. HALLMARK_APOPTOSIS (from MSigDB Hallmark)
+# # Load specific gene sets of interest:
+# # 1. GOBP_NEURON_MIGRATION (from GO)
+# # 2. CELL_PROLIFERATION_GO_0008283 (from GO)
+# # 3. HALLMARK_APOPTOSIS (from MSigDB Hallmark)
 
-# Get GO gene sets from msigdbr
-msigdb_go <- msigdbr(species = "Homo sapiens", collection = "C5", subcollection = "GO:BP")
+# # Get GO gene sets from msigdbr
+# msigdb_go <- msigdbr(species = "Homo sapiens", collection = "C5", subcollection = "GO:BP")
 
-# Gene set 1: Neuron migration (GO:0001764)
-neuron_migration_genes <- msigdb_go %>%
-  filter(grepl("NEURON.*MIGRATION|GO:0001764", gs_name, ignore.case = TRUE)) %>%
-  pull(gene_symbol) %>%
-  unique()
+# # Gene set 1: Neuron migration (GO:0001764)
+# neuron_migration_genes <- msigdb_go %>%
+#   filter(grepl("NEURON.*MIGRATION|GO:0001764", gs_name, ignore.case = TRUE)) %>%
+#   pull(gene_symbol) %>%
+#   unique()
 
-cat("Neuron migration gene set size:", length(neuron_migration_genes), "\n")
+# cat("Neuron migration gene set size:", length(neuron_migration_genes), "\n")
 
-# Gene set 2: Cell proliferation (GO:0008283)
-cell_prolif_genes <- msigdb_go %>%
-  filter(grepl("CELL_PROLIFERATION|GO:0008283", gs_name, ignore.case = TRUE)) %>%
-  pull(gene_symbol) %>%
-  unique()
+# # Gene set 2: Cell proliferation (GO:0008283)
+# cell_prolif_genes <- msigdb_go %>%
+#   filter(grepl("CELL_PROLIFERATION|GO:0008283", gs_name, ignore.case = TRUE)) %>%
+#   pull(gene_symbol) %>%
+#   unique()
 
-cat("Cell proliferation gene set size:", length(cell_prolif_genes), "\n")
+# cat("Cell proliferation gene set size:", length(cell_prolif_genes), "\n")
 
-# Gene set 3: Apoptosis from Hallmark
-apoptosis_genes <- msigdb_hallmark %>%
-  filter(gs_name == "HALLMARK_APOPTOSIS") %>%
-  pull(gene_symbol)
+# # Gene set 3: Apoptosis from Hallmark
+# apoptosis_genes <- msigdb_hallmark %>%
+#   filter(gs_name == "HALLMARK_APOPTOSIS") %>%
+#   pull(gene_symbol)
 
-cat("Apoptosis gene set size:", length(apoptosis_genes), "\n")
+# cat("Apoptosis gene set size:", length(apoptosis_genes), "\n")
 
-# Hypergeometric tests for each gene set
-cat("\n=== Hypergeometric enrichment tests ===\n")
+# # Hypergeometric tests for each gene set
+# cat("\n=== Hypergeometric enrichment tests ===\n")
 
-# Test 1: Neuron migration
-if (length(neuron_migration_genes) > 0) {
-  tes_direct_in_neuron_mig <- intersect(tes_direct_genes, neuron_migration_genes)
-  cat("\nNeuron migration:\n")
-  cat("  TES direct targets in gene set:", length(tes_direct_in_neuron_mig), "\n")
+# # Test 1: Neuron migration
+# if (length(neuron_migration_genes) > 0) {
+#   tes_direct_in_neuron_mig <- intersect(tes_direct_genes, neuron_migration_genes)
+#   cat("\nNeuron migration:\n")
+#   cat("  TES direct targets in gene set:", length(tes_direct_in_neuron_mig), "\n")
 
-  if (length(tes_direct_in_neuron_mig) > 0) {
-    universe_size <- length(all_expressed_genes)
-    geneset_in_universe <- length(intersect(neuron_migration_genes, all_expressed_genes))
-    tes_direct_size <- length(tes_direct_genes)
-    overlap <- length(tes_direct_in_neuron_mig)
+#   if (length(tes_direct_in_neuron_mig) > 0) {
+#     universe_size <- length(all_expressed_genes)
+#     geneset_in_universe <- length(intersect(neuron_migration_genes, all_expressed_genes))
+#     tes_direct_size <- length(tes_direct_genes)
+#     overlap <- length(tes_direct_in_neuron_mig)
 
-    phyper_pval <- phyper(q = overlap - 1,
-                          m = geneset_in_universe,
-                          n = universe_size - geneset_in_universe,
-                          k = tes_direct_size,
-                          lower.tail = FALSE)
-    cat("  Hypergeometric p-value:", phyper_pval, "\n")
+#     phyper_pval <- phyper(q = overlap - 1,
+#                           m = geneset_in_universe,
+#                           n = universe_size - geneset_in_universe,
+#                           k = tes_direct_size,
+#                           lower.tail = FALSE)
+#     cat("  Hypergeometric p-value:", phyper_pval, "\n")
 
-    write.table(tes_direct_in_neuron_mig,
-                file.path(approach6_dir, "gene_lists", "TES_direct_neuron_migration.txt"),
-                row.names = FALSE, col.names = FALSE, quote = FALSE)
-  }
-}
+#     write.table(tes_direct_in_neuron_mig,
+#                 file.path(approach6_dir, "gene_lists", "TES_direct_neuron_migration.txt"),
+#                 row.names = FALSE, col.names = FALSE, quote = FALSE)
+#   }
+# }
 
-# Test 2: Cell proliferation
-if (length(cell_prolif_genes) > 0) {
-  tes_direct_in_prolif <- intersect(tes_direct_genes, cell_prolif_genes)
-  cat("\nCell proliferation:\n")
-  cat("  TES direct targets in gene set:", length(tes_direct_in_prolif), "\n")
+# # Test 2: Cell proliferation
+# if (length(cell_prolif_genes) > 0) {
+#   tes_direct_in_prolif <- intersect(tes_direct_genes, cell_prolif_genes)
+#   cat("\nCell proliferation:\n")
+#   cat("  TES direct targets in gene set:", length(tes_direct_in_prolif), "\n")
 
-  if (length(tes_direct_in_prolif) > 0) {
-    universe_size <- length(all_expressed_genes)
-    geneset_in_universe <- length(intersect(cell_prolif_genes, all_expressed_genes))
-    tes_direct_size <- length(tes_direct_genes)
-    overlap <- length(tes_direct_in_prolif)
+#   if (length(tes_direct_in_prolif) > 0) {
+#     universe_size <- length(all_expressed_genes)
+#     geneset_in_universe <- length(intersect(cell_prolif_genes, all_expressed_genes))
+#     tes_direct_size <- length(tes_direct_genes)
+#     overlap <- length(tes_direct_in_prolif)
 
-    phyper_pval <- phyper(q = overlap - 1,
-                          m = geneset_in_universe,
-                          n = universe_size - geneset_in_universe,
-                          k = tes_direct_size,
-                          lower.tail = FALSE)
-    cat("  Hypergeometric p-value:", phyper_pval, "\n")
+#     phyper_pval <- phyper(q = overlap - 1,
+#                           m = geneset_in_universe,
+#                           n = universe_size - geneset_in_universe,
+#                           k = tes_direct_size,
+#                           lower.tail = FALSE)
+#     cat("  Hypergeometric p-value:", phyper_pval, "\n")
 
-    write.table(tes_direct_in_prolif,
-                file.path(approach6_dir, "gene_lists", "TES_direct_proliferation.txt"),
-                row.names = FALSE, col.names = FALSE, quote = FALSE)
-  }
-}
+#     write.table(tes_direct_in_prolif,
+#                 file.path(approach6_dir, "gene_lists", "TES_direct_proliferation.txt"),
+#                 row.names = FALSE, col.names = FALSE, quote = FALSE)
+#   }
+# }
 
-# Test 3: Apoptosis
-if (length(apoptosis_genes) > 0) {
-  tes_direct_in_apoptosis <- intersect(tes_direct_genes, apoptosis_genes)
-  cat("\nApoptosis:\n")
-  cat("  TES direct targets in gene set:", length(tes_direct_in_apoptosis), "\n")
+# # Test 3: Apoptosis
+# if (length(apoptosis_genes) > 0) {
+#   tes_direct_in_apoptosis <- intersect(tes_direct_genes, apoptosis_genes)
+#   cat("\nApoptosis:\n")
+#   cat("  TES direct targets in gene set:", length(tes_direct_in_apoptosis), "\n")
 
-  if (length(tes_direct_in_apoptosis) > 0) {
-    universe_size <- length(all_expressed_genes)
-    geneset_in_universe <- length(intersect(apoptosis_genes, all_expressed_genes))
-    tes_direct_size <- length(tes_direct_genes)
-    overlap <- length(tes_direct_in_apoptosis)
+#   if (length(tes_direct_in_apoptosis) > 0) {
+#     universe_size <- length(all_expressed_genes)
+#     geneset_in_universe <- length(intersect(apoptosis_genes, all_expressed_genes))
+#     tes_direct_size <- length(tes_direct_genes)
+#     overlap <- length(tes_direct_in_apoptosis)
 
-    phyper_pval <- phyper(q = overlap - 1,
-                          m = geneset_in_universe,
-                          n = universe_size - geneset_in_universe,
-                          k = tes_direct_size,
-                          lower.tail = FALSE)
-    cat("  Hypergeometric p-value:", phyper_pval, "\n")
+#     phyper_pval <- phyper(q = overlap - 1,
+#                           m = geneset_in_universe,
+#                           n = universe_size - geneset_in_universe,
+#                           k = tes_direct_size,
+#                           lower.tail = FALSE)
+#     cat("  Hypergeometric p-value:", phyper_pval, "\n")
 
-    write.table(tes_direct_in_apoptosis,
-                file.path(approach6_dir, "gene_lists", "TES_direct_apoptosis.txt"),
-                row.names = FALSE, col.names = FALSE, quote = FALSE)
-  }
-}
+#     write.table(tes_direct_in_apoptosis,
+#                 file.path(approach6_dir, "gene_lists", "TES_direct_apoptosis.txt"),
+#                 row.names = FALSE, col.names = FALSE, quote = FALSE)
+#   }
+# }
 
-# Create detailed tables for each gene set
-if (exists("tes_direct_in_neuron_mig") && length(tes_direct_in_neuron_mig) > 0) {
-  neuron_mig_detailed <- tes_direct %>%
-    filter(gene_symbol %in% tes_direct_in_neuron_mig) %>%
-    arrange(padj) %>%
-    select(gene_symbol, baseMean, log2FoldChange, padj, tes_bound, tead1_bound)
+# # Create detailed tables for each gene set
+# if (exists("tes_direct_in_neuron_mig") && length(tes_direct_in_neuron_mig) > 0) {
+#   neuron_mig_detailed <- tes_direct %>%
+#     filter(gene_symbol %in% tes_direct_in_neuron_mig) %>%
+#     arrange(padj) %>%
+#     select(gene_symbol, baseMean, log2FoldChange, padj, tes_bound, tead1_bound)
 
-  write_csv(neuron_mig_detailed,
-            file.path(approach6_dir, "gene_lists", "TES_direct_neuron_migration_detailed.csv"))
-}
+#   write_csv(neuron_mig_detailed,
+#             file.path(approach6_dir, "gene_lists", "TES_direct_neuron_migration_detailed.csv"))
+# }
 
-if (exists("tes_direct_in_prolif") && length(tes_direct_in_prolif) > 0) {
-  prolif_detailed <- tes_direct %>%
-    filter(gene_symbol %in% tes_direct_in_prolif) %>%
-    arrange(padj) %>%
-    select(gene_symbol, baseMean, log2FoldChange, padj, tes_bound, tead1_bound)
+# if (exists("tes_direct_in_prolif") && length(tes_direct_in_prolif) > 0) {
+#   prolif_detailed <- tes_direct %>%
+#     filter(gene_symbol %in% tes_direct_in_prolif) %>%
+#     arrange(padj) %>%
+#     select(gene_symbol, baseMean, log2FoldChange, padj, tes_bound, tead1_bound)
 
-  write_csv(prolif_detailed,
-            file.path(approach6_dir, "gene_lists", "TES_direct_proliferation_detailed.csv"))
-}
+#   write_csv(prolif_detailed,
+#             file.path(approach6_dir, "gene_lists", "TES_direct_proliferation_detailed.csv"))
+# }
 
-if (exists("tes_direct_in_apoptosis") && length(tes_direct_in_apoptosis) > 0) {
-  apoptosis_detailed <- tes_direct %>%
-    filter(gene_symbol %in% tes_direct_in_apoptosis) %>%
-    arrange(padj) %>%
-    select(gene_symbol, baseMean, log2FoldChange, padj, tes_bound, tead1_bound)
+# if (exists("tes_direct_in_apoptosis") && length(tes_direct_in_apoptosis) > 0) {
+#   apoptosis_detailed <- tes_direct %>%
+#     filter(gene_symbol %in% tes_direct_in_apoptosis) %>%
+#     arrange(padj) %>%
+#     select(gene_symbol, baseMean, log2FoldChange, padj, tes_bound, tead1_bound)
 
-  write_csv(apoptosis_detailed,
-            file.path(approach6_dir, "gene_lists", "TES_direct_apoptosis_detailed.csv"))
-}
+#   write_csv(apoptosis_detailed,
+#             file.path(approach6_dir, "gene_lists", "TES_direct_apoptosis_detailed.csv"))
+# }
 
-# GSEA analysis using ranked genes
-cat("\n=== GSEA analysis ===\n")
+# # GSEA analysis using ranked genes
+# cat("\n=== GSEA analysis ===\n")
 
-# Create ranked list by log2FoldChange * -log10(padj)
-# Cap padj at a minimum value to avoid Inf values
-degs_ranked <- deseq_results %>%
-  filter(!is.na(padj) & !is.na(log2FoldChange) & baseMean > 10) %>%
-  mutate(padj_capped = pmax(padj, 1e-300)) %>%  # Prevent -log10 from going to Inf
-  mutate(rank_metric = log2FoldChange * -log10(padj_capped)) %>%
-  filter(is.finite(rank_metric)) %>%  # Remove any remaining non-finite values
-  arrange(desc(rank_metric))
+# # Create ranked list by log2FoldChange * -log10(padj)
+# # Cap padj at a minimum value to avoid Inf values
+# degs_ranked <- deseq_results %>%
+#   filter(!is.na(padj) & !is.na(log2FoldChange) & baseMean > 10) %>%
+#   mutate(padj_capped = pmax(padj, 1e-300)) %>%  # Prevent -log10 from going to Inf
+#   mutate(rank_metric = log2FoldChange * -log10(padj_capped)) %>%
+#   filter(is.finite(rank_metric)) %>%  # Remove any remaining non-finite values
+#   arrange(desc(rank_metric))
 
-ranked_genes <- setNames(degs_ranked$rank_metric, degs_ranked$gene_symbol)
+# ranked_genes <- setNames(degs_ranked$rank_metric, degs_ranked$gene_symbol)
 
-# Combine the three gene sets of interest into a custom collection
-custom_genesets <- bind_rows(
-  msigdb_go %>% filter(grepl("NEURON.*MIGRATION|GO:0001764", gs_name, ignore.case = TRUE)) %>%
-    mutate(gs_name = "GOBP_NEURON_MIGRATION"),
-  msigdb_go %>% filter(grepl("CELL_PROLIFERATION|GO:0008283", gs_name, ignore.case = TRUE)) %>%
-    mutate(gs_name = "GOBP_CELL_PROLIFERATION"),
-  msigdb_hallmark %>% filter(gs_name == "HALLMARK_APOPTOSIS")
-)
+# # Combine the three gene sets of interest into a custom collection
+# custom_genesets <- bind_rows(
+#   msigdb_go %>% filter(grepl("NEURON.*MIGRATION|GO:0001764", gs_name, ignore.case = TRUE)) %>%
+#     mutate(gs_name = "GOBP_NEURON_MIGRATION"),
+#   msigdb_go %>% filter(grepl("CELL_PROLIFERATION|GO:0008283", gs_name, ignore.case = TRUE)) %>%
+#     mutate(gs_name = "GOBP_CELL_PROLIFERATION"),
+#   msigdb_hallmark %>% filter(gs_name == "HALLMARK_APOPTOSIS")
+# )
 
-cat("Running GSEA on custom gene sets (neuron migration, proliferation, apoptosis)...\n")
+# cat("Running GSEA on custom gene sets (neuron migration, proliferation, apoptosis)...\n")
 
-if (nrow(custom_genesets) > 0) {
-  gsea_custom <- perform_GSEA_msigdb(ranked_genes, custom_genesets, pvalueCutoff = 0.25)
+# if (nrow(custom_genesets) > 0) {
+#   gsea_custom <- perform_GSEA_msigdb(ranked_genes, custom_genesets, pvalueCutoff = 0.25)
 
-  if (!is.null(gsea_custom) && nrow(gsea_custom) > 0) {
-    gsea_results <- as.data.frame(gsea_custom)
-    write_csv(gsea_results,
-              file.path(approach6_dir, "results", "GSEA_custom_genesets.csv"))
+#   if (!is.null(gsea_custom) && nrow(gsea_custom) > 0) {
+#     gsea_results <- as.data.frame(gsea_custom)
+#     write_csv(gsea_results,
+#               file.path(approach6_dir, "results", "GSEA_custom_genesets.csv"))
 
-    cat("\nGSEA results:\n")
-    print(gsea_results[, c("ID", "NES", "pvalue", "p.adjust")])
+#     cat("\nGSEA results:\n")
+#     print(gsea_results[, c("ID", "NES", "pvalue", "p.adjust")])
 
-    # Plot GSEA results
-    pdf(file.path(approach6_dir, "plots", "GSEA_custom_dotplot.pdf"), width = 10, height = 6)
-    print(dotplot(gsea_custom, showCategory = 10, title = "GSEA: Migration, Proliferation, Apoptosis"))
-    dev.off()
+#     # Plot GSEA results
+#     pdf(file.path(approach6_dir, "plots", "GSEA_custom_dotplot.pdf"), width = 10, height = 6)
+#     print(dotplot(gsea_custom, showCategory = 10, title = "GSEA: Migration, Proliferation, Apoptosis"))
+#     dev.off()
 
-    # Individual GSEA plots for significant gene sets
-    for (geneset_id in gsea_results$ID) {
-      safe_name <- gsub("[^A-Za-z0-9_]", "_", geneset_id)
-      pdf(file.path(approach6_dir, "plots", paste0("GSEA_", safe_name, ".pdf")),
-          width = 10, height = 6)
-      print(gseaplot2(gsea_custom,
-                      geneSetID = geneset_id,
-                      title = geneset_id))
-      dev.off()
-    }
-  } else {
-    cat("No significant GSEA results found (p < 0.25)\n")
-  }
-} else {
-  cat("Could not create custom gene sets for GSEA\n")
-}
+#     # Individual GSEA plots for significant gene sets
+#     for (geneset_id in gsea_results$ID) {
+#       safe_name <- gsub("[^A-Za-z0-9_]", "_", geneset_id)
+#       pdf(file.path(approach6_dir, "plots", paste0("GSEA_", safe_name, ".pdf")),
+#           width = 10, height = 6)
+#       print(gseaplot2(gsea_custom,
+#                       geneSetID = geneset_id,
+#                       title = geneset_id))
+#       dev.off()
+#     }
+#   } else {
+#     cat("No significant GSEA results found (p < 0.25)\n")
+#   }
+# } else {
+#   cat("Could not create custom gene sets for GSEA\n")
+# }
 
-# Create visualizations for the hypergeometric enrichment results
-cat("\n=== Creating visualizations ===\n")
+# # Create visualizations for the hypergeometric enrichment results
+# cat("\n=== Creating visualizations ===\n")
 
-# Prepare data for enrichment barplot
-enrichment_results <- data.frame(
-  GeneSet = c("Neuron\nMigration", "Cell\nProliferation", "Apoptosis"),
-  Overlap = c(
-    if(exists("tes_direct_in_neuron_mig")) length(tes_direct_in_neuron_mig) else 0,
-    if(exists("tes_direct_in_prolif")) length(tes_direct_in_prolif) else 0,
-    if(exists("tes_direct_in_apoptosis")) length(tes_direct_in_apoptosis) else 0
-  ),
-  GeneSetSize = c(
-    length(neuron_migration_genes),
-    length(cell_prolif_genes),
-    length(apoptosis_genes)
-  ),
-  PValue = c(
-    if(exists("tes_direct_in_neuron_mig") && length(tes_direct_in_neuron_mig) > 0) {
-      phyper(length(tes_direct_in_neuron_mig) - 1,
-             length(intersect(neuron_migration_genes, all_expressed_genes)),
-             length(all_expressed_genes) - length(intersect(neuron_migration_genes, all_expressed_genes)),
-             length(tes_direct_genes), lower.tail = FALSE)
-    } else NA,
-    if(exists("tes_direct_in_prolif") && length(tes_direct_in_prolif) > 0) {
-      phyper(length(tes_direct_in_prolif) - 1,
-             length(intersect(cell_prolif_genes, all_expressed_genes)),
-             length(all_expressed_genes) - length(intersect(cell_prolif_genes, all_expressed_genes)),
-             length(tes_direct_genes), lower.tail = FALSE)
-    } else NA,
-    if(exists("tes_direct_in_apoptosis") && length(tes_direct_in_apoptosis) > 0) {
-      phyper(length(tes_direct_in_apoptosis) - 1,
-             length(intersect(apoptosis_genes, all_expressed_genes)),
-             length(all_expressed_genes) - length(intersect(apoptosis_genes, all_expressed_genes)),
-             length(tes_direct_genes), lower.tail = FALSE)
-    } else NA
-  )
-) %>%
-  filter(!is.na(PValue)) %>%
-  mutate(
-    NegLog10P = -log10(PValue),
-    PercentOverlap = (Overlap / GeneSetSize) * 100,
-    Significance = case_when(
-      PValue < 0.001 ~ "p < 0.001",
-      PValue < 0.01 ~ "p < 0.01",
-      PValue < 0.05 ~ "p < 0.05",
-      TRUE ~ "n.s."
-    )
-  )
+# # Prepare data for enrichment barplot
+# enrichment_results <- data.frame(
+#   GeneSet = c("Neuron\nMigration", "Cell\nProliferation", "Apoptosis"),
+#   Overlap = c(
+#     if(exists("tes_direct_in_neuron_mig")) length(tes_direct_in_neuron_mig) else 0,
+#     if(exists("tes_direct_in_prolif")) length(tes_direct_in_prolif) else 0,
+#     if(exists("tes_direct_in_apoptosis")) length(tes_direct_in_apoptosis) else 0
+#   ),
+#   GeneSetSize = c(
+#     length(neuron_migration_genes),
+#     length(cell_prolif_genes),
+#     length(apoptosis_genes)
+#   ),
+#   PValue = c(
+#     if(exists("tes_direct_in_neuron_mig") && length(tes_direct_in_neuron_mig) > 0) {
+#       phyper(length(tes_direct_in_neuron_mig) - 1,
+#              length(intersect(neuron_migration_genes, all_expressed_genes)),
+#              length(all_expressed_genes) - length(intersect(neuron_migration_genes, all_expressed_genes)),
+#              length(tes_direct_genes), lower.tail = FALSE)
+#     } else NA,
+#     if(exists("tes_direct_in_prolif") && length(tes_direct_in_prolif) > 0) {
+#       phyper(length(tes_direct_in_prolif) - 1,
+#              length(intersect(cell_prolif_genes, all_expressed_genes)),
+#              length(all_expressed_genes) - length(intersect(cell_prolif_genes, all_expressed_genes)),
+#              length(tes_direct_genes), lower.tail = FALSE)
+#     } else NA,
+#     if(exists("tes_direct_in_apoptosis") && length(tes_direct_in_apoptosis) > 0) {
+#       phyper(length(tes_direct_in_apoptosis) - 1,
+#              length(intersect(apoptosis_genes, all_expressed_genes)),
+#              length(all_expressed_genes) - length(intersect(apoptosis_genes, all_expressed_genes)),
+#              length(tes_direct_genes), lower.tail = FALSE)
+#     } else NA
+#   )
+# ) %>%
+#   filter(!is.na(PValue)) %>%
+#   mutate(
+#     NegLog10P = -log10(PValue),
+#     PercentOverlap = (Overlap / GeneSetSize) * 100,
+#     Significance = case_when(
+#       PValue < 0.001 ~ "p < 0.001",
+#       PValue < 0.01 ~ "p < 0.01",
+#       PValue < 0.05 ~ "p < 0.05",
+#       TRUE ~ "n.s."
+#     )
+#   )
 
-# Plot 1: Enrichment barplot with -log10(p-value)
-pdf(file.path(approach6_dir, "plots", "hypergeometric_enrichment.pdf"), width = 8, height = 6)
-p1 <- ggplot(enrichment_results, aes(x = reorder(GeneSet, -NegLog10P), y = NegLog10P, fill = GeneSet)) +
-  geom_bar(stat = "identity") +
-  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "red") +
-  geom_hline(yintercept = -log10(0.01), linetype = "dashed", color = "darkred") +
-  geom_text(aes(label = sprintf("p = %.2e", PValue)), vjust = -0.5, size = 3.5) +
-  labs(title = "TES Direct Target Enrichment in Biological Gene Sets",
-       subtitle = "Hypergeometric test",
-       x = "Gene Set",
-       y = "-log10(p-value)") +
-  theme_bw() +
-  theme(legend.position = "none",
-        axis.text.x = element_text(size = 11),
-        plot.title = element_text(size = 14, face = "bold")) +
-  scale_fill_brewer(palette = "Set2")
-print(p1)
-dev.off()
+# # Plot 1: Enrichment barplot with -log10(p-value)
+# pdf(file.path(approach6_dir, "plots", "hypergeometric_enrichment.pdf"), width = 8, height = 6)
+# p1 <- ggplot(enrichment_results, aes(x = reorder(GeneSet, -NegLog10P), y = NegLog10P, fill = GeneSet)) +
+#   geom_bar(stat = "identity") +
+#   geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "red") +
+#   geom_hline(yintercept = -log10(0.01), linetype = "dashed", color = "darkred") +
+#   geom_text(aes(label = sprintf("p = %.2e", PValue)), vjust = -0.5, size = 3.5) +
+#   labs(title = "TES Direct Target Enrichment in Biological Gene Sets",
+#        subtitle = "Hypergeometric test",
+#        x = "Gene Set",
+#        y = "-log10(p-value)") +
+#   theme_bw() +
+#   theme(legend.position = "none",
+#         axis.text.x = element_text(size = 11),
+#         plot.title = element_text(size = 14, face = "bold")) +
+#   scale_fill_brewer(palette = "Set2")
+# print(p1)
+# dev.off()
 
-# Plot 2: Overlap counts
-pdf(file.path(approach6_dir, "plots", "geneset_overlap_counts.pdf"), width = 8, height = 6)
-p2 <- ggplot(enrichment_results, aes(x = reorder(GeneSet, -Overlap), y = Overlap, fill = GeneSet)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = sprintf("%d genes\n(%.1f%%)", Overlap, PercentOverlap)),
-            vjust = -0.5, size = 3.5) +
-  labs(title = "TES Direct Targets in Biological Gene Sets",
-       subtitle = sprintf("Out of %d total TES direct targets", length(tes_direct_genes)),
-       x = "Gene Set",
-       y = "Number of TES Direct Targets") +
-  theme_bw() +
-  theme(legend.position = "none",
-        axis.text.x = element_text(size = 11),
-        plot.title = element_text(size = 14, face = "bold")) +
-  scale_fill_brewer(palette = "Set2")
-print(p2)
-dev.off()
+# # Plot 2: Overlap counts
+# pdf(file.path(approach6_dir, "plots", "geneset_overlap_counts.pdf"), width = 8, height = 6)
+# p2 <- ggplot(enrichment_results, aes(x = reorder(GeneSet, -Overlap), y = Overlap, fill = GeneSet)) +
+#   geom_bar(stat = "identity") +
+#   geom_text(aes(label = sprintf("%d genes\n(%.1f%%)", Overlap, PercentOverlap)),
+#             vjust = -0.5, size = 3.5) +
+#   labs(title = "TES Direct Targets in Biological Gene Sets",
+#        subtitle = sprintf("Out of %d total TES direct targets", length(tes_direct_genes)),
+#        x = "Gene Set",
+#        y = "Number of TES Direct Targets") +
+#   theme_bw() +
+#   theme(legend.position = "none",
+#         axis.text.x = element_text(size = 11),
+#         plot.title = element_text(size = 14, face = "bold")) +
+#   scale_fill_brewer(palette = "Set2")
+# print(p2)
+# dev.off()
 
-# Plot 3: Expression heatmap for top genes in each category
-if (exists("tes_direct_in_neuron_mig") && length(tes_direct_in_neuron_mig) > 0) {
-  top_neuron_genes <- tes_direct %>%
-    filter(gene_symbol %in% tes_direct_in_neuron_mig) %>%
-    arrange(padj) %>%
-    head(20) %>%
-    pull(gene_symbol)
+# # Plot 3: Expression heatmap for top genes in each category
+# if (exists("tes_direct_in_neuron_mig") && length(tes_direct_in_neuron_mig) > 0) {
+#   top_neuron_genes <- tes_direct %>%
+#     filter(gene_symbol %in% tes_direct_in_neuron_mig) %>%
+#     arrange(padj) %>%
+#     head(20) %>%
+#     pull(gene_symbol)
 
-  heatmap_data <- tes_direct %>%
-    filter(gene_symbol %in% top_neuron_genes) %>%
-    select(gene_symbol, log2FoldChange) %>%
-    arrange(log2FoldChange)
+#   heatmap_data <- tes_direct %>%
+#     filter(gene_symbol %in% top_neuron_genes) %>%
+#     select(gene_symbol, log2FoldChange) %>%
+#     arrange(log2FoldChange)
 
-  pdf(file.path(approach6_dir, "plots", "neuron_migration_top_genes_heatmap.pdf"),
-      width = 6, height = 8)
-  p3 <- ggplot(heatmap_data, aes(x = 1, y = reorder(gene_symbol, log2FoldChange),
-                                 fill = log2FoldChange)) +
-    geom_tile(color = "white") +
-    geom_text(aes(label = sprintf("%.2f", log2FoldChange)), size = 3) +
-    scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0,
-                         name = "log2FC") +
-    labs(title = "Top 20 Neuron Migration Genes",
-         subtitle = "TES Direct Targets",
-         x = "", y = "") +
-    theme_minimal() +
-    theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank(),
-          plot.title = element_text(size = 14, face = "bold"))
-  print(p3)
-  dev.off()
-}
+#   pdf(file.path(approach6_dir, "plots", "neuron_migration_top_genes_heatmap.pdf"),
+#       width = 6, height = 8)
+#   p3 <- ggplot(heatmap_data, aes(x = 1, y = reorder(gene_symbol, log2FoldChange),
+#                                  fill = log2FoldChange)) +
+#     geom_tile(color = "white") +
+#     geom_text(aes(label = sprintf("%.2f", log2FoldChange)), size = 3) +
+#     scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0,
+#                          name = "log2FC") +
+#     labs(title = "Top 20 Neuron Migration Genes",
+#          subtitle = "TES Direct Targets",
+#          x = "", y = "") +
+#     theme_minimal() +
+#     theme(axis.text.x = element_blank(),
+#           axis.ticks.x = element_blank(),
+#           plot.title = element_text(size = 14, face = "bold"))
+#   print(p3)
+#   dev.off()
+# }
 
-cat("Plots created successfully!\n")
+# cat("Plots created successfully!\n")
 
 ################################################################################
 # TIER 1: PROGRESSION OF SPECIFICITY
 ################################################################################
-cat("\n=================================================================\n")
-cat("TIER 1: Show Progression of Specificity\n")
-cat("=================================================================\n")
+# cat("\n=================================================================\n")
+# cat("TIER 1: Show Progression of Specificity\n")
+# cat("=================================================================\n")
 
-tier1_dir <- dirs$tier1
+# tier1_dir <- dirs$tier1
 
-# Compile all approaches
-progression_data <- data.frame(
-  Approach = c("All TES peaks",
-               "Direct targets (any)",
-               "Direct downregulated",
-               "Promoter DEGs",
-               "High-conf DEGs",
-               "DiffBind + Down"),
-  N_genes = c(
-    length(unique(tes_peaks_annotated$SYMBOL[!is.na(tes_peaks_annotated$SYMBOL)])),
-    length(tes_direct_genes),
-    length(tes_direct_down_genes),
-    length(tes_promoter_degs),
-    length(tes_highconf_degs),
-    ifelse(exists("tes_diffbind_down"), length(tes_diffbind_down), NA)
-  ),
-  N_sig_terms = c(
-    NA,  # Would need to load original analysis
-    ifelse(!is.null(results_approach1), sum(results_approach1$qvalue < 0.05), 0),
-    ifelse(!is.null(results_approach2), sum(results_approach2$qvalue < 0.05), 0),
-    ifelse(!is.null(results_approach3), sum(results_approach3$qvalue < 0.05), 0),
-    ifelse(!is.null(results_approach4), sum(results_approach4$qvalue < 0.05), 0),
-    ifelse(exists("results_approach5") && !is.null(results_approach5),
-           sum(results_approach5$qvalue < 0.05), NA)
-  ),
-  Top_migration_rank = c(
-    NA,
-    ifelse(!is.null(migration_approach1) && nrow(migration_approach1) > 0,
-           which(results_approach1$ID == migration_approach1$ID[1])[1], NA),
-    ifelse(!is.null(migration_approach2) && nrow(migration_approach2) > 0,
-           which(results_approach2$ID == migration_approach2$ID[1])[1], NA),
-    ifelse(!is.null(migration_approach3) && nrow(migration_approach3) > 0,
-           which(results_approach3$ID == migration_approach3$ID[1])[1], NA),
-    ifelse(!is.null(migration_approach4) && nrow(migration_approach4) > 0,
-           which(results_approach4$ID == migration_approach4$ID[1])[1], NA),
-    ifelse(exists("migration_approach5") && !is.null(migration_approach5) && nrow(migration_approach5) > 0,
-           which(results_approach5$ID == migration_approach5$ID[1])[1], NA)
-  )
-)
+# # Compile all approaches
+# progression_data <- data.frame(
+#   Approach = c("All TES peaks",
+#                "Direct targets (any)",
+#                "Direct downregulated",
+#                "Promoter DEGs",
+#                "High-conf DEGs",
+#                "DiffBind + Down"),
+#   N_genes = c(
+#     length(unique(tes_peaks_annotated$SYMBOL[!is.na(tes_peaks_annotated$SYMBOL)])),
+#     length(tes_direct_genes),
+#     length(tes_direct_down_genes),
+#     length(tes_promoter_degs),
+#     length(tes_highconf_degs),
+#     ifelse(exists("tes_diffbind_down"), length(tes_diffbind_down), NA)
+#   ),
+#   N_sig_terms = c(
+#     NA,  # Would need to load original analysis
+#     ifelse(!is.null(results_approach1), sum(results_approach1$qvalue < 0.05), 0),
+#     ifelse(!is.null(results_approach2), sum(results_approach2$qvalue < 0.05), 0),
+#     ifelse(!is.null(results_approach3), sum(results_approach3$qvalue < 0.05), 0),
+#     ifelse(!is.null(results_approach4), sum(results_approach4$qvalue < 0.05), 0),
+#     ifelse(exists("results_approach5") && !is.null(results_approach5),
+#            sum(results_approach5$qvalue < 0.05), NA)
+#   ),
+#   Top_migration_rank = c(
+#     NA,
+#     ifelse(!is.null(migration_approach1) && nrow(migration_approach1) > 0,
+#            which(results_approach1$ID == migration_approach1$ID[1])[1], NA),
+#     ifelse(!is.null(migration_approach2) && nrow(migration_approach2) > 0,
+#            which(results_approach2$ID == migration_approach2$ID[1])[1], NA),
+#     ifelse(!is.null(migration_approach3) && nrow(migration_approach3) > 0,
+#            which(results_approach3$ID == migration_approach3$ID[1])[1], NA),
+#     ifelse(!is.null(migration_approach4) && nrow(migration_approach4) > 0,
+#            which(results_approach4$ID == migration_approach4$ID[1])[1], NA),
+#     ifelse(exists("migration_approach5") && !is.null(migration_approach5) && nrow(migration_approach5) > 0,
+#            which(results_approach5$ID == migration_approach5$ID[1])[1], NA)
+#   )
+# )
 
-write_csv(progression_data,
-          file.path(tier1_dir, "results", "progression_summary.csv"))
+# write_csv(progression_data,
+#           file.path(tier1_dir, "results", "progression_summary.csv"))
 
-cat("\n=== PROGRESSION SUMMARY ===\n")
-print(progression_data)
+# cat("\n=== PROGRESSION SUMMARY ===\n")
+# print(progression_data)
 
-# Create comparison plot
-p_progression <- ggplot(progression_data %>% filter(!is.na(Top_migration_rank)),
-                        aes(x = reorder(Approach, -Top_migration_rank),
-                            y = Top_migration_rank,
-                            fill = N_genes)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = N_genes), hjust = -0.2) +
-  coord_flip() +
-  scale_fill_gradient(low = "lightblue", high = "darkblue") +
-  labs(title = "Progression of Specificity: Migration Term Ranking",
-       subtitle = "Lower rank = stronger enrichment",
-       x = "Approach",
-       y = "Rank of Top Migration Term",
-       fill = "N genes") +
-  theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"),
-        plot.subtitle = element_text(hjust = 0.5))
+# # Create comparison plot
+# p_progression <- ggplot(progression_data %>% filter(!is.na(Top_migration_rank)),
+#                         aes(x = reorder(Approach, -Top_migration_rank),
+#                             y = Top_migration_rank,
+#                             fill = N_genes)) +
+#   geom_bar(stat = "identity") +
+#   geom_text(aes(label = N_genes), hjust = -0.2) +
+#   coord_flip() +
+#   scale_fill_gradient(low = "lightblue", high = "darkblue") +
+#   labs(title = "Progression of Specificity: Migration Term Ranking",
+#        subtitle = "Lower rank = stronger enrichment",
+#        x = "Approach",
+#        y = "Rank of Top Migration Term",
+#        fill = "N genes") +
+#   theme_minimal() +
+#   theme(plot.title = element_text(hjust = 0.5, face = "bold"),
+#         plot.subtitle = element_text(hjust = 0.5))
 
-ggsave(file.path(tier1_dir, "plots", "progression_comparison.pdf"),
-       p_progression, width = 10, height = 6)
+# ggsave(file.path(tier1_dir, "plots", "progression_comparison.pdf"),
+#        p_progression, width = 10, height = 6)
 
 ################################################################################
 # TIER 2: VALIDATION WITH ORTHOGONAL APPROACH
 ################################################################################
-cat("\n=================================================================\n")
-cat("TIER 2: Validation with Orthogonal Approach\n")
-cat("=================================================================\n")
+# cat("\n=================================================================\n")
+# cat("TIER 2: Validation with Orthogonal Approach\n")
+# cat("=================================================================\n")
 
-tier2_dir <- dirs$tier2
+# tier2_dir <- dirs$tier2
 
-# Compare: Direct targets vs DiffBind-derived targets
-# This validates that our findings are robust across different methods
+# # Compare: Direct targets vs DiffBind-derived targets
+# # This validates that our findings are robust across different methods
 
-if (exists("tes_diffbind_down") && length(tes_diffbind_down) > 0) {
+# if (exists("tes_diffbind_down") && length(tes_diffbind_down) > 0) {
 
-  # Venn diagram: Direct Down vs DiffBind Down
-  venn_data <- list(
-    "Direct\nDownregulated" = tes_direct_down_genes,
-    "DiffBind\n+ Down" = tes_diffbind_down
-  )
+#   # Venn diagram: Direct Down vs DiffBind Down
+#   venn_data <- list(
+#     "Direct\nDownregulated" = tes_direct_down_genes,
+#     "DiffBind\n+ Down" = tes_diffbind_down
+#   )
 
-  pdf(file.path(tier2_dir, "plots", "validation_venn.pdf"), width = 8, height = 8)
-  venn.plot <- venn.diagram(
-    x = venn_data,
-    filename = NULL,
-    fill = c("lightblue", "pink"),
-    alpha = 0.5,
-    category.names = names(venn_data),
-    main = "Validation: Direct vs DiffBind Approaches"
-  )
-  grid.draw(venn.plot)
-  dev.off()
+#   pdf(file.path(tier2_dir, "plots", "validation_venn.pdf"), width = 8, height = 8)
+#   venn.plot <- venn.diagram(
+#     x = venn_data,
+#     filename = NULL,
+#     fill = c("lightblue", "pink"),
+#     alpha = 0.5,
+#     category.names = names(venn_data),
+#     main = "Validation: Direct vs DiffBind Approaches"
+#   )
+#   grid.draw(venn.plot)
+#   dev.off()
 
-  # High-confidence genes (in both)
-  high_conf_validated <- intersect(tes_direct_down_genes, tes_diffbind_down)
-  cat("High-confidence validated genes:", length(high_conf_validated), "\n")
+#   # High-confidence genes (in both)
+#   high_conf_validated <- intersect(tes_direct_down_genes, tes_diffbind_down)
+#   cat("High-confidence validated genes:", length(high_conf_validated), "\n")
 
-  write.table(high_conf_validated,
-              file.path(tier2_dir, "gene_lists", "validated_highconf_genes.txt"),
-              row.names = FALSE, col.names = FALSE, quote = FALSE)
+#   write.table(high_conf_validated,
+#               file.path(tier2_dir, "gene_lists", "validated_highconf_genes.txt"),
+#               row.names = FALSE, col.names = FALSE, quote = FALSE)
 
-  # Detailed table
-  validated_detailed <- tes_direct_down %>%
-    filter(gene_symbol %in% high_conf_validated) %>%
-    arrange(padj)
+#   # Detailed table
+#   validated_detailed <- tes_direct_down %>%
+#     filter(gene_symbol %in% high_conf_validated) %>%
+#     arrange(padj)
 
-  write_csv(validated_detailed,
-            file.path(tier2_dir, "gene_lists", "validated_highconf_detailed.csv"))
+#   write_csv(validated_detailed,
+#             file.path(tier2_dir, "gene_lists", "validated_highconf_detailed.csv"))
 
-  # Enrichment on validated genes
-  if (length(high_conf_validated) >= 10) {
-    cat("Running GO enrichment on validated high-confidence genes...\n")
-    ego_tier2 <- perform_GO_enrichment(
-      gene_list = high_conf_validated,
-      background_genes = all_expressed_genes,
-      ont = "BP"
-    )
+#   # Enrichment on validated genes
+#   if (length(high_conf_validated) >= 10) {
+#     cat("Running GO enrichment on validated high-confidence genes...\n")
+#     ego_tier2 <- perform_GO_enrichment(
+#       gene_list = high_conf_validated,
+#       background_genes = all_expressed_genes,
+#       ont = "BP"
+#     )
 
-    results_tier2 <- save_enrichment_results(ego_tier2, "tier2_validated", tier2_dir)
+#     results_tier2 <- save_enrichment_results(ego_tier2, "tier2_validated", tier2_dir)
 
-    # Extract migration terms
-    if (!is.null(results_tier2)) {
-      migration_tier2 <- extract_migration_terms(results_tier2)
-      if (!is.null(migration_tier2) && nrow(migration_tier2) > 0) {
-        write_csv(migration_tier2,
-                  file.path(tier2_dir, "results", "tier2_migration_terms.csv"))
-        cat("  Found", nrow(migration_tier2), "migration-related terms\n")
-        cat("  Top migration term rank:", which(results_tier2$ID == migration_tier2$ID[1]), "\n")
-      }
-    }
-  }
-}
+#     # Extract migration terms
+#     if (!is.null(results_tier2)) {
+#       migration_tier2 <- extract_migration_terms(results_tier2)
+#       if (!is.null(migration_tier2) && nrow(migration_tier2) > 0) {
+#         write_csv(migration_tier2,
+#                   file.path(tier2_dir, "results", "tier2_migration_terms.csv"))
+#         cat("  Found", nrow(migration_tier2), "migration-related terms\n")
+#         cat("  Top migration term rank:", which(results_tier2$ID == migration_tier2$ID[1]), "\n")
+#       }
+#     }
+#   }
+# }
 
 ################################################################################
 # FINAL SUMMARY
@@ -1081,12 +1081,12 @@ cat("  1. Direct targets: ", length(tes_direct_genes), " genes\n")
 cat("  2. Downregulated direct: ", length(tes_direct_down_genes), " genes\n")
 cat("  3. Promoter DEGs: ", length(tes_promoter_degs), " genes\n")
 cat("  4. High-confidence DEGs: ", length(tes_highconf_degs), " genes\n")
-if (exists("tes_diffbind_down")) {
-  cat("  5. DiffBind + Down: ", length(tes_diffbind_down), " genes\n")
-}
-if (exists("high_conf_validated")) {
-  cat("  6. Validated high-conf: ", length(high_conf_validated), " genes\n")
-}
+# if (exists("tes_diffbind_down")) {
+#   cat("  5. DiffBind + Down: ", length(tes_diffbind_down), " genes\n")
+# }
+# if (exists("high_conf_validated")) {
+#   cat("  6. Validated high-conf: ", length(high_conf_validated), " genes\n")
+# }
 
 cat("\n=================================================================\n")
 cat("Check individual approach folders for detailed results!\n")

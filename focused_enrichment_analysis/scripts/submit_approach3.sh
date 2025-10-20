@@ -7,8 +7,8 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --time=02:00:00
-#SBATCH --output=SRF_Eva_integrated_analysis/focused_enrichment_analysis/logs/approach3.out
-#SBATCH --error=SRF_Eva_integrated_analysis/focused_enrichment_analysis/logs/approach3.err
+#SBATCH --output=logs/approach3.out
+#SBATCH --error=logs/approach3.err
 
 echo "========================================================================"
 echo "APPROACH 3: Promoter Peaks Only"

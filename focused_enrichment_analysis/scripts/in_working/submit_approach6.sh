@@ -1,17 +1,17 @@
 #!/bin/bash
-#SBATCH --job-name=tier1_progression
+#SBATCH --job-name=approach6_migration
 #SBATCH --account=kubacki.michal
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=kubacki.michal@hsr.it
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=16G
-#SBATCH --time=01:00:00
-#SBATCH --output=SRF_Eva_integrated_analysis/focused_enrichment_analysis/logs/tier1.out
-#SBATCH --error=SRF_Eva_integrated_analysis/focused_enrichment_analysis/logs/tier1.err
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=32G
+#SBATCH --time=02:00:00
+#SBATCH --output=logs/approach6.out
+#SBATCH --error=logs/approach6.err
 
 echo "========================================================================"
-echo "TIER 1: Show Progression of Specificity"
+echo "APPROACH 6: Migration Gene-Focused (Hypothesis-Driven)"
 echo "========================================================================"
 echo "Job ID: $SLURM_JOB_ID"
 echo "Start time: $(date)"
@@ -22,13 +22,13 @@ conda activate r-bio
 
 cd /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top
 
-Rscript SRF_Eva_integrated_analysis/focused_enrichment_analysis/scripts/tier1_progression.R
+Rscript SRF_Eva_integrated_analysis/focused_enrichment_analysis/scripts/approach6_migration_focused.R
 
 if [ $? -eq 0 ]; then
     echo ""
-    echo "TIER 1 completed successfully!"
+    echo "APPROACH 6 completed successfully!"
     echo "End time: $(date)"
 else
-    echo "ERROR: TIER 1 failed!"
+    echo "ERROR: APPROACH 6 failed!"
     exit 1
 fi

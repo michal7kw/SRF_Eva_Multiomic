@@ -7,8 +7,8 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --time=02:00:00
-#SBATCH --output=SRF_Eva_integrated_analysis/focused_enrichment_analysis/logs/submit_all.out
-#SBATCH --error=SRF_Eva_integrated_analysis/focused_enrichment_analysis/logs/submit_all.err
+#SBATCH --output=logs/submit_all.out
+#SBATCH --error=logs/submit_all.err
 
 
 ################################################################################
@@ -141,9 +141,6 @@ done
 
 # Set working directory
 cd /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top
-
-# Create logs directory
-mkdir -p SRF_Eva_integrated_analysis/focused_enrichment_analysis/logs
 
 # Store job IDs
 LOAD_DATA_JOB=""
