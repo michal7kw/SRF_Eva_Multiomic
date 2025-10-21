@@ -7,8 +7,8 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --time=02:00:00
-#SBATCH --output=SRF_Eva_integrated_analysis/focused_enrichment_analysis/yaptaz_targets_analysis/logs/yaptaz_analysis.out
-#SBATCH --error=SRF_Eva_integrated_analysis/focused_enrichment_analysis/yaptaz_targets_analysis/logs/yaptaz_analysis.err
+#SBATCH --output=logs/yaptaz_analysis.out
+#SBATCH --error=logs/yaptaz_analysis.err
 
 echo "========================================================================"
 echo "YAP/TAZ TARGET ENRICHMENT ANALYSIS"
@@ -23,7 +23,7 @@ conda activate r-bio
 
 cd /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top
 
-Rscript SRF_Eva_integrated_analysis/focused_enrichment_analysis/yaptaz_targets_analysis/scripts/yaptaz_enrichment_analysis.R
+Rscript SRF_Eva_integrated_analysis/focused_enrichment_analysis_list_targets/scripts/yaptaz_enrichment_analysis.R
 
 if [ $? -eq 0 ]; then
     echo ""

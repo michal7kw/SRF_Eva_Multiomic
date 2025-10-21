@@ -125,18 +125,78 @@ save_enrichment_results <- function(enrich_obj, prefix, output_dir) {
 
   # Generate plots
   if (nrow(enrich_obj) >= 10) {
+    cat("  Generating plots for", prefix, "with", nrow(enrich_obj), "terms...\n")
+
+    # Determine number of categories to show
+    n_categories <- min(20, nrow(enrich_obj))
+
+    # Calculate dynamic height based on number of terms
+    # Base height + 0.5 inches per term (ensures adequate spacing)
+    plot_height <- max(14, 6 + (n_categories * 0.5))
+
+    cat("  Plot dimensions: width=15, height=", plot_height, "\n")
+
     # Dot plot
-    p1 <- dotplot(enrich_obj, showCategory = 20) +
-      ggtitle(paste(prefix, "- Top 20 GO Terms")) +
-      theme(plot.title = element_text(hjust = 0.5))
-    ggsave(file.path(output_dir, "plots", paste0(prefix, "_dotplot.pdf")),
-           p1, width = 10, height = 8)
+    p1 <- dotplot(enrich_obj, showCategory = n_categories) +
+      ggtitle(paste(prefix, "- Top", n_categories, "GO Terms")) +
+      theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"),
+            axis.text.y = element_text(size = 8, lineheight = 1.2, margin = margin(r = 5)),
+            axis.text.x = element_text(size = 10),
+            axis.title = element_text(size = 11),
+            strip.text.y = element_text(size = 10),
+            plot.margin = margin(5, 20, 5, 5)) +
+      scale_y_discrete(labels = function(x) {
+        # Wrap long labels at 55 characters
+        sapply(x, function(label) {
+          if (nchar(label) > 55) {
+            paste(strwrap(label, width = 55), collapse = "\n")
+          } else {
+            label
+          }
+        })
+      })
+
+    # Save as PDF
+    pdf_file <- file.path(output_dir, "plots", paste0(prefix, "_dotplot.pdf"))
+    cat("  Saving PDF:", pdf_file, "\n")
+    ggsave(pdf_file, p1, width = 15, height = plot_height, device = "pdf")
+
+    # Save as PNG
+    png_file <- file.path(output_dir, "plots", paste0(prefix, "_dotplot.png"))
+    cat("  Saving PNG:", png_file, "\n")
+    ggsave(png_file, p1, width = 15, height = plot_height, device = "png", dpi = 300)
 
     # Bar plot
-    p2 <- barplot(enrich_obj, showCategory = 20) +
-      ggtitle(paste(prefix, "- Top 20 GO Terms"))
-    ggsave(file.path(output_dir, "plots", paste0(prefix, "_barplot.pdf")),
-           p2, width = 10, height = 8)
+    p2 <- barplot(enrich_obj, showCategory = n_categories) +
+      ggtitle(paste(prefix, "- Top", n_categories, "GO Terms")) +
+      theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"),
+            axis.text.y = element_text(size = 8, lineheight = 1.2, margin = margin(r = 5)),
+            axis.text.x = element_text(size = 10),
+            axis.title = element_text(size = 11),
+            strip.text.y = element_text(size = 10),
+            plot.margin = margin(5, 20, 5, 5)) +
+      scale_y_discrete(labels = function(x) {
+        # Wrap long labels at 55 characters
+        sapply(x, function(label) {
+          if (nchar(label) > 55) {
+            paste(strwrap(label, width = 55), collapse = "\n")
+          } else {
+            label
+          }
+        })
+      })
+
+    # Save as PDF
+    pdf_file <- file.path(output_dir, "plots", paste0(prefix, "_barplot.pdf"))
+    cat("  Saving PDF:", pdf_file, "\n")
+    ggsave(pdf_file, p2, width = 15, height = plot_height, device = "pdf")
+
+    # Save as PNG
+    png_file <- file.path(output_dir, "plots", paste0(prefix, "_barplot.png"))
+    cat("  Saving PNG:", png_file, "\n")
+    ggsave(png_file, p2, width = 15, height = plot_height, device = "png", dpi = 300)
+
+    cat("  Plots saved successfully!\n")
   }
 
   return(results_df)

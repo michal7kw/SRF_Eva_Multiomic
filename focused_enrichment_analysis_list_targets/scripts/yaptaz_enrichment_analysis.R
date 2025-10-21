@@ -11,8 +11,117 @@ load_libraries()
 setwd("/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top")
 load("SRF_Eva_integrated_analysis/focused_enrichment_analysis/data/loaded_data.RData")
 
+################################################################################
+# CUSTOM PLOTTING FUNCTION FOR THIS ANALYSIS
+################################################################################
+
+save_enrichment_results_custom <- function(enrich_obj, prefix, output_dir) {
+
+  if (is.null(enrich_obj) || nrow(enrich_obj) == 0) {
+    cat("  No significant enrichment found for", prefix, "\n")
+    return(NULL)
+  }
+
+  cat("  Processing", nrow(enrich_obj), "enriched terms for", prefix, "\n")
+
+  # Save full results
+  results_df <- as.data.frame(enrich_obj)
+  write_csv(results_df, file.path(output_dir, "results", paste0(prefix, "_GO_enrichment.csv")))
+  cat("  Saved CSV results\n")
+
+  # Save top 20 results
+  if (nrow(results_df) > 0) {
+    top20 <- head(results_df, 20)
+    write_csv(top20, file.path(output_dir, "results", paste0(prefix, "_top20_terms.csv")))
+  }
+
+  # Generate plots
+  if (nrow(enrich_obj) >= 10) {
+    cat("  Generating plots for", prefix, "...\n")
+
+    # Determine number of categories to show
+    n_categories <- min(20, nrow(enrich_obj))
+
+    # Calculate dynamic height based on number of terms
+    # Base height + 0.6 inches per term (ensures adequate spacing)
+    plot_height <- max(16, 6 + (n_categories * 0.6))
+
+    cat("  Plot dimensions: width=16, height=", plot_height, "\n")
+
+    # Dot plot
+    p1 <- dotplot(enrich_obj, showCategory = n_categories) +
+      ggtitle(paste(prefix, "- Top", n_categories, "GO Terms")) +
+      theme_bw() +
+      theme(
+        plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+        axis.text.y = element_text(size = 14, lineheight = 1.3, margin = margin(r = 8)),
+        axis.text.x = element_text(size = 11),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.margin = margin(10, 15, 10, 10)
+      ) +
+      scale_y_discrete(labels = function(x) {
+        # Wrap long labels at 50 characters
+        sapply(x, function(label) {
+          if (nchar(label) > 50) {
+            paste(strwrap(label, width = 50), collapse = "\n")
+          } else {
+            label
+          }
+        })
+      })
+
+    # Save dotplot as PDF
+    pdf_file <- file.path(output_dir, "plots", paste0(prefix, "_dotplot.pdf"))
+    cat("  Saving dotplot PDF:", basename(pdf_file), "\n")
+    ggsave(pdf_file, p1, width = 16, height = plot_height, device = "pdf")
+
+    # Save dotplot as PNG
+    png_file <- file.path(output_dir, "plots", paste0(prefix, "_dotplot.png"))
+    cat("  Saving dotplot PNG:", basename(png_file), "\n")
+    ggsave(png_file, p1, width = 16, height = plot_height, device = "png", dpi = 300)
+
+    # Bar plot
+    p2 <- barplot(enrich_obj, showCategory = n_categories) +
+      ggtitle(paste(prefix, "- Top", n_categories, "GO Terms")) +
+      theme_bw() +
+      theme(
+        plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+        axis.text.y = element_text(size = 14, lineheight = 1.3, margin = margin(r = 8)),
+        axis.text.x = element_text(size = 11),
+        axis.title = element_text(size = 12, face = "bold"),
+        plot.margin = margin(10, 15, 10, 10)
+      ) +
+      scale_y_discrete(labels = function(x) {
+        # Wrap long labels at 50 characters
+        sapply(x, function(label) {
+          if (nchar(label) > 50) {
+            paste(strwrap(label, width = 50), collapse = "\n")
+          } else {
+            label
+          }
+        })
+      })
+
+    # Save barplot as PDF
+    pdf_file <- file.path(output_dir, "plots", paste0(prefix, "_barplot.pdf"))
+    cat("  Saving barplot PDF:", basename(pdf_file), "\n")
+    ggsave(pdf_file, p2, width = 16, height = plot_height, device = "pdf")
+
+    # Save barplot as PNG
+    png_file <- file.path(output_dir, "plots", paste0(prefix, "_barplot.png"))
+    cat("  Saving barplot PNG:", basename(png_file), "\n")
+    ggsave(png_file, p2, width = 16, height = plot_height, device = "png", dpi = 300)
+
+    cat("  All plots saved successfully!\n")
+  } else {
+    cat("  Too few enriched terms for plotting (", nrow(enrich_obj), ")\n")
+  }
+
+  return(results_df)
+}
+
 # Output directory
-base_dir <- "SRF_Eva_integrated_analysis/focused_enrichment_analysis/yaptaz_targets_analysis"
+base_dir <- "SRF_Eva_integrated_analysis/focused_enrichment_analysis_list_targets"
 
 # Create directories (should already exist but ensure)
 dir.create(file.path(base_dir, "results"), recursive = TRUE, showWarnings = FALSE)
@@ -221,8 +330,8 @@ if (length(yaptaz_tes_bound) >= 10) {
   )
 
   if (!is.null(go_yaptaz_tes) && nrow(go_yaptaz_tes) > 0) {
-    save_enrichment_results(go_yaptaz_tes, "yaptaz_TES_bound", base_dir)
     cat("Found", nrow(go_yaptaz_tes), "enriched GO terms\n")
+    save_enrichment_results_custom(go_yaptaz_tes, "yaptaz_TES_bound", base_dir)
   } else {
     cat("No significant GO enrichment found\n")
   }
@@ -243,8 +352,8 @@ if (length(yaptaz_tead1_bound) >= 10) {
   )
 
   if (!is.null(go_yaptaz_tead1) && nrow(go_yaptaz_tead1) > 0) {
-    save_enrichment_results(go_yaptaz_tead1, "yaptaz_TEAD1_bound", base_dir)
     cat("Found", nrow(go_yaptaz_tead1), "enriched GO terms\n")
+    save_enrichment_results_custom(go_yaptaz_tead1, "yaptaz_TEAD1_bound", base_dir)
   } else {
     cat("No significant GO enrichment found\n")
   }
@@ -265,8 +374,8 @@ if (length(yaptaz_both_bound) >= 10) {
   )
 
   if (!is.null(go_yaptaz_both) && nrow(go_yaptaz_both) > 0) {
-    save_enrichment_results(go_yaptaz_both, "yaptaz_both_bound", base_dir)
     cat("Found", nrow(go_yaptaz_both), "enriched GO terms\n")
+    save_enrichment_results_custom(go_yaptaz_both, "yaptaz_both_bound", base_dir)
   } else {
     cat("No significant GO enrichment found\n")
   }
