@@ -19,9 +19,7 @@ GENE_SETS_selected/
 # Ignore all Markdown files
 *.md
 
-# ...but keep any README.md (in root or subfolders)
-!README.md
-!**/README.md
+
 QUICK_REFERENCE.txt
 FILES_CREATED.txt
 output/msigdb_by_collection/MASTER_SUMMARY.txt
@@ -31,3 +29,18 @@ focused_enrichment_analysis/VISUAL_SUMMARY.txt
 focused_enrichment_analysis/SCRIPT_SUMMARY.txt
 focused_enrichment_analysis/approach6_migration_focused
 experiment.txt
+
+
+# ...but keep any README.md (in root or subfolders)
+!README.md
+!**/README.md
+
+*.png
+*.pdf
+*.csv
+*.bed
+*.narrowPeak
+*.html
+scripts/analysis_2/results/02_motif_enrichment
+*.motifs
+scripts/analysis_3/results/02_motif_analysis
