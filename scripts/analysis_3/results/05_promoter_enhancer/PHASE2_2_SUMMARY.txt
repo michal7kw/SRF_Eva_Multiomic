@@ -1,0 +1,63 @@
+=== Phase 2.2: Promoter vs Enhancer Binding Effects ===
+Date: 2025-11-25 21:19:44.800853 
+
+Peak Location Distribution:
+============================
+# A tibble: 9 × 3
+  category          location_type     n_peaks
+  <chr>             <chr>               <int>
+1 Shared_equivalent Distal_Enhancer      1157
+2 Shared_equivalent Promoter              918
+3 Shared_equivalent Proximal_Enhancer     753
+4 TEAD1_unique      Distal_Enhancer      1606
+5 TEAD1_unique      Promoter             2218
+6 TEAD1_unique      Proximal_Enhancer    1241
+7 TES_unique        Distal_Enhancer      1353
+8 TES_unique        Promoter             1006
+9 TES_unique        Proximal_Enhancer     872
+
+
+Expression Statistics by Location:
+====================================
+# A tibble: 9 × 8
+  category        location_type n_genes n_DEGs pct_DEG mean_log2FC median_log2FC
+  <chr>           <chr>           <int>  <int>   <dbl>       <dbl>         <dbl>
+1 Shared_equival… Distal_Enhan…    1156    632    54.7     0.0786       -0.0158 
+2 Shared_equival… Promoter          917    601    65.5    -0.499        -0.390  
+3 Shared_equival… Proximal_Enh…     752    439    58.4    -0.0615       -0.00972
+4 TEAD1_unique    Distal_Enhan…    1604    881    54.9     0.0519        0.0253 
+5 TEAD1_unique    Promoter         2217   1329    60.0    -0.267        -0.177  
+6 TEAD1_unique    Proximal_Enh…    1239    660    53.3    -0.00209      -0.0426 
+7 TES_unique      Distal_Enhan…    1349    742    55       0.0202       -0.0188 
+8 TES_unique      Promoter         1005    628    62.5    -0.286        -0.178  
+9 TES_unique      Proximal_Enh…     872    532    61.0    -0.195        -0.0479 
+# ℹ 1 more variable: sd_log2FC <dbl>
+
+
+Distance-Expression Correlation:
+==================================
+TES-related peaks: rho = 0.001 , p = 9.698719e-01 
+TEAD1-related peaks: rho = 0.049 , p = 8.580766e-03 
+
+
+Multiple Peak Effects:
+=======================
+# A tibble: 3 × 5
+  peak_group          n_genes n_DEGs pct_DEG mean_abs_log2FC
+  <chr>                 <int>  <int>   <dbl>           <dbl>
+1 Multiple Peaks (3+)     920    610    66.3            1.28
+2 Single Peak            4599   2421    52.6            1.02
+3 Two Peaks              1880   1099    58.5            1.09
+
+Wilcoxon test (3+ peaks vs 1 peak):
+p-value = 1.105838e-11 
+
+
+Promoter vs Enhancer Binding:
+==============================
+# A tibble: 3 × 6
+  binding_pattern n_genes n_DEGs pct_DEG mean_log2FC median_log2FC
+  <chr>             <int>  <int>   <dbl>       <dbl>         <dbl>
+1 Both               1401    924    66.0      -0.427       -0.336 
+2 Enhancer Only      3836   1975    51.5       0.164        0.0729
+3 Promoter Only      2162   1231    56.9      -0.179       -0.104 

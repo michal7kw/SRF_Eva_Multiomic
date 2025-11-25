@@ -2,8 +2,8 @@
 #SBATCH --job-name=run_all_modules
 #SBATCH --account=kubacki.michal
 #SBATCH --partition=workq
-#SBATCH --output=logs/run_all_modules_%j.out
-#SBATCH --error=logs/run_all_modules_%j.err
+#SBATCH --output=logs/run_all_modules.out
+#SBATCH --error=logs/run_all_modules.err
 #SBATCH --time=01:00:00
 #SBATCH --mem=4G
 #SBATCH --cpus-per-task=1

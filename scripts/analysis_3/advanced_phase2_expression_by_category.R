@@ -150,7 +150,7 @@ message("\n[Step 3] Integrating with RNA-seq data...")
 # Match gene symbols
 gene_peak_map <- gene_peak_map %>%
   left_join(
-    rna_results %>% select(gene_symbol, baseMean, log2FoldChange, padj),
+    rna_results %>% dplyr::select(gene_symbol, baseMean, log2FoldChange, padj),
     by = c("gene_name" = "gene_symbol")
   )
 
@@ -178,7 +178,7 @@ gene_categories <- gene_peak_map %>%
 
 # Add genes with no peaks (unbound category)
 unbound_genes <- rna_results %>%
-  filter(!gene_symbol %in% gene_categories$gene_name) %>%
+  dplyr::filter(!gene_symbol %in% gene_categories$gene_name) %>%
   mutate(
     gene_name = gene_symbol,
     n_peaks = 0,
@@ -190,9 +190,9 @@ unbound_genes <- rna_results %>%
     has_promoter_peak = FALSE,
     has_enhancer_peak = FALSE
   ) %>%
-  select(gene_name, n_peaks, categories, primary_category, closest_peak_distance,
-         max_tes_signal, max_tead1_signal, has_promoter_peak, has_enhancer_peak,
-         baseMean, log2FoldChange, padj)
+  dplyr::select(gene_name, n_peaks, categories, primary_category, closest_peak_distance,
+                max_tes_signal, max_tead1_signal, has_promoter_peak, has_enhancer_peak,
+                baseMean, log2FoldChange, padj)
 
 # Combine bound and unbound genes
 all_genes <- bind_rows(gene_categories, unbound_genes)
@@ -211,28 +211,40 @@ all_genes$regulation <- ifelse(
 
 message("\n[Step 4] Performing statistical comparisons...")
 
-# Compare expression changes across categories
-categories_to_compare <- c(
-  "TES_unique", "TEAD1_unique", "Shared_high",
-  "Shared_TES_dominant", "Shared_TEAD1_dominant",
-  "Shared_equivalent", "Unbound"
-)
+# Get available categories from the data
+available_categories <- unique(all_genes$primary_category)
+message("  Available categories: ", paste(available_categories, collapse = ", "))
 
-# Subset to these categories
+# Subset to available categories with sufficient data (>= 3 genes)
+category_counts <- table(all_genes$primary_category)
+valid_categories <- names(category_counts[category_counts >= 3])
+message("  Categories with >= 3 genes: ", paste(valid_categories, collapse = ", "))
+
 expr_data <- all_genes %>%
-  filter(primary_category %in% categories_to_compare)
+  dplyr::filter(primary_category %in% valid_categories)
 
-# Wilcoxon tests comparing each category to Unbound
-stat_results <- compare_means(
-  log2FoldChange ~ primary_category,
-  data = expr_data,
-  method = "wilcox.test",
-  ref.group = "Unbound"
-)
+# Wilcoxon tests comparing each category to Unbound (if Unbound exists)
+ref_group <- if ("Unbound" %in% valid_categories) "Unbound" else valid_categories[1]
+message("  Reference group for comparison: ", ref_group)
 
-write.csv(stat_results,
-          file.path(OUTPUT_DIR, "expression_statistical_comparison.csv"),
-          row.names = FALSE)
+stat_results <- tryCatch({
+  compare_means(
+    log2FoldChange ~ primary_category,
+    data = expr_data,
+    method = "wilcox.test",
+    ref.group = ref_group
+  )
+}, error = function(e) {
+  message("  Warning: Statistical comparison failed - ", e$message)
+  NULL
+})
+
+if (!is.null(stat_results)) {
+  write.csv(stat_results,
+            file.path(OUTPUT_DIR, "expression_statistical_comparison.csv"),
+            row.names = FALSE)
+  message("  Statistical results saved.")
+}
 
 # Chi-square test for proportions of up/down regulated genes
 regulation_table <- table(expr_data$primary_category, expr_data$regulation)
@@ -254,19 +266,18 @@ message("\n[Step 5] Generating visualizations...")
 
 # 5.1: Boxplot of expression changes by category
 pdf(file.path(OUTPUT_DIR, "expression_by_category_boxplots.pdf"), width = 12, height = 8)
+
+# Build comparisons dynamically based on available categories
+comparisons_list <- list()
+for (cat in setdiff(valid_categories, ref_group)) {
+  comparisons_list <- c(comparisons_list, list(c(cat, ref_group)))
+}
+
 p <- ggplot(expr_data, aes(x = primary_category, y = log2FoldChange, fill = primary_category)) +
   geom_violin(alpha = 0.7) +
   geom_boxplot(width = 0.3, alpha = 0.5, outlier.shape = NA) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
   scale_fill_brewer(palette = "Set2") +
-  stat_compare_means(
-    comparisons = list(
-      c("TES_unique", "Unbound"),
-      c("TEAD1_unique", "Unbound"),
-      c("Shared_high", "Unbound")
-    ),
-    method = "wilcox.test"
-  ) +
   theme_classic() +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1),
@@ -278,6 +289,11 @@ p <- ggplot(expr_data, aes(x = primary_category, y = log2FoldChange, fill = prim
     x = "Binding Category",
     y = "log2 Fold Change"
   )
+
+# Add statistical comparisons only if we have valid comparisons
+if (length(comparisons_list) > 0 && length(comparisons_list) <= 10) {
+  p <- p + stat_compare_means(comparisons = comparisons_list, method = "wilcox.test")
+}
 print(p)
 dev.off()
 
@@ -298,7 +314,7 @@ dev.off()
 
 # 5.3: Stacked bar chart of regulation proportions
 regulation_counts <- expr_data %>%
-  filter(is_DEG) %>%
+  dplyr::filter(is_DEG) %>%
   group_by(primary_category, regulation) %>%
   summarise(count = n(), .groups = "drop") %>%
   group_by(primary_category) %>%
@@ -321,7 +337,7 @@ dev.off()
 
 # 5.4: Scatter plot: binding signal vs expression change
 pdf(file.path(OUTPUT_DIR, "binding_signal_vs_expression.pdf"), width = 12, height = 10)
-p1 <- ggplot(expr_data %>% filter(primary_category != "Unbound"),
+p1 <- ggplot(expr_data %>% dplyr::filter(primary_category != "Unbound"),
              aes(x = log2(max_tes_signal + 1), y = log2FoldChange, color = primary_category)) +
   geom_point(alpha = 0.5) +
   geom_smooth(method = "lm", se = TRUE) +
@@ -334,7 +350,7 @@ p1 <- ggplot(expr_data %>% filter(primary_category != "Unbound"),
     color = "Category"
   )
 
-p2 <- ggplot(expr_data %>% filter(primary_category != "Unbound"),
+p2 <- ggplot(expr_data %>% dplyr::filter(primary_category != "Unbound"),
              aes(x = log2(max_tead1_signal + 1), y = log2FoldChange, color = primary_category)) +
   geom_point(alpha = 0.5) +
   geom_smooth(method = "lm", se = TRUE) +
@@ -352,7 +368,7 @@ dev.off()
 
 # 5.5: Heatmap of top genes per category
 top_genes_per_category <- expr_data %>%
-  filter(is_DEG) %>%
+  dplyr::filter(is_DEG) %>%
   group_by(primary_category) %>%
   arrange(padj) %>%
   slice_head(n = 20) %>%

@@ -22,7 +22,7 @@ GENE_SETS_selected/
 
 QUICK_REFERENCE.txt
 FILES_CREATED.txt
-output/msigdb_by_collection/MASTER_SUMMARY.txt
+output/12_msigdb_by_collection/MASTER_SUMMARY.txt
 focused_enrichment_analysis/tier1_progression
 focused_enrichment_analysis/tier2_progression
 focused_enrichment_analysis/VISUAL_SUMMARY.txt
@@ -44,3 +44,6 @@ experiment.txt
 scripts/analysis_2/results/02_motif_enrichment
 *.motifs
 scripts/analysis_3/results/02_motif_analysis
+
+old/
+*.gz

@@ -2,8 +2,8 @@
 #SBATCH --job-name=03_medip_int
 #SBATCH --account=kubacki.michal
 #SBATCH --partition=workq
-#SBATCH --output=logs/03_medip_int_%j.out
-#SBATCH --error=logs/03_medip_int_%j.err
+#SBATCH --output=logs/03_medip_int.out
+#SBATCH --error=logs/03_medip_int.err
 #SBATCH --time=02:00:00
 #SBATCH --mem=32G
 #SBATCH --cpus-per-task=4

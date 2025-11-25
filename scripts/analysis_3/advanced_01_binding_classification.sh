@@ -42,7 +42,7 @@ cd /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_integrated_analy
 
 # Activate conda environment
 source /opt/common/tools/ric.cosr/miniconda3/bin/activate
-conda activate r_chipseq_env
+conda activate analysis3_env
 
 # Run R script
 Rscript scripts/analysis_3/advanced_01_binding_classification.R

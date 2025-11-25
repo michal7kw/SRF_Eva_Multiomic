@@ -2,8 +2,8 @@
 #SBATCH --job-name=05_func_enrich
 #SBATCH --account=kubacki.michal
 #SBATCH --partition=workq
-#SBATCH --output=logs/05_func_enrich_%j.out
-#SBATCH --error=logs/05_func_enrich_%j.err
+#SBATCH --output=logs/05_func_enrich.out
+#SBATCH --error=logs/05_func_enrich.err
 #SBATCH --time=01:00:00
 #SBATCH --mem=16G
 #SBATCH --cpus-per-task=4

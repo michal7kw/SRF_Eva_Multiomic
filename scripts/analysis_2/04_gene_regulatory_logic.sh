@@ -2,8 +2,8 @@
 #SBATCH --job-name=04_gene_reg
 #SBATCH --account=kubacki.michal
 #SBATCH --partition=workq
-#SBATCH --output=logs/04_gene_reg_%j.out
-#SBATCH --error=logs/04_gene_reg_%j.err
+#SBATCH --output=logs/04_gene_reg.out
+#SBATCH --error=logs/04_gene_reg.err
 #SBATCH --time=01:00:00
 #SBATCH --mem=16G
 #SBATCH --cpus-per-task=4

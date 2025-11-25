@@ -117,7 +117,7 @@ echo "Creating motif comparison summary..."
 echo "=================================================="
 
 # Activate R environment for comparative analysis
-conda activate r_chipseq_env
+conda activate analysis3_env
 
 # Create R script for motif comparison
 cat > ${OUTPUT_DIR}/compare_motifs.R << 'EOF'

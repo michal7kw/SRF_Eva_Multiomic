@@ -28,7 +28,7 @@ mkdir -p ${OUTPUT_DIR}
 
 # Activate conda environment
 source /opt/common/tools/ric.cosr/miniconda3/bin/activate
-conda activate cutntag
+conda activate analysis3_env 
 
 echo ""
 echo "Step 1: Checking input files..."
@@ -129,7 +129,7 @@ echo ""
 echo "Step 4: Quantitative analysis with R..."
 echo ""
 
-conda activate r_chipseq_env
+conda activate analysis3_env
 
 # Create R script for quantitative analysis
 cat > ${OUTPUT_DIR}/quantify_methylation.R << 'REOF'

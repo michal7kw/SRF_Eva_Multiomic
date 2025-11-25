@@ -7,8 +7,8 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=48G
 #SBATCH --time=04:00:00
-#SBATCH --output=SRF_Eva_integrated_analysis/focused_enrichment_analysis/logs/improved_approaches_%j.out
-#SBATCH --error=SRF_Eva_integrated_analysis/focused_enrichment_analysis/logs/improved_approaches_%j.err
+#SBATCH --output=SRF_Eva_integrated_analysis/focused_enrichment_analysis/logs/improved_approaches.out
+#SBATCH --error=SRF_Eva_integrated_analysis/focused_enrichment_analysis/logs/improved_approaches.err
 
 echo "========================================================================"
 echo "IMPROVED ENRICHMENT ANALYSIS APPROACHES"

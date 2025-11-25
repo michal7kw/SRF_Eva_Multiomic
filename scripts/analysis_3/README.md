@@ -177,3 +177,188 @@ Monitor job progress with:
 squeue -u $USER
 tail -f scripts/analysis_3/logs/advanced_*.out
 ```
+
+---
+
+# Project Overview
+
+Advanced multi-omics integrative analysis pipeline for TES vs TEAD1 comparative study in SNB19 glioblastoma cells. Integrates:
+- **Cut&Tag**: TES/TEAD1 binding site classification and signal quantification
+- **RNA-seq**: Differential expression (TES vs GFP)
+- **meDIP-seq**: DNA methylation at regulatory regions
+
+The pipeline classifies binding sites, discovers motifs, maps regulatory cascades, and prioritizes targets for experimental validation.
+
+## Environment Setup
+
+```bash
+# Activate conda
+source /opt/common/tools/ric.cosr/miniconda3/bin/activate
+
+# Primary environment for R analysis
+conda activate r_chipseq_env
+
+# For HOMER motif analysis (Phase 1.2)
+conda activate genomics_env
+
+# For deepTools signal dynamics (Phase 1.3)
+conda activate signal_dynamics
+```
+
+### HOMER hg38 Genome Setup
+Required before running Phase 1.2:
+```bash
+perl /beegfs/scratch/ric.sessa/kubacki.michal/conda/envs/genomics_env/share/homer/configureHomer.pl -install hg38
+```
+
+## Running the Pipeline
+
+All scripts are submitted via SLURM from the parent directory:
+```bash
+cd /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_integrated_analysis
+sbatch scripts/analysis_3/<script_name>.sh
+```
+
+### Execution Order (Dependencies Matter)
+
+```
+Phase 1.1 (binding classification) ─┬─> Phase 1.2 (motifs)
+                                    └─> Phase 1.3 (signal dynamics)
+                                    └─> Phase 2.1 (expression by category)
+                                            │
+                                            └─> Phase 2.2 (promoter/enhancer)
+                                                    │
+                                                    └─> Phase 3 (methylation integration)
+                                                            │
+                                                            └─> Phase 5.2 (master regulators) ──┐
+                                                                    │                           │
+                                                                    ├─> Phase 5.1, 5.3          │
+                                                                    │                           │
+                                                                    └─> Phase 2.3 (cascades)*───┘
+                                                                            │
+                                                                            └─> Phase 6 (prioritization)
+                                                                                    │
+                                                                                    └─> Phase 8 (figures)
+```
+*Phase 2.3 requires Phase 5.2 output - run Phase 5 before Phase 2.3*
+
+### Quick Start
+```bash
+# Phase 1: Binding analysis (start here)
+sbatch scripts/analysis_3/advanced_01_binding_classification.sh
+# Wait for completion
+sbatch scripts/analysis_3/advanced_02_motif_analysis.sh
+sbatch scripts/analysis_3/advanced_03_signal_dynamics.sh
+
+# Phase 2.1-2.2: Regulatory logic
+sbatch scripts/analysis_3/advanced_phase2_expression_by_category.sh
+sbatch scripts/analysis_3/advanced_phase2_promoter_enhancer.sh
+
+# Phase 3: Methylation (requires meDIP data)
+sbatch scripts/analysis_3/advanced_phase3_promoter_methylation_expression.sh
+
+# Phase 5: Networks (run BEFORE Phase 2.3)
+sbatch scripts/analysis_3/advanced_phase5_master_regulators.sh
+sbatch scripts/analysis_3/advanced_phase5_1_coregulators.sh
+sbatch scripts/analysis_3/advanced_phase5_3_pathway_crosstalk.sh
+
+# Phase 2.3: Cascades (requires Phase 5.2 output)
+sbatch scripts/analysis_3/advanced_phase2_3_regulatory_cascades.sh
+
+# Phase 6 & 8: Final analysis
+sbatch scripts/analysis_3/advanced_phase6_target_prioritization.sh
+sbatch scripts/analysis_3/advanced_phase8_publication_figures.sh
+```
+
+### Monitor Jobs
+```bash
+squeue -u $USER
+tail -f scripts/analysis_3/logs/advanced_*.out
+```
+
+## Pipeline Architecture
+
+### Phase 1: Binding & Signal Analysis
+| Script | Purpose | Key Output |
+|--------|---------|------------|
+| `advanced_01_binding_classification.R` | Classify peaks into 6 categories (TES_unique, TEAD1_unique, Shared_*) | `results/01_binding_classification/binding_site_classification.csv` |
+| `advanced_02_motif_analysis.sh` | HOMER de novo motif discovery per category | `results/02_motif_analysis/*_motifs/` |
+| `advanced_03_signal_dynamics.sh` | deepTools signal quantification at peaks | `results/03_signal_dynamics/` |
+
+### Phase 2: Regulatory Logic
+| Script | Purpose | Key Output |
+|--------|---------|------------|
+| `advanced_phase2_expression_by_category.R` | Expression by binding category | `results/04_category_expression/` |
+| `advanced_phase2_promoter_enhancer.R` | Promoter vs enhancer effects | `results/05_promoter_enhancer/` |
+| `advanced_phase2_3_regulatory_cascades.R` | TF-to-TF networks | `results/06_regulatory_cascades/` |
+
+### Phase 3: Methylation Integration
+| Script | Purpose | Key Output |
+|--------|---------|------------|
+| `advanced_phase3_promoter_methylation_expression.R` | Three-way integration (binding + methylation + expression) | `results/08_methylation_expression/` |
+
+### Phase 5: Network Analysis
+| Script | Purpose | Key Output |
+|--------|---------|------------|
+| `advanced_phase5_master_regulators.R` | Identify key TF drivers | `results/09_tf_networks/master_regulator_analysis.csv` |
+| `advanced_phase5_1_coregulators.R` | Co-factor prediction | `results/10_coregulators/` |
+| `advanced_phase5_3_pathway_crosstalk.R` | Pathway interactions | `results/11_pathway_crosstalk/` |
+
+### Phase 6 & 8: Target Prioritization & Figures
+| Script | Purpose | Key Output |
+|--------|---------|------------|
+| `advanced_phase6_target_prioritization.R` | Multi-metric scoring for CRISPR candidates | `results/12_target_prioritization/` |
+| `advanced_phase8_publication_figures.R` | Publication-ready figures | `results/13_publication_figures/` |
+
+## Key Analysis Parameters
+
+### Peak Classification (Phase 1.1)
+- Overlap threshold: 500bp
+- Signal ratio threshold: 0.2 (log2)
+- High signal percentile: 75th percentile
+
+### Peak-to-Gene Mapping
+- Promoter: ChIPseeker annotation
+- Enhancer: 50kb distance threshold from TSS
+
+### Statistical Thresholds
+- DEG significance: padj < 0.05 (FDR)
+- Pathway enrichment: qvalue < 0.05
+- No log2FC filter (captures all significant changes)
+
+### Gene ID Harmonization
+```
+RNA-seq (Ensembl) → Cut&Tag (Entrez) → meDIP (Symbol)
+```
+Conversion via `org.Hs.eg.db` R package.
+
+## Input Data Dependencies
+
+### From Upstream Pipelines
+```
+SRF_Eva_CUTandTAG/results/05_peaks_narrow/
+  ├── TES_peaks.narrowPeak
+  └── TEAD1_peaks.narrowPeak
+
+SRF_Eva_CUTandTAG/results/06_bigwig/
+  ├── TES-{1,2,3}_CPM.bw
+  └── TEAD1-{1,2,3}_CPM.bw
+
+SRF_Eva_RNA/results/05_deseq2/
+  └── deseq2_results_TES_vs_GFP.txt
+
+meDIP/results/07_differential_MEDIPS/
+  └── TES_vs_GFP_DMRs_FDR05_FC2.csv  (optional, for Phase 3)
+```
+## Key R Libraries
+
+**Genomics**: GenomicRanges, rtracklayer, ChIPseeker, TxDb.Hsapiens.UCSC.hg38.knownGene
+**Enrichment**: clusterProfiler, org.Hs.eg.db, msigdbr, fgsea
+**Visualization**: ggplot2, ComplexHeatmap, pheatmap, VennDiagram, ggrepel
+**Networks**: igraph, visNetwork
+**Data manipulation**: dplyr, tidyr, readr, stringr
+
+## Notes
+- **TESmut is excluded** from this comparative analysis (TES vs TEAD1 only)
+- All scripts set `setwd("/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top")` as working directory
+- Output paths are relative to this working directory

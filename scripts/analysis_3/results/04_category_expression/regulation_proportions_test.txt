@@ -1,0 +1,16 @@
+Chi-square Test: Regulation Proportions by Category
+===================================================
+
+                   
+                     Down Not_DE    Up
+  Shared_equivalent   501    661   368
+  TEAD1_unique       1239   1761   932
+  TES_unique          605    847   485
+  Unbound            3711  18322  4527
+
+
+	Pearson's Chi-squared test
+
+data:  regulation_table
+X-squared = 1738.1, df = 6, p-value < 2.2e-16
+

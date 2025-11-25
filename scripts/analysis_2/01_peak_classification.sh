@@ -2,8 +2,8 @@
 #SBATCH --job-name=01_peak_class
 #SBATCH --account=kubacki.michal
 #SBATCH --partition=workq
-#SBATCH --output=logs/01_peak_class_%j.out
-#SBATCH --error=logs/01_peak_class_%j.err
+#SBATCH --output=logs/01_peak_class.out
+#SBATCH --error=logs/01_peak_class.err
 #SBATCH --time=01:00:00
 #SBATCH --mem=16G
 #SBATCH --cpus-per-task=4

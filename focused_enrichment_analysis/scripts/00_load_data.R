@@ -30,9 +30,9 @@ deseq_results <- read.table(
 
 # Integrative analysis results
 cat("Loading integrative analysis results...\n")
-tes_direct <- read_csv("SRF_Eva_integrated_analysis/output/results/direct_targets/TES_direct_targets_all_genes.csv")
-tead1_direct <- read_csv("SRF_Eva_integrated_analysis/output/results/direct_targets/TEAD1_direct_targets_all_genes.csv")
-tes_specific <- read_csv("SRF_Eva_integrated_analysis/output/results/direct_targets/TES_specific_targets_all_genes.csv")
+tes_direct <- read_csv("SRF_Eva_integrated_analysis/output/results/10_direct_targets/TES_direct_targets_all_genes.csv")
+tead1_direct <- read_csv("SRF_Eva_integrated_analysis/output/results/10_direct_targets/TEAD1_direct_targets_all_genes.csv")
+tes_specific <- read_csv("SRF_Eva_integrated_analysis/output/results/10_direct_targets/TES_specific_targets_all_genes.csv")
 
 # Cut&Tag annotated peaks
 cat("Loading Cut&Tag peak annotations...\n")
@@ -60,8 +60,8 @@ cat("  TES peaks annotated: ", nrow(tes_peaks_annotated), "\n")
 
 # Background: all genes with reasonable expression
 all_expressed_genes <- deseq_results$gene_symbol[!is.na(deseq_results$baseMean) &
-                                                   deseq_results$baseMean > 10 &
-                                                   !is.na(deseq_results$gene_symbol)]
+  deseq_results$baseMean > 10 &
+  !is.na(deseq_results$gene_symbol)]
 
 # DEGs
 degs <- deseq_results %>%

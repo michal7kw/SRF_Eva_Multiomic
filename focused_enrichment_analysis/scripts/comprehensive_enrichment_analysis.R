@@ -20,7 +20,7 @@ suppressPackageStartupMessages({
   library(clusterProfiler)
   library(org.Hs.eg.db)
   library(msigdbr)
-  library(dplyr)  # Load dplyr LAST to avoid namespace conflicts
+  library(dplyr) # Load dplyr LAST to avoid namespace conflicts
 })
 
 # Set working directory
@@ -56,15 +56,15 @@ cat("Loading RNA-seq DEG data...\n")
 deseq_results <- read.table(
   "SRF_Eva_RNA/results/05_deseq2/deseq2_results_TES_vs_GFP.txt",
   header = TRUE,
-  sep = "\t",  # Tab-delimited, not comma
+  sep = "\t", # Tab-delimited, not comma
   stringsAsFactors = FALSE
 )
 
 # Integrative analysis results
 cat("Loading integrative analysis results...\n")
-tes_direct <- read_csv("SRF_Eva_integrated_analysis/output/results/direct_targets/TES_direct_targets_all_genes.csv")
-tead1_direct <- read_csv("SRF_Eva_integrated_analysis/output/results/direct_targets/TEAD1_direct_targets_all_genes.csv")
-tes_specific <- read_csv("SRF_Eva_integrated_analysis/output/results/direct_targets/TES_specific_targets_all_genes.csv")
+tes_direct <- read_csv("SRF_Eva_integrated_analysis/output/results/10_direct_targets/TES_direct_targets_all_genes.csv")
+tead1_direct <- read_csv("SRF_Eva_integrated_analysis/output/results/10_direct_targets/TEAD1_direct_targets_all_genes.csv")
+tes_specific <- read_csv("SRF_Eva_integrated_analysis/output/results/10_direct_targets/TES_specific_targets_all_genes.csv")
 
 # Cut&Tag annotated peaks
 cat("Loading Cut&Tag peak annotations...\n")
@@ -92,41 +92,47 @@ cat("  TES peaks annotated: ", nrow(tes_peaks_annotated), "\n")
 
 # Function to perform GO enrichment with proper background
 perform_GO_enrichment <- function(gene_list, background_genes, ont = "BP",
-                                   pvalueCutoff = 0.05, qvalueCutoff = 0.05,
-                                   minGSSize = 10, maxGSSize = 500) {
-
+                                  pvalueCutoff = 0.05, qvalueCutoff = 0.05,
+                                  minGSSize = 10, maxGSSize = 500) {
   # Convert gene symbols to Entrez IDs
-  gene_entrez <- bitr(gene_list, fromType = "SYMBOL", toType = "ENTREZID",
-                      OrgDb = org.Hs.eg.db, drop = TRUE)
+  gene_entrez <- bitr(gene_list,
+    fromType = "SYMBOL", toType = "ENTREZID",
+    OrgDb = org.Hs.eg.db, drop = TRUE
+  )
 
-  background_entrez <- bitr(background_genes, fromType = "SYMBOL", toType = "ENTREZID",
-                            OrgDb = org.Hs.eg.db, drop = TRUE)
+  background_entrez <- bitr(background_genes,
+    fromType = "SYMBOL", toType = "ENTREZID",
+    OrgDb = org.Hs.eg.db, drop = TRUE
+  )
 
   # Run enrichGO
-  ego <- enrichGO(gene = gene_entrez$ENTREZID,
-                  universe = background_entrez$ENTREZID,
-                  OrgDb = org.Hs.eg.db,
-                  ont = ont,
-                  pAdjustMethod = "BH",
-                  pvalueCutoff = pvalueCutoff,
-                  qvalueCutoff = qvalueCutoff,
-                  minGSSize = minGSSize,
-                  maxGSSize = maxGSSize,
-                  readable = TRUE)
+  ego <- enrichGO(
+    gene = gene_entrez$ENTREZID,
+    universe = background_entrez$ENTREZID,
+    OrgDb = org.Hs.eg.db,
+    ont = ont,
+    pAdjustMethod = "BH",
+    pvalueCutoff = pvalueCutoff,
+    qvalueCutoff = qvalueCutoff,
+    minGSSize = minGSSize,
+    maxGSSize = maxGSSize,
+    readable = TRUE
+  )
 
   return(ego)
 }
 
 # Function to perform GSEA using MSigDB
 perform_GSEA_msigdb <- function(ranked_genes, gene_sets, pvalueCutoff = 0.05) {
-
   # Convert to Entrez IDs
-  gene_mapping <- bitr(names(ranked_genes), fromType = "SYMBOL", toType = "ENTREZID",
-                       OrgDb = org.Hs.eg.db, drop = TRUE)
+  gene_mapping <- bitr(names(ranked_genes),
+    fromType = "SYMBOL", toType = "ENTREZID",
+    OrgDb = org.Hs.eg.db, drop = TRUE
+  )
 
   # Create ranked list with Entrez IDs
   ranked_entrez <- ranked_genes[gene_mapping$SYMBOL]
-  names(ranked_entrez) <- as.character(gene_mapping$ENTREZID)  # ENSURE CHARACTER
+  names(ranked_entrez) <- as.character(gene_mapping$ENTREZID) # ENSURE CHARACTER
   ranked_entrez <- sort(ranked_entrez, decreasing = TRUE)
 
   # Prepare gene sets
@@ -145,7 +151,7 @@ perform_GSEA_msigdb <- function(ranked_genes, gene_sets, pvalueCutoff = 0.05) {
     msigdb_t2g <- gene_sets_df %>% dplyr::select(gs_name, gene = entrez_id)
   } else {
     # Print available columns for debugging
-    cat("Available columns in gene_sets:", paste(colnames(gene_sets_df), collapse=", "), "\n")
+    cat("Available columns in gene_sets:", paste(colnames(gene_sets_df), collapse = ", "), "\n")
     stop("Cannot find Entrez gene column in msigdbr results")
   }
 
@@ -153,24 +159,25 @@ perform_GSEA_msigdb <- function(ranked_genes, gene_sets, pvalueCutoff = 0.05) {
   msigdb_t2g$gene <- as.character(msigdb_t2g$gene)
 
   # Debug: check gene ID formats match
-  cat("DEBUG - Sample ranked gene IDs:", paste(head(names(ranked_entrez), 10), collapse=", "), "\n")
-  cat("DEBUG - Sample TERM2GENE IDs:", paste(head(unique(msigdb_t2g$gene), 10), collapse=", "), "\n")
+  cat("DEBUG - Sample ranked gene IDs:", paste(head(names(ranked_entrez), 10), collapse = ", "), "\n")
+  cat("DEBUG - Sample TERM2GENE IDs:", paste(head(unique(msigdb_t2g$gene), 10), collapse = ", "), "\n")
   cat("DEBUG - Overlap check:", sum(names(ranked_entrez) %in% msigdb_t2g$gene), "genes overlap out of", length(ranked_entrez), "\n")
 
   # Run GSEA
-  gsea_result <- GSEA(geneList = ranked_entrez,
-                      TERM2GENE = msigdb_t2g,
-                      pvalueCutoff = pvalueCutoff,
-                      pAdjustMethod = "BH",
-                      minGSSize = 15,
-                      maxGSSize = 500)
+  gsea_result <- GSEA(
+    geneList = ranked_entrez,
+    TERM2GENE = msigdb_t2g,
+    pvalueCutoff = pvalueCutoff,
+    pAdjustMethod = "BH",
+    minGSSize = 15,
+    maxGSSize = 500
+  )
 
   return(gsea_result)
 }
 
 # Function to save enrichment results
 save_enrichment_results <- function(enrich_obj, prefix, output_dir) {
-
   if (is.null(enrich_obj) || nrow(enrich_obj) == 0) {
     cat("  No significant enrichment found for", prefix, "\n")
     return(NULL)
@@ -193,13 +200,17 @@ save_enrichment_results <- function(enrich_obj, prefix, output_dir) {
       ggtitle(paste(prefix, "- Top 20 GO Terms")) +
       theme(plot.title = element_text(hjust = 0.5))
     ggsave(file.path(output_dir, "plots", paste0(prefix, "_dotplot.pdf")),
-           p1, width = 10, height = 8)
+      p1,
+      width = 10, height = 8
+    )
 
     # Bar plot
     p2 <- barplot(enrich_obj, showCategory = 20) +
       ggtitle(paste(prefix, "- Top 20 GO Terms"))
     ggsave(file.path(output_dir, "plots", paste0(prefix, "_barplot.pdf")),
-           p2, width = 10, height = 8)
+      p2,
+      width = 10, height = 8
+    )
   }
 
   return(results_df)
@@ -207,10 +218,14 @@ save_enrichment_results <- function(enrich_obj, prefix, output_dir) {
 
 # Function to extract migration-related terms
 extract_migration_terms <- function(enrich_results) {
-  if (is.null(enrich_results) || nrow(enrich_results) == 0) return(NULL)
+  if (is.null(enrich_results) || nrow(enrich_results) == 0) {
+    return(NULL)
+  }
 
-  migration_keywords <- c("migration", "motility", "adhesion", "invasion",
-                          "metastasis", "locomotion", "chemotaxis")
+  migration_keywords <- c(
+    "migration", "motility", "adhesion", "invasion",
+    "metastasis", "locomotion", "chemotaxis"
+  )
 
   pattern <- paste(migration_keywords, collapse = "|")
   migration_terms <- enrich_results %>%
@@ -233,8 +248,10 @@ extract_genes_from_peaks <- function(peaks_df) {
     entrez_ids <- entrez_ids[grepl("^[0-9]+$", entrez_ids)]
 
     if (length(entrez_ids) > 0) {
-      gene_mapping <- bitr(entrez_ids, fromType = "ENTREZID", toType = "SYMBOL",
-                          OrgDb = org.Hs.eg.db, drop = TRUE)
+      gene_mapping <- bitr(entrez_ids,
+        fromType = "ENTREZID", toType = "SYMBOL",
+        OrgDb = org.Hs.eg.db, drop = TRUE
+      )
       genes <- unique(gene_mapping$SYMBOL)
     } else {
       genes <- character(0)
@@ -261,16 +278,17 @@ tes_direct_genes <- tes_direct$gene_symbol
 
 # Background: all genes with reasonable expression
 all_expressed_genes <- deseq_results$gene_symbol[!is.na(deseq_results$baseMean) &
-                                                   deseq_results$baseMean > 10 &
-                                                   !is.na(deseq_results$gene_symbol)]
+  deseq_results$baseMean > 10 &
+  !is.na(deseq_results$gene_symbol)]
 
 cat("TES direct targets:", length(tes_direct_genes), "\n")
 cat("Background (expressed genes):", length(all_expressed_genes), "\n")
 
 # Save gene list
 write.table(tes_direct_genes,
-            file.path(approach1_dir, "gene_lists", "TES_direct_targets.txt"),
-            row.names = FALSE, col.names = FALSE, quote = FALSE)
+  file.path(approach1_dir, "gene_lists", "TES_direct_targets.txt"),
+  row.names = FALSE, col.names = FALSE, quote = FALSE
+)
 
 # GO enrichment
 cat("Running GO enrichment...\n")
@@ -286,8 +304,10 @@ results_approach1 <- save_enrichment_results(ego_approach1, "approach1_TES_direc
 if (!is.null(results_approach1)) {
   migration_approach1 <- extract_migration_terms(results_approach1)
   if (!is.null(migration_approach1) && nrow(migration_approach1) > 0) {
-    write_csv(migration_approach1,
-              file.path(approach1_dir, "results", "approach1_migration_terms.csv"))
+    write_csv(
+      migration_approach1,
+      file.path(approach1_dir, "results", "approach1_migration_terms.csv")
+    )
     cat("  Found", nrow(migration_approach1), "migration-related terms\n")
     cat("  Top migration term rank:", which(results_approach1$ID == migration_approach1$ID[1]), "\n")
   }
@@ -312,14 +332,17 @@ cat("TES downregulated direct targets:", length(tes_direct_down_genes), "\n")
 
 # Save gene list
 write.table(tes_direct_down_genes,
-            file.path(approach2_dir, "gene_lists", "TES_direct_downregulated.txt"),
-            row.names = FALSE, col.names = FALSE, quote = FALSE)
+  file.path(approach2_dir, "gene_lists", "TES_direct_downregulated.txt"),
+  row.names = FALSE, col.names = FALSE, quote = FALSE
+)
 
 # Save detailed table
-write_csv(tes_direct_down %>%
-            arrange(padj) %>%
-            select(gene_symbol, baseMean, log2FoldChange, padj, tes_bound, tead1_bound),
-          file.path(approach2_dir, "gene_lists", "TES_direct_downregulated_detailed.csv"))
+write_csv(
+  tes_direct_down %>%
+    arrange(padj) %>%
+    select(gene_symbol, baseMean, log2FoldChange, padj, tes_bound, tead1_bound),
+  file.path(approach2_dir, "gene_lists", "TES_direct_downregulated_detailed.csv")
+)
 
 # GO enrichment
 cat("Running GO enrichment...\n")
@@ -335,8 +358,10 @@ results_approach2 <- save_enrichment_results(ego_approach2, "approach2_TES_direc
 if (!is.null(results_approach2)) {
   migration_approach2 <- extract_migration_terms(results_approach2)
   if (!is.null(migration_approach2) && nrow(migration_approach2) > 0) {
-    write_csv(migration_approach2,
-              file.path(approach2_dir, "results", "approach2_migration_terms.csv"))
+    write_csv(
+      migration_approach2,
+      file.path(approach2_dir, "results", "approach2_migration_terms.csv")
+    )
     cat("  Found", nrow(migration_approach2), "migration-related terms\n")
     cat("  Top migration term rank:", which(results_approach2$ID == migration_approach2$ID[1]), "\n")
   }
@@ -373,12 +398,14 @@ cat("Promoter genes that are DEGs:", length(tes_promoter_degs), "\n")
 
 # Save gene lists
 write.table(tes_promoter_genes,
-            file.path(approach3_dir, "gene_lists", "TES_promoter_peak_genes.txt"),
-            row.names = FALSE, col.names = FALSE, quote = FALSE)
+  file.path(approach3_dir, "gene_lists", "TES_promoter_peak_genes.txt"),
+  row.names = FALSE, col.names = FALSE, quote = FALSE
+)
 
 write.table(tes_promoter_degs,
-            file.path(approach3_dir, "gene_lists", "TES_promoter_DEGs.txt"),
-            row.names = FALSE, col.names = FALSE, quote = FALSE)
+  file.path(approach3_dir, "gene_lists", "TES_promoter_DEGs.txt"),
+  row.names = FALSE, col.names = FALSE, quote = FALSE
+)
 
 # GO enrichment on promoter DEGs
 cat("Running GO enrichment on promoter DEGs...\n")
@@ -394,8 +421,10 @@ results_approach3 <- save_enrichment_results(ego_approach3, "approach3_TES_promo
 if (!is.null(results_approach3)) {
   migration_approach3 <- extract_migration_terms(results_approach3)
   if (!is.null(migration_approach3) && nrow(migration_approach3) > 0) {
-    write_csv(migration_approach3,
-              file.path(approach3_dir, "results", "approach3_migration_terms.csv"))
+    write_csv(
+      migration_approach3,
+      file.path(approach3_dir, "results", "approach3_migration_terms.csv")
+    )
     cat("  Found", nrow(migration_approach3), "migration-related terms\n")
     cat("  Top migration term rank:", which(results_approach3$ID == migration_approach3$ID[1]), "\n")
   }
@@ -453,12 +482,14 @@ cat("High-conf genes that are DEGs:", length(tes_highconf_degs), "\n")
 
 # Save gene lists
 write.table(tes_highconf_genes,
-            file.path(approach4_dir, "gene_lists", "TES_highconf_peak_genes.txt"),
-            row.names = FALSE, col.names = FALSE, quote = FALSE)
+  file.path(approach4_dir, "gene_lists", "TES_highconf_peak_genes.txt"),
+  row.names = FALSE, col.names = FALSE, quote = FALSE
+)
 
 write.table(tes_highconf_degs,
-            file.path(approach4_dir, "gene_lists", "TES_highconf_DEGs.txt"),
-            row.names = FALSE, col.names = FALSE, quote = FALSE)
+  file.path(approach4_dir, "gene_lists", "TES_highconf_DEGs.txt"),
+  row.names = FALSE, col.names = FALSE, quote = FALSE
+)
 
 # GO enrichment
 cat("Running GO enrichment on high-confidence DEGs...\n")
@@ -474,8 +505,10 @@ results_approach4 <- save_enrichment_results(ego_approach4, "approach4_TES_highc
 if (!is.null(results_approach4)) {
   migration_approach4 <- extract_migration_terms(results_approach4)
   if (!is.null(migration_approach4) && nrow(migration_approach4) > 0) {
-    write_csv(migration_approach4,
-              file.path(approach4_dir, "results", "approach4_migration_terms.csv"))
+    write_csv(
+      migration_approach4,
+      file.path(approach4_dir, "results", "approach4_migration_terms.csv")
+    )
     cat("  Found", nrow(migration_approach4), "migration-related terms\n")
     cat("  Top migration term rank:", which(results_approach4$ID == migration_approach4$ID[1]), "\n")
   }
@@ -505,15 +538,19 @@ if ("FDR" %in% colnames(diffbind_tes_vs_tesmut)) {
   # Create GRanges for differential peaks
   diffbind_gr <- GRanges(
     seqnames = tes_specific_diffbind$seqnames,
-    ranges = IRanges(start = tes_specific_diffbind$start,
-                     end = tes_specific_diffbind$end)
+    ranges = IRanges(
+      start = tes_specific_diffbind$start,
+      end = tes_specific_diffbind$end
+    )
   )
 
   # Create GRanges for annotated peaks
   annotated_gr <- GRanges(
     seqnames = tes_peaks_annotated$seqnames,
-    ranges = IRanges(start = tes_peaks_annotated$start,
-                     end = tes_peaks_annotated$end)
+    ranges = IRanges(
+      start = tes_peaks_annotated$start,
+      end = tes_peaks_annotated$end
+    )
   )
 
   # Find overlaps
@@ -539,14 +576,16 @@ if ("FDR" %in% colnames(diffbind_tes_vs_tesmut)) {
     # Save gene lists
     if (length(tes_diffbind_genes) > 0) {
       write.table(tes_diffbind_genes,
-                  file.path(approach5_dir, "gene_lists", "TES_diffbind_genes.txt"),
-                  row.names = FALSE, col.names = FALSE, quote = FALSE)
+        file.path(approach5_dir, "gene_lists", "TES_diffbind_genes.txt"),
+        row.names = FALSE, col.names = FALSE, quote = FALSE
+      )
     }
 
     if (length(tes_diffbind_down) > 0) {
       write.table(tes_diffbind_down,
-                  file.path(approach5_dir, "gene_lists", "TES_diffbind_down.txt"),
-                  row.names = FALSE, col.names = FALSE, quote = FALSE)
+        file.path(approach5_dir, "gene_lists", "TES_diffbind_down.txt"),
+        row.names = FALSE, col.names = FALSE, quote = FALSE
+      )
     }
 
     # GO enrichment - try with all diffbind genes if down is too few
@@ -575,8 +614,10 @@ if ("FDR" %in% colnames(diffbind_tes_vs_tesmut)) {
       if (!is.null(results_approach5)) {
         migration_approach5 <- extract_migration_terms(results_approach5)
         if (!is.null(migration_approach5) && nrow(migration_approach5) > 0) {
-          write_csv(migration_approach5,
-                    file.path(approach5_dir, "results", "approach5_migration_terms.csv"))
+          write_csv(
+            migration_approach5,
+            file.path(approach5_dir, "results", "approach5_migration_terms.csv")
+          )
           cat("  Found", nrow(migration_approach5), "migration-related terms\n")
           cat("  Top migration term rank:", which(results_approach5$ID == migration_approach5$ID[1]), "\n")
         }
