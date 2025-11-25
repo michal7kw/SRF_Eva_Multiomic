@@ -35,9 +35,10 @@ experiment.txt
 !README.md
 !**/README.md
 
-*.png
-*.pdf
-*.csv
+# *.png
+# *.pdf
+# *.csv
+
 *.bed
 *.narrowPeak
 *.html
@@ -47,3 +48,20 @@ scripts/analysis_3/results/02_motif_analysis
 
 old/
 *.gz
+scripts/analysis_1/output/01_true_gsea_analysis/01_top_pathways_barplot.pdf
+scripts/analysis_1/output/01_true_gsea_analysis/03_cancer_pathways_bubble.pdf
+scripts/analysis_1/output/01_true_gsea_analysis/04_category_summary.pdf
+scripts/analysis_1/output/01_true_gsea_analysis/16_enhanced_plots/02_lollipop_plot.pdf
+scripts/analysis_1/output/01_true_gsea_analysis/16_enhanced_plots/02_lollipop_plot.png
+scripts/analysis_1/output/01_true_gsea_analysis/16_enhanced_plots/03_category_heatmap.pdf
+scripts/analysis_1/output/01_true_gsea_analysis/16_enhanced_plots/03_category_heatmap.png
+scripts/analysis_1/output/01_true_gsea_analysis/16_enhanced_plots/04_ridge_plot.pdf
+scripts/analysis_1/output/01_true_gsea_analysis/16_enhanced_plots/04_ridge_plot.png
+scripts/analysis_1/output/02_directional_go_enrichment/01_BP_comparison_dotplot.pdf
+scripts/analysis_1/output/02_directional_go_enrichment/02_upregulated_barplot.pdf
+scripts/analysis_1/output/03_candidate_gene_heatmap/03_expression_vs_binding.pdf
+scripts/analysis_1/output/16_enhanced_gsea_visualizations/03_category_heatmap.png
+scripts/analysis_3/results/04_category_expression/binding_signal_vs_expression.pdf
+scripts/analysis_3/results/03_signal_dynamics/peak_width_vs_signal.pdf
+scripts/analysis_3/results/03_signal_dynamics/signal_ratio_distributions.pdf
+scripts/analysis_3/results/03_signal_dynamics/signal_strength_comparison.pdf

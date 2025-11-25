@@ -57,9 +57,9 @@ echo ""
 echo "Step 2: Computing methylation signal at binding sites with deepTools..."
 echo ""
 
-# Define BigWig files
-GFP_BIGWIGS="${MEDIP_BIGWIGS}/GFP-1_RPKM.bw ${MEDIP_BIGWIGS}/GFP-2_RPKM.bw"
-TES_BIGWIGS="${MEDIP_BIGWIGS}/TES-1_RPKM.bw ${MEDIP_BIGWIGS}/TES-2_RPKM.bw"
+# Define BigWig files (note: files have -IP suffix)
+GFP_BIGWIGS="${MEDIP_BIGWIGS}/GFP-1-IP_RPKM.bw ${MEDIP_BIGWIGS}/GFP-2-IP_RPKM.bw"
+TES_BIGWIGS="${MEDIP_BIGWIGS}/TES-1-IP_RPKM.bw ${MEDIP_BIGWIGS}/TES-2-IP_RPKM.bw"
 
 # Check if files exist
 for BW in ${GFP_BIGWIGS} ${TES_BIGWIGS}; do

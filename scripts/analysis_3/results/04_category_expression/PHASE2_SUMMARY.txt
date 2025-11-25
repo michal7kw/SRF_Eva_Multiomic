@@ -1,5 +1,5 @@
 === Phase 2.1: Category-Specific Expression Analysis ===
-Date: 2025-11-25 21:03:59.114859 
+Date: 2025-11-25 21:44:22.814761 
 
 Summary Statistics by Binding Category:
 # A tibble: 4 × 9
