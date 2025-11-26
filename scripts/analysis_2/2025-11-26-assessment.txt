@@ -1,0 +1,2356 @@
+
+ ▐▛███▜▌   Claude Code v2.0.54
+▝▜█████▛▘  Opus 4.5 · Claude Max
+  ▘▘ ▝▝    /…/SRF_Eva_top/SRF_Eva_integrated_analysis/scripts/analysis_2
+
+> your are professional bioinformatician, so let review carefully data 
+analysis pipeline in this folder /beegfs/scratch/ric.sessa/kubacki.michal/SR
+F_Eva_top/SRF_Eva_integrated_analysis/scripts/analysis_2 , and identify any 
+gaps or mistakes 
+
+● I'll explore the analysis_2 folder to review the data analysis pipeline
+  and identify any issues.
+
+● Search(pattern: "**/*", path: "/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Ev
+        a_top/SRF_Eva_integrated_analysis/scripts/analysis_2")
+  ⎿  Found 26 files (ctrl+o to expand)
+
+● Bash(ls -la /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_integ
+      rated_analysis/scripts/analysis_2/)
+  ⎿  total 36                                                          
+     drwxr-xr-x 4 kubacki.michal lg_kubacki.michal   13 Nov 25 13:53 .
+     drwxrwxr-x 7 kubacki.michal lg_kubacki.michal    5 Nov 25 13:54 ..
+     … +24 lines (ctrl+o to expand)
+
+● Let me read all the scripts to review the pipeline in detail:
+
+● Read(01_peak_classification.R)
+  ⎿  Read 191 lines
+
+● Read(03_medip_integration.R)
+  ⎿  Read 234 lines
+
+● Read(04_gene_regulatory_logic.R)
+  ⎿  Read 146 lines
+
+● Read(05_functional_enrichment.R)
+  ⎿  Read 102 lines
+
+● Read(00_run_all_new_modules.sh)
+  ⎿  Read 42 lines
+
+● Read(02_motif_analysis.sh)
+  ⎿  Read 60 lines
+
+● Let me also read the remaining shell scripts and check the logs to
+  understand any errors:
+
+● Read(01_peak_classification.sh)
+  ⎿  Read 23 lines
+
+● Read(03_medip_integration.sh)
+  ⎿  Read 22 lines
+
+● Read(04_gene_regulatory_logic.sh)
+  ⎿  Read 22 lines
+
+● Read(05_functional_enrichment.sh)
+  ⎿  Read 22 lines
+
+● Read(README.md)
+  ⎿  Read 83 lines
+
+● Read(logs/02_motif_analysis_7097137.out)
+  ⎿  Read 5 lines
+
+● Let me check the error logs and verify if input files exist:
+
+● Read(logs/02_motif_analysis_7097137.err)
+  ⎿  Read 30 lines
+
+● Bash(ls -la /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_CUTan
+      dTAG/results/11_combined_replicates_narrow/peaks/ 2>/dev/null | head -20)
+  ⎿  total 16080                                                          
+     drwxrwxr-x 2 kubacki.michal lg_kubacki.michal      12 Sep 17 14:57 .
+     drwxrwxr-x 5 kubacki.michal lg_kubacki.michal      16 Sep 17 17:48 ..
+     … +24 lines (ctrl+o to expand)
+
+> continue 
+
+● Read(logs/01_peak_class.out)
+  ⎿  Read 24 lines
+
+● Bash(ls -la /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/meDIP/results
+      /05_bigwig/ 2>/dev/null | head -20)
+  ⎿ total 541805                                                           
+    drwxrwxr-x  2 kubacki.michal lg_kubacki.michal        14 Oct 31 13:20 .
+    drwxrwxr-x 17 kubacki.michal lg_kubacki.michal        17 Nov 11 17:03 .
+    … +29 lines (ctrl+o to expand)
+
+
+
+● Bash(ls -la /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/meDIP/results
+      /07_differential_MEDIPS/ 2>/dev/null | head -20)
+  ⎿ total 1403403                                                          
+    drwxr-xr-x  2 kubacki.michal lg_kubacki.michal        24 Nov  3 11:04 .
+    drwxrwxr-x 17 kubacki.michal lg_kubacki.michal        17 Nov 11 17:03 .
+    … +35 lines (ctrl+o to expand)
+
+
+
+● Bash(head -5 /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_inte
+      grated_analysis/scripts/analysis_2/results/01_peak_classification/Master_P
+      eak_Annotatio…)
+  ⎿ "seqnames","start","end","width","strand","category","annotation","gene
+    Chr","geneStart","geneEnd","geneLength","geneStrand","geneId","transcri
+    ptId","distanceToTSS","SYMBOL"
+    … +10 lines (ctrl+o to expand)
+
+
+
+● Bash(head -5 /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/meDIP/result
+      s/07_differential_MEDIPS/TES_vs_GFP_DMRs_FDR05.csv 2>/dev/null)
+  ⎿ "chr","start","stop","CpG_count","mean_group1","mean_group2","logFC","l
+    ogCPM","PValue","FDR","fold_change"
+    "1",821501,822000,5,9.5,0.5,3.31257276996096,0.65163979626931,0.0013162
+    … +7 lines (ctrl+o to expand)
+
+
+
+● Bash(head -5 /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_inte
+      grated_analysis/scripts/analysis_2/results/03_medip_integration/Methylatio
+      n_at_Binding_…)
+  ⎿ "Category","TES_Methylation.seqnames","TES_Methylation.start","TES_Meth
+    ylation.end","TES_Methylation.width","TES_Methylation.strand","TES_Meth
+    ylation.score","Input_Methylation.seqnames","Input_Methylation.start","
+    … +10 lines (ctrl+o to expand)
+
+
+
+
+● Bash(head -5 /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_inte
+      grated_analysis/scripts/analysis_2/results/04_gene_regulatory_logic/Peaks_
+      Linked_to_Exp…)
+  ⎿ "ensembl_id","seqnames","start","end","width","strand","name","score","
+    annotation","geneChr","geneStart","geneEnd","geneLength","geneStrand","
+    geneId","transcriptId","distanceToTSS","Category","Regulatory_Type","ge
+    … +22 lines (ctrl+o to expand)
+
+
+
+
+● Bash(ls -la /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_integ
+      rated_analysis/scripts/analysis_2/results/05_functional_enrichment/
+      2>/dev/null)
+  ⎿  Error: Exit code 2
+
+● Now I have enough information to provide a comprehensive review. Here's my
+   analysis:
+
+  ---
+  Pipeline Review: analysis_2 - Gaps and Mistakes Identified
+
+  CRITICAL ISSUES
+
+  1. Path Inconsistencies Across Modules (Most Important)
+
+  The scripts have conflicting working directory assumptions causing
+  cascading failures:
+
+  | Script                     | Expected Working Dir                 |
+  Actual Output Path                                         |
+  |----------------------------|--------------------------------------|-----
+  -------------------------------------------------------|
+  | 01_peak_classification.R   | SRF_Eva_integrated_analysis/         |
+  results/01_peak_classification/                            |
+  | 03_medip_integration.R     | Uses absolute path to wrong location |
+  SRF_Eva_integrated_analysis/results/01_peak_classification |
+  | 04_gene_regulatory_logic.R | SRF_Eva_integrated_analysis/         | Uses
+   relative results/01_peak_classification/              |
+
+  Evidence: The motif analysis log shows:
+  !!! Could not open peak/position file
+  results/01_peak_classification/Shared_TES_TEAD1.bed !!!
+
+  Fix needed: All scripts should either:
+  - Use consistent absolute paths, OR
+  - Output to scripts/analysis_2/results/ with matching input paths
+
+  ---
+  2. meDIP Integration Failed - All NA Values 
+  (03_medip_integration.R:79-112)
+
+  The methylation signal extraction returns all NA values:
+
+  "Shared","chr1",1859234,1859569,336,"*",NA,"chr1",1859234,1859569,336,"*",
+  NA
+
+  Root cause: The compute_signal() function's summary() output parsing is
+  incorrect. The unlist(scores_list) creates a GRanges where $score may not
+  contain the expected values.
+
+  Also: Line 29 mislabels GFP-1-IP_RPKM.bw as "INPUT" when it's actually the
+   GFP control IP sample, not an input control.
+
+  ---
+  3. No Job Dependencies in Master Script (00_run_all_new_modules.sh)
+
+  All 5 modules are submitted simultaneously:
+
+  sbatch scripts/analysis_2/01_peak_classification.sh
+  sbatch scripts/analysis_2/02_motif_analysis.sh  # Depends on Module 1!
+  sbatch scripts/analysis_2/03_medip_integration.sh  # Depends on Module 1!
+
+  Modules 2-5 will fail because Module 1 outputs don't exist yet.
+
+  Fix: Add SLURM dependency chaining:
+  JOB1=$(sbatch --parsable scripts/analysis_2/01_peak_classification.sh)
+  sbatch --dependency=afterok:$JOB1 scripts/analysis_2/02_motif_analysis.sh
+
+  ---
+  BIOLOGICAL GAPS
+
+  4. TESmut Control Missing
+
+  The pipeline only compares TES vs TEAD1, but TESmut (mutant that can't
+  bind TEAD1) is available and crucial:
+  - TESmut_consensus_peaks.bed exists in the Cut&Tag results
+  - TESmut should serve as negative control to validate TES-specific binding
+  - Without it, you can't distinguish TEAD1-dependent from TEAD1-independent
+   TES effects
+
+  ---
+  5. No Significance Filtering in Gene Regulatory Logic 
+  (04_gene_regulatory_logic.R:116)
+
+  The expression boxplots include ALL genes regardless of significance:
+
+  plot_data <- merged_df[!is.na(merged_df$log2FoldChange), ]
+
+  Should filter for significant DEGs:
+  plot_data <- merged_df[!is.na(merged_df$padj) & merged_df$padj < 0.05, ]
+
+  Without this, the plots are dominated by noise from non-significant genes.
+
+  ---
+  6. Incorrect Methylation Comparison Logic (03_medip_integration.R:28-29)
+
+  TES_BW <- file.path(MEDIP_DIR, "05_bigwig", "TES-1-IP_RPKM.bw")
+  INPUT_BW <- file.path(MEDIP_DIR, "05_bigwig", "GFP-1-IP_RPKM.bw")  # 
+  Misnamed!
+
+  - GFP-1-IP is NOT an input control - it's the GFP condition meDIP
+  - The comparison should show TES vs GFP methylation differences
+  - Variable naming is misleading (calls it INPUT_BW and Input_Methylation)
+
+  ---
+  MEDIUM ISSUES
+
+  7. Unused Package Import (01_peak_classification.R:14)
+
+  library(ggVennDiagram) # Not available
+  Package is loaded but never used (replaced with barplot). Either remove
+  the import or implement proper Venn diagram.
+
+  ---
+  8. Missing SLURM Configuration
+
+  Shell scripts are missing standard SLURM parameters:
+  #SBATCH --account=kubacki.michal
+  #SBATCH --partition=workq
+  #SBATCH --mail-type=END,FAIL
+  #SBATCH --mail-user=kubacki.michal@hsr.it
+
+  ---
+  9. Wrong Conda Environment
+
+  Scripts use genomics_env but per CLAUDE.md, the standard environment is:
+  conda activate seurat_full2
+
+  ---
+  10. Functional Enrichment Not Generated (05_functional_enrichment.R)
+
+  The results directory doesn't exist, indicating Module 5 never ran
+  successfully (likely due to path issues).
+
+  ---
+  SUMMARY TABLE
+
+  | Issue                         | Severity | Script                     |
+  Line(s)  |
+  |-------------------------------|----------|----------------------------|-
+  ---------|
+  | Path inconsistencies          | CRITICAL | All                        |
+  Multiple |
+  | Methylation extraction failed | CRITICAL | 03_medip_integration.R     |
+  79-112   |
+  | No job dependencies           | CRITICAL | 00_run_all_new_modules.sh  |
+  21-39    |
+  | TESmut missing                | HIGH     | 01_peak_classification.R   |
+  N/A      |
+  | No DEG filtering              | HIGH     | 04_gene_regulatory_logic.R |
+  116      |
+  | Wrong INPUT_BW label          | MEDIUM   | 03_medip_integration.R     |
+  29       |
+  | Unused ggVennDiagram          | LOW      | 01_peak_classification.R   |
+  14       |
+  | Missing SLURM params          | LOW      | All .sh files              |
+  Header   |
+
+  Would you like me to provide corrected versions of the problematic
+  scripts?
+
+> yes but in my analysis I want to ignore TESmut samples 
+
+● I'll create corrected versions of all the scripts. Let me first check the
+  analysis_3 folder structure to see if I should place the fixes there:
+
+● Bash(ls -la /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_integ
+      rated_analysis/scripts/analysis_3/ 2>/dev/null || echo "Directory does not
+       exist or is…)
+  ⎿  total 244                                                           
+     drwxr-xr-x  5 kubacki.michal lg_kubacki.michal    27 Nov 25 16:40 .
+     drwxrwxr-x  7 kubacki.michal lg_kubacki.michal     5 Nov 25 13:54 ..
+     … +53 lines (ctrl+o to expand)
+
+● Read(/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_integrated_a
+      nalysis/scripts/analysis_3/README.md)
+  ⎿  Read 180 lines
+
+● I see you already have analysis_3 with more advanced scripts. I'll fix the
+   analysis_2 scripts in place. Let me create corrected versions:
+
+● Write(01_peak_classification.R)
+  ⎿  Error writing file
+
+● Read(01_peak_classification.R)
+  ⎿  Read 191 lines
+
+● Write(01_peak_classification.R)
+  ⎿  Updated 01_peak_classification.R with 65 additions and 46 removals  
+        3    # 01_peak_classification.R
+        4    # Module 1: Refined Peak Classification for TES and TEAD1
+        5    # Part of the SRF_Eva_integrated_analysis pipeline
+        6 +  #
+        7 +  # FIXED: Path inconsistencies, removed unused ggVennDiagram
+        8    
+        9    suppressPackageStartupMessages({
+       10      library(GenomicRanges)
+     ...
+       11      library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+       12      library(org.Hs.eg.db)
+       13      library(ggplot2)
+       14 -    library(ggVennDiagram) # Not available
+       14      library(dplyr)
+       15    })
+       16    
+       17    # ===================== Configuration =====================
+       18    
+       19 -  # Input files (Consensus peaks from Cut&Tag pipeline)
+       20 -  # Using absolute paths to avoid working directory issues
+       19 +  # Base directories - use absolute paths throughout
+       20    BASE_DIR <- 
+            "/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top"
+       21 +  SCRIPT_DIR <- file.path(BASE_DIR, 
+          + "SRF_Eva_integrated_analysis/scripts/analysis_2")
+       22 +  
+       23 +  # Input files (Consensus peaks from Cut&Tag pipeline)
+       24    TES_PEAKS_FILE <- file.path(BASE_DIR, 
+            "SRF_Eva_CUTandTAG/results/11_combined_replicates_narrow/peak
+            s/TES_consensus_peaks.bed")
+       25    TEAD1_PEAKS_FILE <- file.path(BASE_DIR, 
+            "SRF_Eva_CUTandTAG/results/11_combined_replicates_narrow/peak
+            s/TEAD1_consensus_peaks.bed")
+       26    
+       27 -  # Output directory
+       28 -  OUTPUT_DIR <- "results/01_peak_classification"
+       27 +  # Output directory - use absolute path
+       28 +  OUTPUT_DIR <- file.path(SCRIPT_DIR, 
+          +  "results/01_peak_classification")
+       29    dir.create(OUTPUT_DIR, recursive = TRUE, showWarnings = 
+            FALSE)
+       30    
+       31    # Annotation Database
+     ...
+       45    
+       46    # ===================== Main Analysis =====================
+       47    
+       48 +  cat("=== Module 1: Peak Classification ===\n\n")
+       49 +  
+       50    cat("Loading peaks...\n")
+       51    tes_peaks <- load_peaks(TES_PEAKS_FILE)
+       52    tead1_peaks <- load_peaks(TEAD1_PEAKS_FILE)
+     ...
+       57    
+       58    # Find overlaps
+       59    # Shared: TES peaks that overlap with TEAD1 (and vice versa)
+       60 -  # We define the "Shared" set as the union of the overlapping
+          -  regions, 
+       61 -  # but for simplicity in downstream analysis, we often want a
+          -  single reference set.
+       60    # Strategy:
+       61    # - Shared: Intersection of TES and TEAD1
+       62    # - TES_Unique: TES peaks - TEAD1 peaks
+     ...
+       86    export(tead1_unique, file.path(OUTPUT_DIR, 
+            "TEAD1_Unique.bed"))
+       87    
+       88    # Create a combined Master Peak List with metadata
+       89 -  # We'll make a GRangesList or a combined GRanges with a 
+          - 'category' column
+       89    shared_ranges$category <- "Shared"
+       90    tes_unique$category <- "TES_Unique"
+       91    tead1_unique$category <- "TEAD1_Unique"
+     ...
+        98    cat("\nAnnotating peaks...\n")
+        99    
+       100    annotate_peak_set <- function(peaks, name) {
+       101 -    anno <- annotatePeak(peaks, 
+       102 -                         TxDb = txdb, 
+       103 -                         tssRegion = c(-2000, 2000), 
+       101 +    if (length(peaks) == 0) {
+       102 +      warning(paste("No peaks to annotate for", name))
+       103 +      return(NULL)
+       104 +    }
+       105 +    anno <- annotatePeak(peaks,
+       106 +                         TxDb = txdb,
+       107 +                         tssRegion = c(-2000, 2000),
+       108                           verbose = FALSE)
+       109      return(anno)
+       110    }
+     ...
+       123    # Ensure columns match
+       124    common_cols <- intersect(names(df_shared), 
+             intersect(names(df_tes_unique), names(df_tead1_unique)))
+       125    combined_anno <- rbind(
+       126 -    df_shared[, common_cols], 
+       127 -    df_tes_unique[, common_cols], 
+       126 +    df_shared[, common_cols],
+       127 +    df_tes_unique[, common_cols],
+       128      df_tead1_unique[, common_cols]
+       129    )
+       130    
+       131    # Add Gene Symbol
+       132    cat("  Adding gene symbols...\n")
+       133 -  # The annotation already has geneId (Entrez), let's add 
+           - Symbol
+       134 -  # Check if SYMBOL column exists, if not map it
+       133    if (!"SYMBOL" %in% colnames(combined_anno)) {
+       134 -      symbols <- mapIds(org.Hs.eg.db, 
+       135 -                        keys = 
+           -  as.character(combined_anno$geneId), 
+       136 -                        column = "SYMBOL", 
+       137 -                        keytype = "ENTREZID", 
+       134 +      symbols <- mapIds(org.Hs.eg.db,
+       135 +                        keys = 
+           +  as.character(combined_anno$geneId),
+       136 +                        column = "SYMBOL",
+       137 +                        keytype = "ENTREZID",
+       138                          multiVals = "first")
+       139        combined_anno$SYMBOL <- symbols
+       140    }
+     ...
+       144    # Save detailed annotation
+       145    write.csv(combined_anno, file.path(OUTPUT_DIR, 
+             "Master_Peak_Annotation.csv"), row.names = FALSE)
+       146    
+       147 +  cat(sprintf("  Total annotated peaks: %d\n", 
+           + nrow(combined_anno)))
+       148 +  
+       149    # 4. Visualization
+       150    cat("\nGenerating visualizations...\n")
+       151    
+       152 -  # Venn Diagram
+       153 -  # Using the counts derived earlier
+       154 -  venn_list <- list(
+       155 -    TES = 1:(length(tes_unique) + length(shared_ranges)), # 
+           - Conceptual indices
+       156 -    TEAD1 = ((length(tes_unique) + 1):(length(tes_unique) + 
+           - length(shared_ranges) + length(tead1_unique)))
+       157 -  )
+       158 -  # This is a bit hacky for ggVennDiagram without actual 
+           - identifiers, 
+       159 -  # better to use the peak overlaps directly if we want a 
+           - proportional area, 
+       160 -  # but standard Venns are set-based.
+       161 -  # Let's use a simpler approach: just plot the counts.
+       162 -  
+       163 -  pdf(file.path(OUTPUT_DIR, "Peak_Overlap_Venn.pdf"))
+       164 -  # Simple Euler/Venn plot using eulerr if available, or just
+           -  base plot
+       165 -  # We'll use a simple barplot for now as it's more robust 
+           - without extra packages
+       152 +  # Peak Category Counts (Bar Chart)
+       153    counts_df <- data.frame(
+       154 -    Category = factor(c("TES_Unique", "Shared", 
+           -  "TEAD1_Unique"),
+           -   levels=c("TES_Unique", "Shared", "TEAD1_Unique")),
+       154 +    Category = factor(c("TES_Unique", "Shared", 
+           +  "TEAD1_Unique"),
+       155 +                      levels = c("TES_Unique", "Shared", 
+           + "TEAD1_Unique")),
+       156      Count = c(length(tes_unique), length(shared_ranges), 
+             length(tead1_unique))
+       157    )
+       158    
+       159 -  p1 <- ggplot(counts_df, aes(x=Category, y=Count, 
+           - fill=Category)) +
+       160 -    geom_bar(stat="identity") +
+       161 -    geom_text(aes(label=Count), vjust=-0.5) +
+       162 -    scale_fill_manual(values=c("TES_Unique"="#E41A1C", 
+           - "Shared"="#984EA3", "TEAD1_Unique"="#377EB8")) +
+       163 -    theme_minimal() +
+       164 -    labs(title="Peak Classification Counts", y="Number of 
+           - Peaks")
+       159 +  pdf(file.path(OUTPUT_DIR, "Peak_Overlap_Venn.pdf"), width =
+           +  8, height = 6)
+       160 +  p1 <- ggplot(counts_df, aes(x = Category, y = Count, fill =
+           +  Category)) +
+       161 +    geom_bar(stat = "identity") +
+       162 +    geom_text(aes(label = Count), vjust = -0.5, size = 5) +
+       163 +    scale_fill_manual(values = c("TES_Unique" = "#E41A1C", 
+           + "Shared" = "#984EA3", "TEAD1_Unique" = "#377EB8")) +
+       164 +    theme_minimal(base_size = 14) +
+       165 +    labs(title = "Peak Classification Counts",
+       166 +         subtitle = "TES and TEAD1 binding site overlap",
+       167 +         y = "Number of Peaks", x = "") +
+       168 +    theme(legend.position = "none")
+       169    print(p1)
+       170    dev.off()
+       171    
+       172    # Annotation Distribution Plot
+       173 -  pdf(file.path(OUTPUT_DIR, 
+           -  "Peak_Annotation_Distribution.pdf"))
+       174 -  p2 <- plotAnnoBar(list(Shared=anno_shared, TES_Unique=
+           -  anno_tes_unique, TEAD1_Unique=anno_tead1_unique))
+       175 -  print(p2)
+       173 +  pdf(file.path(OUTPUT_DIR, 
+           +  "Peak_Annotation_Distribution.pdf"), width = 10, height = 6
+           +  )
+       174 +  anno_list <- list(Shared = anno_shared, TES_Unique = 
+           +  anno_tes_unique, TEAD1_Unique = anno_tead1_unique)
+       175 +  anno_list <- anno_list[!sapply(anno_list, is.null)]
+       176 +  if (length(anno_list) > 0) {
+       177 +    p2 <- plotAnnoBar(anno_list)
+       178 +    print(p2)
+       179 +  }
+       180    dev.off()
+       181    
+       182    # Distance to TSS
+       183 -  pdf(file.path(OUTPUT_DIR, "Distance_to_TSS.pdf"))
+       184 -  p3 <- plotDistToTSS(list(Shared=anno_shared, 
+           - TES_Unique=anno_tes_unique, TEAD1_Unique=anno_tead1_unique))
+       185 -  print(p3)
+       183 +  pdf(file.path(OUTPUT_DIR, "Distance_to_TSS.pdf")
+           +  , width = 10, height = 6)
+       184 +  if (length(anno_list) > 0) {
+       185 +    p3 <- plotDistToTSS(anno_list)
+       186 +    print(p3)
+       187 +  }
+       188    dev.off()
+       189    
+       190 +  # Summary Statistics
+       191 +  cat("\n=== Summary Statistics ===\n")
+       192 +  cat(sprintf("Total TES peaks: %d\n", length(tes_peaks)))
+       193 +  cat(sprintf("Total TEAD1 peaks: %d\n", 
+           + length(tead1_peaks)))
+       194 +  cat(sprintf("Shared (overlap): %d (%.1f%% of TES, %.1f%% of
+           +  TEAD1)\n",
+       195 +              length(shared_ranges),
+       196 +              100 * length(shared_ranges) / 
+           + length(tes_peaks),
+       197 +              100 * length(shared_ranges) / 
+           + length(tead1_peaks)))
+       198 +  cat(sprintf("TES-Unique: %d (%.1f%% of TES)\n",
+       199 +              length(tes_unique),
+       200 +              100 * length(tes_unique) / length(tes_peaks)))
+       201 +  cat(sprintf("TEAD1-Unique: %d (%.1f%% of TEAD1)\n",
+       202 +              length(tead1_unique),
+       203 +              100 * length(tead1_unique) / 
+           + length(tead1_peaks)))
+       204 +  
+       205    cat("\nAnalysis complete. Results saved to", OUTPUT_DIR, 
+             "\n")
+
+● Now fixing 03_medip_integration.R with corrected signal extraction and
+  proper paths:
+
+● Write(03_medip_integration.R)
+  ⎿  Error writing file
+
+● Read(03_medip_integration.R)
+  ⎿  Read 234 lines
+
+● Write(03_medip_integration.R)
+  ⎿  Updated 03_medip_integration.R with 225 additions and 110 removals  
+         3    # 03_medip_integration.R
+         4    # Module 3: Integration with DNA Methylation (meDIP)
+         5    # Part of the SRF_Eva_integrated_analysis pipeline
+         6 +  #
+         7 +  # FIXED: Signal extraction, paths, variable naming (TES vs 
+           + GFP comparison)
+         8    
+         9    suppressPackageStartupMessages({
+        10      library(GenomicRanges)
+        11      library(rtracklayer)
+        12      library(ggplot2)
+        13      library(dplyr)
+        14 -    library(EnrichedHeatmap)
+        15 -    library(circlize)
+        14    })
+        15    
+        16    # ===================== Configuration =====================
+        17    
+        18 -  # Input: Peak Categories from Module 1
+        18 +  # Base directories - use absolute paths throughout
+        19    BASE_DIR <- 
+             "/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top"
+        20 -  PEAK_DIR
+           -   <- file.path(BASE_DIR, "SRF_Eva_integrated_analysis/
+           -  results/01_peak_classification")
+        20 +  SCRIPT_DIR
+           +   <- file.path(BASE_DIR, "SRF_Eva_integrated_analysis/
+           +  scripts/analysis_2")
+        21 +  
+        22 +  # Input: Peak Categories from Module 1 (using correct path)
+        23 +  PEAK_DIR <- file.path(SCRIPT_DIR, 
+           + "results/01_peak_classification")
+        24    SHARED_PEAKS <- file.path(PEAK_DIR, "Shared_TES_TEAD1.bed")
+        25    TES_UNIQUE <- file.path(PEAK_DIR, "TES_Unique.bed")
+        26    TEAD1_UNIQUE <- file.path(PEAK_DIR, "TEAD1_Unique.bed")
+        27    
+        28    # Input: meDIP Data
+        29 -  BASE_DIR <- 
+           - "/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top"
+        29    MEDIP_DIR <- file.path(BASE_DIR, "meDIP/results")
+        30 -  TES_BW <- file.path(MEDIP_DIR, "05_bigwig", 
+           - "TES-1-IP_RPKM.bw")
+        31 -  INPUT_BW <- file.path(MEDIP_DIR, "05_bigwig", "GFP
+           -  -1-IP_RPKM.bw")
+        30 +  # TES condition meDIP (this is TES sample methylation, not 
+           + an input control)
+        31 +  TES_MEDIP_BW <- file.path(MEDIP_DIR, "05_bigwig", "TES
+           +  -1-IP_RPKM.bw")
+        32 +  # GFP control condition meDIP (the control comparison)
+        33 +  GFP_MEDIP_BW <- file.path(MEDIP_DIR, "05_bigwig", 
+           + "GFP-1-IP_RPKM.bw")
+        34 +  # DMR file
+        35    DMR_FILE <- file.path(MEDIP_DIR, "07_differential_MEDIPS", 
+             "TES_vs_GFP_DMRs_FDR05.csv")
+        36    
+        37    # Output
+        38 -  OUTPUT_DIR <- "results/03_medip_integration"
+        38 +  OUTPUT_DIR <- file.path(SCRIPT_DIR, 
+           +  "results/03_medip_integration")
+        39    dir.create(OUTPUT_DIR, recursive = TRUE, showWarnings = 
+             FALSE)
+        40    
+        41    # ===================== Functions =====================
+        42    
+        43    load_peaks <- function(bed_file) {
+        44 -    if (!file.exists(bed_file)) stop(paste("File not found:",
+           -  bed_file))
+        44 +    if (!file.exists(bed_file)) {
+        45 +      stop(paste("File not found:", bed_file))
+        46 +    }
+        47      import(bed_file, format = "BED")
+        48    }
+        49    
+        50 -  # Function to compute average signal over regions
+        50 +  # Function to compute average signal over regions
+           +   - FIXED version
+        51    compute_signal <- function(regions, bw_file, name) {
+        52 -    cat(sprintf("Computing %s signal...\n", name))
+        52 +    cat(sprintf("  Computing %s signal...\n", name))
+        53      if (!file.exists(bw_file)) {
+        54        warning(paste("BigWig not found:", bw_file))
+        55        return(rep(NA, length(regions)))
+        56      }
+        57    
+        58 -    bw_obj <- BigWigFile(bw_file)
+        58 +    tryCatch({
+        59 +      # Get BigWig seqinfo
+        60 +      bw_obj <- BigWigFile(bw_file)
+        61    
+        62 -    # Check chromosome style compatibility
+        63 -    bw_seqlevels <- seqlevels(bw_obj)
+        64 -    # If regions style doesn't match BigWig, try to adapt 
+           - regions
+        65 -    if (!any(seqlevels(regions) %in% bw_seqlevels)) {
+        66 -      cat("  Adjusting chromosome style to match 
+           - BigWig...\n")
+        67 -      # Try to guess style from BigWig
+        68 -      bw_style <- seqlevelsStyle(bw_obj)
+        69 -      if (length(bw_style) > 0) {
+        70 -        seqlevelsStyle(regions) <- bw_style[1]
+        62 +      # Adjust chromosome style to match BigWig
+        63 +      regions_adj <- regions
+        64 +  
+        65 +      # Check if styles match
+        66 +      if (length(seqlevels(regions_adj)) > 0 && 
+           + length(seqlevels(bw_obj)) > 0) {
+        67 +        bw_style <- seqlevelsStyle(bw_obj)
+        68 +        if (length(bw_style) > 0) {
+        69 +          seqlevelsStyle(regions_adj) <- bw_style[1]
+        70 +        }
+        71        }
+        72 -    }
+        72    
+        73 -    # Prune regions to only those in BigWig (to avoid errors)
+        74 -    # But we want to keep the same length/order for the 
+           - vector
+        75 -    # summary() handles this? It returns list of same length.
+        76 -    # But if seqlevel is missing, it might error or return 
+           - empty.
+        77 -    # Let's keep regions as is, assuming style fix worked.
+        73 +      # Filter regions to only those chromosomes present in 
+           + BigWig
+        74 +      valid_seqlevels <- intersect(seqlevels(regions_adj), 
+           + seqlevels(bw_obj))
+        75 +      if (length(valid_seqlevels) == 0) {
+        76 +        warning("No overlapping chromosomes between regions 
+           + and BigWig")
+        77 +        return(rep(NA, length(regions)))
+        78 +      }
+        79    
+        80 -    # Compute weighted average
+        81 -    # summary returns a SimpleList of GRanges (if type="mean"
+           -  default) or numeric?
+        82 -    # Documentation: "list of the same length as which... 
+           - each element is... a summary object"
+        83 -    # For BigWig, it seems to return a list of Views or 
+           - similar?
+        84 -    # Actually, let's use rtracklayer::import for safety if 
+           - summary is ambiguous,
+        85 -    # but import is slow for large files.
+        86 -    # Let's try summary but extract score properly.
+        80 +      regions_adj <- keepSeqlevels(regions_adj, 
+           + valid_seqlevels,
+        81 +                                   pruning.mode = "coarse")
+        82    
+        83 -    scores_list <- summary(bw_obj, regions, type = "mean")
+        83 +      # Import the signal for just these regions
+        84 +      signal <- import(bw_file, format = "BigWig", which = 
+           + regions_adj)
+        85    
+        86 -    # Extract scores.
+        87 -    # If scores_list is a SimpleList of GRanges, we want the 
+           - score column.
+        88 -    # If it's a list of numerics, we want the value.
+        89 -  
+        90 -    # Helper to extract
+        91 -    extract_score <- function(x) {
+        92 -      if (is(x, "GRanges")) {
+        93 -        if (length(x) > 0) {
+        94 -          return(mean(x$score, na.rm = TRUE))
+        95 -        } else {
+        86 +      # For each region, calculate mean signal
+        87 +      scores <- sapply(seq_along(regions_adj), function(i) {
+        88 +        region <- regions_adj[i]
+        89 +        overlapping <- subsetByOverlaps(signal, region)
+        90 +        if (length(overlapping) == 0) {
+        91            return(NA)
+        92          }
+        93 -      } else if (is.numeric(x)) {
+        94 -        return(mean(x, na.rm = TRUE))
+        95 -      } else {
+        96 -        return(NA)
+        93 +  
+        94 +        # Weighted mean by overlap width
+        95 +        ol <- pintersect(overlapping, region)
+        96 +        overlap_widths <- width(ol)
+        97 +        if (sum(overlap_widths) == 0) return(NA)
+        98 +  
+        99 +        weights <- overlap_widths / sum(overlap_widths)
+       100 +        weighted_mean <- sum(overlapping$score * weights, 
+           + na.rm = TRUE)
+       101 +        return(weighted_mean)
+       102 +      })
+       103 +  
+       104 +      # Handle case where some regions were filtered
+       105 +      if (length(scores) < length(regions)) {
+       106 +        full_scores <- rep(NA, length(regions))
+       107 +        full_scores[1:length(scores)] <- scores
+       108 +        return(full_scores)
+       109        }
+       110 -    }
+       110    
+       111 -    # Unlist carefully
+       112 -    # summary(bw) usually returns a SimpleList of GRanges 
+           - with one range per query region (if size is default)
+       113 -    # The score col has the mean.
+       111 +      return(scores)
+       112    
+       113 -    # Let's try unlisting and getting score.
+       114 -    # If we unlist, we get a single GRanges of length N (if 1
+           -  bin per region).
+       115 -    flat_res <- unlist(scores_list)
+       116 -    if (is(flat_res, "GRanges")) {
+       117 -      return(flat_res$score)
+       118 -    } else {
+       119 -      # Fallback
+       120 -      return(sapply(scores_list, extract_score))
+       121 -    }
+       113 +    }, error = function(e) {
+       114 +      warning(paste("Error computing signal:", e$message))
+       115 +      return(rep(NA, length(regions)))
+       116 +    })
+       117    }
+       118    
+       119    # ===================== Main Analysis =====================
+       120    
+       121 +  cat("=== Module 3: meDIP Integration ===\n\n")
+       122 +  
+       123    # 1. Load Peak Categories
+       124    cat("Loading peak categories...\n")
+       125 +  
+       126 +  # Check if peak files exist
+       127 +  if (!file.exists(SHARED_PEAKS)) {
+       128 +    stop(paste("Peak file not found:", SHARED_PEAKS,
+       129 +               "\nPlease run Module 1 
+           + (01_peak_classification.R) first."))
+       130 +  }
+       131 +  
+       132    peaks_shared <- load_peaks(SHARED_PEAKS)
+       133    peaks_tes <- load_peaks(TES_UNIQUE)
+       134    peaks_tead1 <- load_peaks(TEAD1_UNIQUE)
+       135    
+       136 +  cat(sprintf("  Shared peaks: %d\n", length(peaks_shared)))
+       137 +  cat(sprintf("  TES_Unique peaks: %d\n", length(peaks_tes)))
+       138 +  cat(sprintf("  TEAD1_Unique peaks: %d\n", 
+           + length(peaks_tead1)))
+       139 +  
+       140    # Combine into one list for easier processing
+       141    all_peaks <- list(
+       142      Shared = peaks_shared,
+     ...
+       130    # 2. Compute Methylation Levels
+       131    cat("\nComputing methylation levels at binding sites...\n")
+       132    
+       133 -  results_df <- data.frame()
+       133 +  results_list <- list()
+       134    
+       135    for (cat_name in names(all_peaks)) {
+       136      p <- all_peaks[[cat_name]]
+       137 -    cat(sprintf("  Processing
+           -   %s (%d peaks)...\n", cat_name, length(p)))
+       137 +    cat(sprintf("\nProcessing
+           +   %s (%d peaks)...\n", cat_name, length(p)))
+       138    
+       139 -    # Compute signal
+       140 -    tes_meth <- compute_signal(p, TES_BW, "TES meDIP")
+       141 -    input_meth <- compute_signal(p, INPUT_BW, "Input meDIP")
+       142 -  
+       143 -    # Handle potential NULLs or length mismatch
+       144 -    if (is.null(tes_meth) || length(tes_meth) == 0) {
+       145 -      warning("    TES methylation signal is empty/NULL. 
+           - Filling with NA.")
+       146 -      tes_meth <- rep(NA, length(p))
+       139 +    if (length(p) == 0) {
+       140 +      cat("  Skipping (no peaks)\n")
+       141 +      next
+       142      }
+       143 -    if (is.null(input_meth) || length(input_meth) == 0) {
+       144 -      warning("    Input methylation signal is empty/NULL. 
+           - Filling with NA.")
+       145 -      input_meth <- rep(NA, length(p))
+       146 -    }
+       143    
+       144 +    # Compute signal for TES and GFP conditions
+       145 +    tes_meth <- compute_signal(p, TES_MEDIP_BW, "TES meDIP")
+       146 +    gfp_meth <- compute_signal(p, GFP_MEDIP_BW, "GFP meDIP")
+       147 +  
+       148      # Create data frame
+       149      df <- data.frame(
+       150 +      chr = as.character(seqnames(p)),
+       151 +      start = start(p),
+       152 +      end = end(p),
+       153        Category = cat_name,
+       154        TES_Methylation = tes_meth,
+       155 -      Input_Methylation = input_meth
+       155 +      GFP_Methylation = gfp_meth,
+       156 +      stringsAsFactors = FALSE
+       157      )
+       158 -    results_df <- rbind(results_df, df)
+       158 +  
+       159 +    # Calculate difference (TES - GFP)
+       160 +    df$Methylation_Diff <- df$TES_Methylation - 
+           + df$GFP_Methylation
+       161 +  
+       162 +    results_list[[cat_name]] <- df
+       163    }
+       164    
+       165 +  # Combine all results
+       166 +  results_df <- do.call(rbind, results_list)
+       167 +  rownames(results_df) <- NULL
+       168 +  
+       169    # Save raw data
+       170 -  write.csv(results_df, file.path(OUTPUT_DIR, 
+           -  "Methylation_at_Binding_Sites.csv"), row.names = FALSE)
+       170 +  write.csv(results_df, file.path(OUTPUT_DIR, 
+           +  "Methylation_at_Binding_Sites.csv"),
+       171 +            row.names = FALSE)
+       172    
+       173 +  cat(sprintf("\nTotal binding sites analyzed: %d\n", 
+           + nrow(results_df)))
+       174 +  cat(sprintf("Sites with valid TES methylation: %d\n",
+       175 +              sum(!is.na(results_df$TES_Methylation))))
+       176 +  cat(sprintf("Sites with valid GFP methylation: %d\n",
+       177 +              sum(!is.na(results_df$GFP_Methylation))))
+       178 +  
+       179    # 3. Visualization: Boxplot of Methylation
+       180    cat("\nGenerating methylation boxplots...\n")
+       181    
+       182 -  pdf(file.path(OUTPUT_DIR, "Methylation_Boxplot.pdf"), width
+           -  = 8, height = 6)
+       183 -  p1 <- ggplot(results_df, aes(x = Category, y = 
+           - TES_Methylation, fill = Category)) +
+       184 -    geom_boxplot(outlier.shape = NA) +
+       185 -    coord_cartesian(ylim = 
+           - quantile(results_df$TES_Methylation, c(0.05, 0.95), na.rm = 
+           - TRUE)) +
+       186 -    theme_minimal() +
+       187 -    labs(
+       188 -      title = "DNA Methylation Levels at Binding Sites (TES 
+           - Sample)",
+       189 -      y = "Mean Methylation Signal (RPKM)"
+       190 -    ) +
+       191 -    scale_fill_manual(values = c("Shared" = "#984EA3", 
+           - "TES_Unique" = "#E41A1C", "TEAD1_Unique" = "#377EB8"))
+       192 -  print(p1)
+       193 -  dev.off()
+       182 +  # Filter for valid values
+       183 +  plot_data <- results_df[!is.na(results_df$TES_Methylation),
+           +  ]
+       184    
+       185 +  if (nrow(plot_data) > 0) {
+       186 +    pdf(file.path(OUTPUT_DIR, "Methylation_Boxplot.pdf"), 
+           + width = 10, height = 6)
+       187 +  
+       188 +    # Plot 1: TES methylation by category
+       189 +    p1 <- ggplot(plot_data, aes(x = Category, y = 
+           + TES_Methylation, fill = Category)) +
+       190 +      geom_boxplot(outlier.shape = NA) +
+       191 +      coord_cartesian(ylim = 
+           + quantile(plot_data$TES_Methylation,
+       192 +                                      c(0.05, 0.95), na.rm = 
+           + TRUE)) +
+       193 +      theme_minimal(base_size = 14) +
+       194 +      labs(
+       195 +        title = "DNA Methylation at Binding Sites (TES 
+           + Condition)",
+       196 +        y = "Mean Methylation Signal (RPKM)",
+       197 +        x = ""
+       198 +      ) +
+       199 +      scale_fill_manual(values = c("Shared" = "#984EA3",
+       200 +                                   "TES_Unique" = "#E41A1C",
+       201 +                                   "TEAD1_Unique" = 
+           + "#377EB8")) +
+       202 +      theme(legend.position = "none")
+       203 +    print(p1)
+       204 +  
+       205 +    # Plot 2: Methylation difference (TES - GFP)
+       206 +    plot_data_diff <- 
+           + plot_data[!is.na(plot_data$Methylation_Diff), ]
+       207 +    if (nrow(plot_data_diff) > 0) {
+       208 +      p2 <- ggplot(plot_data_diff, aes(x = Category, y = 
+           + Methylation_Diff,
+       209 +                                       fill = Category)) +
+       210 +        geom_boxplot(outlier.shape = NA) +
+       211 +        geom_hline(yintercept = 0, linetype = "dashed", color
+           +  = "gray50") +
+       212 +        coord_cartesian(ylim = 
+           + quantile(plot_data_diff$Methylation_Diff,
+       213 +                                        c(0.05, 0.95), na.rm 
+           + = TRUE)) +
+       214 +        theme_minimal(base_size = 14) +
+       215 +        labs(
+       216 +          title = "Methylation Change at Binding Sites (TES 
+           + vs GFP)",
+       217 +          y = "Methylation Difference (TES - GFP)",
+       218 +          x = ""
+       219 +        ) +
+       220 +        scale_fill_manual(values = c("Shared" = "#984EA3",
+       221 +                                     "TES_Unique" = 
+           + "#E41A1C",
+       222 +                                     "TEAD1_Unique" = 
+           + "#377EB8")) +
+       223 +        theme(legend.position = "none")
+       224 +      print(p2)
+       225 +    }
+       226 +  
+       227 +    dev.off()
+       228 +  } else {
+       229 +    warning("No valid methylation data to plot.")
+       230 +  }
+       231 +  
+       232    # 4. DMR Overlap Analysis
+       233    cat("\nAnalyzing DMR overlap...\n")
+       234    
+     ...
+       185      # Load DMRs from CSV
+       186      dmr_df <- read.csv(DMR_FILE)
+       187    
+       188 -    # Check for required columns
+       188 +    # Check for required columns
+           +   (the file uses 'stop' not 'end')
+       189      required_cols <- c("chr", "start", "stop")
+       190      if (all(required_cols %in% colnames(dmr_df))) {
+       191 +  
+       192 +      # Create GRanges - handle chromosome naming
+       193 +      dmr_chr <- dmr_df$chr
+       194 +      if (!grepl("^chr", dmr_chr[1])) {
+       195 +        dmr_chr <- paste0("chr", dmr_chr)
+       196 +      }
+       197 +  
+       198        dmrs <- GRanges(
+       199 -        seqnames = dmr_df$chr,
+       199 +        seqnames = dmr_chr,
+       200          ranges = IRanges(start = dmr_df$start, end = 
+             dmr_df$stop)
+       201        )
+       202 -    } else {
+       203 -      warning(paste("DMR CSV missing required columns:", 
+           - paste(setdiff(required_cols, colnames(dmr_df)), collapse = 
+           - ", ")))
+       204 -      dmrs <- NULL
+       205 -    }
+       202    
+       203 -    if (!is.null(dmrs)) {
+       203 +      # Add logFC if available
+       204 +      if ("logFC" %in% colnames(dmr_df)) {
+       205 +        dmrs$logFC <- dmr_df$logFC
+       206 +      }
+       207 +  
+       208 +      cat(sprintf("  Loaded %d DMRs\n", length(dmrs)))
+       209 +  
+       210 +      # Calculate overlap statistics
+       211        overlap_stats <- data.frame()
+       212    
+       213        for (cat_name in names(all_peaks)) {
+       214          p <- all_peaks[[cat_name]]
+       215 +  
+       216 +        # Ensure same chromosome style
+       217 +        seqlevelsStyle(p) <- "UCSC"
+       218 +  
+       219          hits <- findOverlaps(p, dmrs)
+       220 -        pct <- length(unique(queryHits(hits)))
+           -   / length(p) * 100
+       220 +        n_overlapping <- length(unique(queryHits(hits)))
+       221 +        pct <- n_overlapping / length(p) * 100
+       222    
+       223          overlap_stats <- rbind(overlap_stats, data.frame(
+       224            Category = cat_name,
+       225 -          DMR_Overlap_Pct = pct,
+       226 -          Count = length(unique(queryHits(hits)))
+       225 +          Total_Peaks = length(p),
+       226 +          Peaks_in_DMR = n_overlapping,
+       227 +          DMR_Overlap_Pct = pct
+       228          ))
+       229 +  
+       230 +        cat(sprintf("  %s: %d/%d peaks overlap DMRs 
+           + (%.1f%%)\n",
+       231 +                    cat_name, n_overlapping, length(p), pct))
+       232        }
+       233    
+       234 -      write.csv(overlap_stats, file.path(OUTPUT_DIR, 
+           -  "DMR_Overlap_Stats.csv"), row.names = FALSE)
+       234 +      write.csv(overlap_stats, file.path(OUTPUT_DIR, 
+           +  "DMR_Overlap_Stats.csv"),
+       235 +                row.names = FALSE)
+       236    
+       237 -      pdf(file.path(OUTPUT_DIR, "DMR_Overlap_Barplot.pdf"), 
+           - width = 6, height = 5)
+       238 -      p2 <- ggplot(overlap_stats, aes(x = Category, y = 
+           - DMR_Overlap_Pct, fill = Category)) +
+       237 +      # Plot
+       238 +      pdf(file.path(OUTPUT_DIR, "DMR_Overlap_Barplot.pdf"), 
+           + width = 8, height = 6)
+       239 +      p_dmr <- ggplot(overlap_stats, aes(x = Category, y = 
+           + DMR_Overlap_Pct,
+       240 +                                         fill = Category)) +
+       241          geom_bar(stat = "identity") +
+       242 -        theme_minimal() +
+       242 +        geom_text(aes(label = sprintf("%.1f%%", 
+           + DMR_Overlap_Pct)), vjust = -0.5) +
+       243 +        theme_minimal(base_size = 14) +
+       244          labs(
+       245 -          title = "Percentage of 
+           -  Binding Sites Overlapping DMRs",
+       246 -          y = "% Overlap"
+       245 +          title = "Binding Sites Overlapping DMRs",
+       246 +          subtitle = "TES vs GFP DMRs (FDR < 0.05)",
+       247 +          y = "% of Peaks in DMRs",
+       248 +          x = ""
+       249          ) +
+       250 -        scale_fill_manual(values = c("Shared" = "#984EA3",
+           -   "TES_Unique" = "#E41A1C", "TEAD1_Unique" = "#377EB8"))
+       251 -      print(p2)
+       250 +        scale_fill_manual(values = c("Shared" = "#984EA3",
+       251 +                                     "TES_Unique" = 
+           + "#E41A1C",
+       252 +                                     "TEAD1_Unique" = 
+           + "#377EB8")) +
+       253 +        theme(legend.position = "none")
+       254 +      print(p_dmr)
+       255        dev.off()
+       256 +  
+       257 +    } else {
+       258 +      warning(paste("DMR CSV missing required columns:",
+       259 +                    paste(setdiff(required_cols, 
+           + colnames(dmr_df)), collapse = ", ")))
+       260      }
+       261    } else {
+       262      warning("DMR file not found. Skipping DMR overlap 
+             analysis.")
+       263 +    cat("  Expected file:", DMR_FILE, "\n")
+       264    }
+       265    
+       266 -  cat("\nAnalysis complete. Results saved to", OUTPUT_DIR, 
+           - "\n")
+       266 +  # 5. Summary Statistics
+       267 +  cat("\n=== Summary Statistics ===\n")
+       268 +  for (cat_name in unique(results_df$Category)) {
+       269 +    cat_data <- results_df[results_df$Category == cat_name, ]
+       270 +    cat(sprintf("\n%s:\n", cat_name))
+       271 +    cat(sprintf("  N peaks: %d\n", nrow(cat_data)))
+       272 +    cat(sprintf("  Mean TES methylation: %.2f\n",
+       273 +                mean(cat_data$TES_Methylation, na.rm = 
+           + TRUE)))
+       274 +    cat(sprintf("  Mean GFP methylation: %.2f\n",
+       275 +                mean(cat_data$GFP_Methylation, na.rm = 
+           + TRUE)))
+       276 +    cat(sprintf("  Mean difference: %.2f\n",
+       277 +                mean(cat_data$Methylation_Diff, na.rm = 
+           + TRUE)))
+       278 +  }
+       279 +  
+       280 +  cat("\n\nAnalysis complete. Results saved to", OUTPUT_DIR, 
+           + "\n")
+
+● Now fixing 04_gene_regulatory_logic.R:
+
+● Read(04_gene_regulatory_logic.R)
+  ⎿  Read 146 lines
+
+● Write(04_gene_regulatory_logic.R)
+  ⎿  Updated 04_gene_regulatory_logic.R with 216 additions and 59 removals
+        3    # 04_gene_regulatory_logic.R
+        4    # Module 4: Gene Regulatory Logic
+        5    # Part of the SRF_Eva_integrated_analysis pipeline
+        6 +  #
+        7 +  # FIXED: Absolute paths, significance filtering for DEGs
+        8    
+        9    suppressPackageStartupMessages({
+       10      library(GenomicRanges)
+     ...
+        16    
+        17    # ===================== Configuration =====================
+        18    
+        19 -  # Input: Peak Categories
+        20 -  PEAK_DIR <- "results/01_peak_classification"
+        19 +  # Base directories - use absolute paths throughout
+        20 +  BASE_DIR <- 
+           + "/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top"
+        21 +  SCRIPT_DIR <- file.path(BASE_DIR, 
+           + "SRF_Eva_integrated_analysis/scripts/analysis_2")
+        22 +  
+        23 +  # Input: Peak Categories from Module 1
+        24 +  PEAK_DIR <- file.path(SCRIPT_DIR, 
+           + "results/01_peak_classification")
+        25    SHARED_PEAKS <- file.path(PEAK_DIR, "Shared_TES_TEAD1.bed")
+        26    TES_UNIQUE <- file.path(PEAK_DIR, "TES_Unique.bed")
+        27    TEAD1_UNIQUE <- file.path(PEAK_DIR, "TEAD1_Unique.bed")
+        28    
+        29    # Input: RNA-seq Data
+        30 -  BASE_DIR <- 
+           - "/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top"
+        31 -  RNA_SEQ_FILE <- file.path(BASE_DIR, 
+           -  "SRF_Eva_RNA/results/05_deseq2/deseq2_results_TES_vs_GFP.tx
+           -  t")
+        30 +  RNA_SEQ_FILE <- file.path(BASE_DIR,
+        31 +                            
+           +  "SRF_Eva_RNA/results/05_deseq2/deseq2_results_TES_vs_GFP.tx
+           +  t")
+        32    
+        33    # Output
+        34 -  OUTPUT_DIR <- "results/04_gene_regulatory_logic"
+        34 +  OUTPUT_DIR <- file.path(SCRIPT_DIR, 
+           +  "results/04_gene_regulatory_logic")
+        35    dir.create(OUTPUT_DIR, recursive = TRUE, showWarnings = 
+             FALSE)
+        36    
+        37 +  # Parameters
+        38 +  PADJ_THRESHOLD <- 0.05  # Significance threshold for DEGs
+        39 +  
+        40    # Annotation Database
+        41    txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
+        42    
+        43    # ===================== Functions =====================
+        44    
+        45    load_peaks <- function(bed_file) {
+        46 -    if (!file.exists(bed_file)) stop(paste("File not found:",
+           -  bed_file))
+        46 +    if (!file.exists(bed_file)) {
+        47 +      stop(paste("File not found:", bed_file))
+        48 +    }
+        49      import(bed_file, format = "BED")
+        50    }
+        51    
+        52 +  annotate_and_assign <- function(peaks, category) {
+        53 +    if (length(peaks) == 0) {
+        54 +      warning(paste("No peaks for category:", category))
+        55 +      return(data.frame())
+        56 +    }
+        57 +  
+        58 +    anno <- annotatePeak(peaks,
+        59 +                         TxDb = txdb,
+        60 +                         tssRegion = c(-2000, 2000),
+        61 +                         verbose = FALSE)
+        62 +    df <- as.data.frame(anno)
+        63 +    df$Category <- category
+        64 +  
+        65 +    # Classify as Promoter or Enhancer/Distal
+        66 +    df$Regulatory_Type <- ifelse(grepl("Promoter", 
+           + df$annotation),
+        67 +                                 "Promoter", 
+           + "Enhancer/Distal")
+        68 +  
+        69 +    df
+        70 +  }
+        71 +  
+        72    # ===================== Main Analysis =====================
+        73    
+        74 +  cat("=== Module 4: Gene Regulatory Logic ===\n\n")
+        75 +  
+        76    # 1. Load Data
+        77    cat("Loading data...\n")
+        78 +  
+        79 +  # Check if peak files exist
+        80 +  if (!file.exists(SHARED_PEAKS)) {
+        81 +    stop(paste("Peak file not found:", SHARED_PEAKS,
+        82 +               "\nPlease run Module 1 
+           + (01_peak_classification.R) first."))
+        83 +  }
+        84 +  
+        85    peaks_shared <- load_peaks(SHARED_PEAKS)
+        86    peaks_tes <- load_peaks(TES_UNIQUE)
+        87    peaks_tead1 <- load_peaks(TEAD1_UNIQUE)
+        88    
+        89 -  rna_data <- read.table(RNA_SEQ_FILE, header = TRUE, sep = 
+           - "\t", stringsAsFactors = FALSE)
+        90 -  # Ensure gene IDs match (Ensembl vs Symbol)
+        91 -  # RNA-seq usually has Ensembl IDs as rownames or first 
+           - column. 
+        92 -  # Let's assume 'gene_id' or rownames are Ensembl.
+        93 -  # We need to map Ensembl to Entrez for ChIPseeker or vice 
+           - versa.
+        89 +  cat(sprintf("  Shared peaks: %d\n", length(peaks_shared)))
+        90 +  cat(sprintf("  TES_Unique peaks: %d\n", length(peaks_tes)))
+        91 +  cat(sprintf("  TEAD1_Unique peaks: %d\n", 
+           + length(peaks_tead1)))
+        92    
+        93 +  # Load RNA-seq data
+        94 +  if (!file.exists(RNA_SEQ_FILE)) {
+        95 +    stop(paste("RNA-seq file not found:", RNA_SEQ_FILE))
+        96 +  }
+        97 +  
+        98 +  rna_data <- read.table(RNA_SEQ_FILE, header = TRUE, sep = 
+           + "\t",
+        99 +                         stringsAsFactors = FALSE)
+       100 +  cat(sprintf("  RNA-seq genes: %d\n", nrow(rna_data)))
+       101 +  
+       102    # 2. Annotate Peaks (Promoter vs Enhancer)
+       103    cat("\nAnnotating peaks...\n")
+       104    
+       105 -  annotate_and_assign <- function(peaks, category) {
+       106 -    anno <- annotatePeak(peaks, 
+       107 -                         TxDb = txdb, 
+       108 -                         tssRegion = c(-2000, 2000), 
+       109 -                         verbose = FALSE)
+       110 -    df <- as.data.frame(anno)
+       111 -    df$Category <- category
+       112 -    
+       113 -    # Classify as Promoter or Enhancer
+       114 -    # ChIPseeker annotation: Promoter (<=1kb), Promoter 
+           - (1-2kb), etc.
+       115 -    df$Regulatory_Type <- ifelse(grepl("Promoter", 
+           - df$annotation), "Promoter", "Enhancer/Distal")
+       116 -    
+       117 -    return(df)
+       118 -  }
+       119 -  
+       105    df_shared <- annotate_and_assign(peaks_shared, "Shared")
+       106    df_tes <- annotate_and_assign(peaks_tes, "TES_Unique")
+       107    df_tead1 <- annotate_and_assign(peaks_tead1, 
+             "TEAD1_Unique")
+       108    
+       109    combined_df <- rbind(df_shared, df_tes, df_tead1)
+       110    
+       111 +  cat(sprintf("  Total annotated peaks: %d\n", 
+           + nrow(combined_df)))
+       112 +  
+       113    # 3. Link to Expression
+       114    cat("\nLinking to gene expression...\n")
+       115    
+       116    # Map Entrez IDs (from ChIPseeker) to Ensembl IDs (for 
+             RNA-seq merge)
+       117 -  ensembl_ids <- mapIds(org.Hs.eg.db, 
+       118 -                        keys = 
+           -  as.character(combined_df$geneId), 
+       119 -                        column = "ENSEMBL", 
+       120 -                        keytype = "ENTREZID", 
+       117 +  ensembl_ids <- mapIds(org.Hs.eg.db,
+       118 +                        keys = 
+           +  as.character(combined_df$geneId),
+       119 +                        column = "ENSEMBL",
+       120 +                        keytype = "ENTREZID",
+       121                          multiVals = "first")
+       122    combined_df$ensembl_id <- ensembl_ids
+       123    
+       124 -  cat(sprintf("  Mapped %d out of %d genes to Ensembl IDs\n",
+           -   
+       125 -              sum(!is.na(combined_df$ensembl_id)), 
+       124 +  cat(sprintf("  Mapped %d out of %d peaks to Ensembl IDs\n",
+       125 +              sum(!is.na(combined_df$ensembl_id)),
+       126                nrow(combined_df)))
+       127    
+       128 -  # Merge with RNA-seq
+       129 -  # RNA-seq file likely has Ensembl IDs. Let's check column 
+           - names if we could.
+       130 -  # Assuming first column or 'gene_id'
+       131 -  # If rownames are IDs:
+       128 +  # Prepare RNA-seq data for merge
+       129    if (!"gene_id" %in% colnames(rna_data)) {
+       130 -      rna_data$gene_id <- rownames(rna_data)
+       130 +    rna_data$gene_id <- rownames(rna_data)
+       131    }
+       132    
+       133 -  # Clean version numbers if present (ENSG... .1)
+       133 +  # Clean version numbers if present (ENSG00000xxx.1
+           +   -> ENSG00000xxx)
+       134    rna_data$clean_id <- gsub("\\..*", "", rna_data$gene_id)
+       135    
+       136 -  merged_df <- merge(combined_df, rna_data, by.x = 
+           - "ensembl_id", by.y = "clean_id", all.x = TRUE)
+       136 +  # Merge peaks with expression
+       137 +  merged_df <- merge(combined_df, rna_data,
+       138 +                     by.x = "ensembl_id", by.y = "clean_id",
+       139 +                     all.x = TRUE)
+       140    
+       141 -  # Save merged data
+       142 -  write.csv(merged_df, file.path(OUTPUT_DIR, 
+           - "Peaks_Linked_to_Expression.csv"), row.names = FALSE)
+       141 +  # Add significance status
+       142 +  merged_df$is_significant <- !is.na(merged_df$padj) &
+       143 +                              merged_df$padj < PADJ_THRESHOLD
+       144    
+       145 -  # 4. Visualization
+       145 +  # Add direction
+       146 +  merged_df$Direction <- 
+           + ifelse(is.na(merged_df$log2FoldChange), "Unknown",
+       147 +                                
+           + ifelse(merged_df$log2FoldChange > 0, "Up", "Down"))
+       148 +  
+       149 +  # Save merged data (all peaks)
+       150 +  write.csv(merged_df, file.path(OUTPUT_DIR, 
+           + "Peaks_Linked_to_Expression.csv"),
+       151 +            row.names = FALSE)
+       152 +  
+       153 +  cat(sprintf("  Total peaks with expression data: %d\n",
+       154 +              sum(!is.na(merged_df$log2FoldChange))))
+       155 +  cat(sprintf("  Peaks linked to significant DEGs (padj < 
+           + %.2f): %d\n",
+       156 +              PADJ_THRESHOLD, sum(merged_df$is_significant, 
+           + na.rm = TRUE)))
+       157 +  
+       158 +  # 4. Generate summary statistics
+       159 +  cat("\n=== Expression Summary by Binding Category ===\n")
+       160 +  
+       161 +  summary_stats <- merged_df %>%
+       162 +    filter(!is.na(log2FoldChange)) %>%
+       163 +    group_by(Category) %>%
+       164 +    summarise(
+       165 +      n_peaks = n(),
+       166 +      n_significant = sum(is_significant, na.rm = TRUE),
+       167 +      pct_significant = 100 * n_significant / n_peaks,
+       168 +      mean_log2FC = mean(log2FoldChange, na.rm = TRUE),
+       169 +      median_log2FC = median(log2FoldChange, na.rm = TRUE),
+       170 +      n_up = sum(Direction == "Up", na.rm = TRUE),
+       171 +      n_down = sum(Direction == "Down", na.rm = TRUE),
+       172 +      .groups = "drop"
+       173 +    )
+       174 +  
+       175 +  print(summary_stats)
+       176 +  write.csv(summary_stats, file.path(OUTPUT_DIR, 
+           + "Expression_Summary_Stats.csv"),
+       177 +            row.names = FALSE)
+       178 +  
+       179 +  # 5. Visualization
+       180    cat("\nGenerating expression plots...\n")
+       181    
+       182 -  # Filter for genes with valid Log2FC
+       183 -  plot_data <- merged_df[!is.na(merged_df$log2FoldChange), ]
+       182 +  # Filter for peaks with valid expression data
+       183 +  plot_data_all
+           +   <- merged_df[!is.na(merged_df$log2FoldChange), ]
+       184 +  # Filter for significant DEGs only
+       185 +  plot_data_sig <- merged_df[merged_df$is_significant == 
+           + TRUE, ]
+       186    
+       187 -  # Boxplot: Log2FC by Binding Category
+       188 -  pdf(file.path(OUTPUT_DIR, 
+           - "Expression_by_Binding_Category.pdf"), width = 8, height = 
+           - 6)
+       189 -  p1 <- ggplot(plot_data, aes(x = Category, y = 
+           - log2FoldChange, fill = Category)) +
+       187 +  cat(sprintf("  Plotting all genes: %d peaks\n", 
+           + nrow(plot_data_all)))
+       188 +  cat(sprintf("  Plotting significant DEGs: %d peaks\n", 
+           + nrow(plot_data_sig)))
+       189 +  
+       190 +  # --- Plot 1: All genes by Binding Category ---
+       191 +  pdf(file.path(OUTPUT_DIR, 
+           + "Expression_by_Binding_Category.pdf"),
+       192 +      width = 8, height = 6)
+       193 +  p1 <- ggplot(plot_data_all, aes(x = Category, y = 
+           + log2FoldChange,
+       194 +                                  fill = Category)) +
+       195      geom_boxplot(outlier.shape = NA) +
+       196      coord_cartesian(ylim = c(-2, 2)) +
+       197 -    geom_hline(yintercept = 0, linetype = "dashed") +
+       198 -    theme_minimal() +
+       197 +    geom_hline(yintercept = 0, linetype = "dashed"
+           +  , color = "gray50") +
+       198 +    theme_minimal(base_size = 14) +
+       199      labs(title = "Gene Expression Changes by Binding 
+             Category",
+       200 -         y = "Log2 Fold Change (TES vs GFP)") +
+       201 -    scale_fill_manual(values = c("Shared" = "#984EA3", 
+           - "TES_Unique" = "#E41A1C", "TEAD1_Unique" = "#377EB8"))
+       200 +         subtitle = "All genes (not filtered for 
+           + significance)",
+       201 +         y = "Log2 Fold Change (TES vs GFP)",
+       202 +         x = "") +
+       203 +    scale_fill_manual(values = c("Shared" = "#984EA3",
+       204 +                                 "TES_Unique" = "#E41A1C",
+       205 +                                 "TEAD1_Unique" = "#377EB8"))
+           +  +
+       206 +    theme(legend.position = "none")
+       207    print(p1)
+       208    dev.off()
+       209    
+       210 -  # Boxplot: Split by Promoter vs Enhancer
+       211 -  pdf(file.path(OUTPUT_DIR, 
+           - "Expression_Promoter_vs_Enhancer.pdf"), width = 10, height =
+           -  6)
+       212 -  p2 <- ggplot(plot_data, aes(x = Category, y = 
+           - log2FoldChange, fill = Category)) +
+       210 +  # --- Plot 2: Significant DEGs only ---
+       211 +  if (nrow(plot_data_sig) > 10) {
+       212 +    pdf(file.path(OUTPUT_DIR, 
+           + "Expression_Significant_DEGs_Only.pdf"),
+       213 +        width = 8, height = 6)
+       214 +    p2 <- ggplot(plot_data_sig, aes(x = Category, y = 
+           + log2FoldChange,
+       215 +                                    fill = Category)) +
+       216 +      geom_boxplot(outlier.shape = NA) +
+       217 +      coord_cartesian(ylim = 
+           + quantile(plot_data_sig$log2FoldChange,
+       218 +                                      c(0.01, 0.99), na.rm = 
+           + TRUE)) +
+       219 +      geom_hline(yintercept = 0, linetype = "dashed", color =
+           +  "gray50") +
+       220 +      theme_minimal(base_size = 14) +
+       221 +      labs(title = "Expression of Significant DEGs by Binding
+           +  Category",
+       222 +           subtitle = sprintf("Filtered for padj < %.2f", 
+           + PADJ_THRESHOLD),
+       223 +           y = "Log2 Fold Change (TES vs GFP)",
+       224 +           x = "") +
+       225 +      scale_fill_manual(values = c("Shared" = "#984EA3",
+       226 +                                   "TES_Unique" = "#E41A1C",
+       227 +                                   "TEAD1_Unique" = 
+           + "#377EB8")) +
+       228 +      theme(legend.position = "none")
+       229 +    print(p2)
+       230 +    dev.off()
+       231 +  } else {
+       232 +    cat("  Too few significant DEGs to plot separately\n")
+       233 +  }
+       234 +  
+       235 +  # --- Plot 3: Promoter vs Enhancer (All genes) ---
+       236 +  pdf(file.path(OUTPUT_DIR, 
+           + "Expression_Promoter_vs_Enhancer.pdf"),
+       237 +      width = 10, height = 6)
+       238 +  p3 <- ggplot(plot_data_all, aes(x = Category, y = 
+           + log2FoldChange,
+       239 +                                  fill = Category)) +
+       240      geom_boxplot(outlier.shape = NA) +
+       241      coord_cartesian(ylim = c(-2, 2)) +
+       242 -    geom_hline(yintercept = 0, linetype = "dashed") +
+       242 +    geom_hline(yintercept = 0, linetype = "dashed"
+           +  , color = "gray50") +
+       243      facet_wrap(~Regulatory_Type) +
+       244 -    theme_minimal() +
+       244 +    theme_minimal(base_size = 14) +
+       245      labs(title = "Expression Changes: Promoter vs Enhancer 
+             Binding",
+       246 -         y = "Log2 Fold Change (TES vs GFP)") +
+       247 -    scale_fill_manual(values = c("Shared" = "#984EA3", 
+           - "TES_Unique" = "#E41A1C", "TEAD1_Unique" = "#377EB8"))
+       248 -  print(p2)
+       246 +         subtitle = "All genes",
+       247 +         y = "Log2 Fold Change (TES vs GFP)",
+       248 +         x = "") +
+       249 +    scale_fill_manual(values = c("Shared" = "#984EA3",
+       250 +                                 "TES_Unique" = "#E41A1C",
+       251 +                                 "TEAD1_Unique" = "#377EB8"))
+           +  +
+       252 +    theme(legend.position = "none")
+       253 +  print(p3)
+       254    dev.off()
+       255    
+       256 +  # --- Plot 4: Promoter vs Enhancer (Significant DEGs) ---
+       257 +  if (nrow(plot_data_sig) > 10) {
+       258 +    pdf(file.path(OUTPUT_DIR, 
+           + "Expression_Promoter_vs_Enhancer_Significant.pdf"),
+       259 +        width = 10, height = 6)
+       260 +    p4 <- ggplot(plot_data_sig, aes(x = Category, y = 
+           + log2FoldChange,
+       261 +                                    fill = Category)) +
+       262 +      geom_boxplot(outlier.shape = NA) +
+       263 +      coord_cartesian(ylim = 
+           + quantile(plot_data_sig$log2FoldChange,
+       264 +                                      c(0.01, 0.99), na.rm = 
+           + TRUE)) +
+       265 +      geom_hline(yintercept = 0, linetype = "dashed", color =
+           +  "gray50") +
+       266 +      facet_wrap(~Regulatory_Type) +
+       267 +      theme_minimal(base_size = 14) +
+       268 +      labs(title = "Expression: Promoter vs Enhancer 
+           + (Significant DEGs)",
+       269 +           subtitle = sprintf("Filtered for padj < %.2f", 
+           + PADJ_THRESHOLD),
+       270 +           y = "Log2 Fold Change (TES vs GFP)",
+       271 +           x = "") +
+       272 +      scale_fill_manual(values = c("Shared" = "#984EA3",
+       273 +                                   "TES_Unique" = "#E41A1C",
+       274 +                                   "TEAD1_Unique" = 
+           + "#377EB8")) +
+       275 +      theme(legend.position = "none")
+       276 +    print(p4)
+       277 +    dev.off()
+       278 +  }
+       279 +  
+       280 +  # --- Plot 5: Direction barplot ---
+       281 +  direction_counts <- plot_data_sig %>%
+       282 +    filter(Direction %in% c("Up", "Down")) %>%
+       283 +    group_by(Category, Direction) %>%
+       284 +    summarise(Count = n(), .groups = "drop")
+       285 +  
+       286 +  if (nrow(direction_counts) > 0) {
+       287 +    pdf(file.path(OUTPUT_DIR, 
+           + "Expression_Direction_Barplot.pdf"),
+       288 +        width = 8, height = 6)
+       289 +    p5 <- ggplot(direction_counts, aes(x = Category, y = 
+           + Count, fill = Direction)) +
+       290 +      geom_bar(stat = "identity", position = "dodge") +
+       291 +      theme_minimal(base_size = 14) +
+       292 +      labs(title = "Direction of Expression Changes 
+           + (Significant DEGs)",
+       293 +           y = "Number of Bound Genes",
+       294 +           x = "") +
+       295 +      scale_fill_manual(values = c("Up" = "#D73027", "Down" =
+           +  "#4575B4"))
+       296 +    print(p5)
+       297 +    dev.off()
+       298 +  }
+       299 +  
+       300    cat("\nAnalysis complete. Results saved to", OUTPUT_DIR, 
+             "\n")
+
+● Now fixing 05_functional_enrichment.R:
+
+● Read(05_functional_enrichment.R)
+  ⎿  Read 102 lines
+
+● Write(05_functional_enrichment.R)
+  ⎿  Updated 05_functional_enrichment.R with 109 additions and 43 removals
+        3    # 05_functional_enrichment.R
+        4    # Module 5: Functional Enrichment
+        5    # Part of the SRF_Eva_integrated_analysis pipeline
+        6 +  #
+        7 +  # FIXED: Absolute paths
+        8    
+        9    suppressPackageStartupMessages({
+       10      library(clusterProfiler)
+     ...
+        13    
+        14    # ===================== Configuration =====================
+        15    
+        16 +  # Base directories - use absolute paths throughout
+        17 +  BASE_DIR <- 
+           + "/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top"
+        18 +  SCRIPT_DIR <- file.path(BASE_DIR, 
+           + "SRF_Eva_integrated_analysis/scripts/analysis_2")
+        19 +  
+        20    # Input: Annotated Peaks from Module 1
+        21 -  ANNOTATION_FILE <- 
+           - "results/01_peak_classification/Master_Peak_Annotation.csv"
+        21 +  ANNOTATION_FILE <- file.path(SCRIPT_DIR,
+        22 +                               
+           + "results/01_peak_classification/Master_Peak_Annotation.csv")
+        23    
+        24    # Output
+        25 -  OUTPUT_DIR <- "results/05_functional_enrichment"
+        25 +  OUTPUT_DIR <- file.path(SCRIPT_DIR, 
+           +  "results/05_functional_enrichment")
+        26    dir.create(OUTPUT_DIR, recursive = TRUE, showWarnings = 
+             FALSE)
+        27    
+        28    # ===================== Main Analysis =====================
+        29    
+        30 +  cat("=== Module 5: Functional Enrichment ===\n\n")
+        31 +  
+        32    # 1. Load Data
+        33    cat("Loading annotated peaks...\n")
+        34    if (!file.exists(ANNOTATION_FILE)) {
+        35 -      stop("Annotation file not found. Run Module 1 first.")
+        35 +    stop(paste("Annotation file not found:", ANNOTATION_FILE,
+        36 +               "\nPlease run Module 1 
+           + (01_peak_classification.R) first."))
+        37    }
+        38    anno_df <- read.csv(ANNOTATION_FILE, stringsAsFactors = 
+             FALSE)
+        39    
+        40 +  cat(sprintf("  Loaded %d annotated peaks\n", 
+           + nrow(anno_df)))
+        41 +  
+        42    # 2. Perform Enrichment by Category
+        43    cat("\nPerforming enrichment analysis...\n")
+        44    
+        45    categories <- unique(anno_df$category)
+        46 +  cat(sprintf("  Categories: %s\n", paste(categories, 
+           + collapse = ", ")))
+        47 +  
+        48    enrich_results <- list()
+        49    
+        50    for (cat_name in categories) {
+        51 -    cat(sprintf("  Processing %s...\n", cat_name))
+        52 -    
+        53 -    # Get genes for this category
+        51 +    cat(sprintf("\n  Processing %s...\n", cat_name))
+        52 +  
+        53 +    # Get genes for this category (Entrez IDs)
+        54      genes <- unique(anno_df$geneId[anno_df$category == 
+             cat_name])
+        55      genes <- genes[!is.na(genes)]
+        56 -    
+        56 +    genes <- as.character(genes)
+        57 +  
+        58 +    cat(sprintf("    Unique genes: %d\n", length(genes)))
+        59 +  
+        60      if (length(genes) < 10) {
+        61 -      cat("    Skipping (too few genes)\n")
+        61 +      cat("    Skipping (too few genes for enrichment)\n")
+        62        next
+        63      }
+        64 -    
+        64 +  
+        65      # GO Enrichment (Biological Process)
+        66 -    ego <- enrichGO(gene = genes,
+        67 -                    OrgDb = org.Hs.eg.db,
+        68 -                    ont = "BP",
+        69 -                    pAdjustMethod = "BH",
+        70 -                    pvalueCutoff = 0.05,
+        71 -                    qvalueCutoff = 0.05,
+        72 -                    readable = TRUE)
+        73 -    
+        74 -    if (!is.null(ego) && nrow(ego) > 0) {
+        75 -      # Save results
+        76 -      write.csv(as.data.frame(ego), 
+        77 -                file.path(OUTPUT_DIR, paste0("GO_BP_", 
+           - cat_name, ".csv")), 
+        78 -                row.names = FALSE)
+        79 -      
+        80 -      # Store for comparison
+        81 -      enrich_results[[cat_name]] <- ego
+        82 -    }
+        66 +    tryCatch({
+        67 +      ego <- enrichGO(gene = genes,
+        68 +                      OrgDb = org.Hs.eg.db,
+        69 +                      keyType = "ENTREZID",
+        70 +                      ont = "BP",
+        71 +                      pAdjustMethod = "BH",
+        72 +                      pvalueCutoff = 0.05,
+        73 +                      qvalueCutoff = 0.05,
+        74 +                      readable = TRUE)
+        75 +  
+        76 +      if (!is.null(ego) && nrow(ego) > 0) {
+        77 +        cat(sprintf("    Enriched GO terms: %d\n", 
+           + nrow(ego)))
+        78 +  
+        79 +        # Save results
+        80 +        write.csv(as.data.frame(ego),
+        81 +                  file.path(OUTPUT_DIR, paste0("GO_BP_", 
+           + cat_name, ".csv")),
+        82 +                  row.names = FALSE)
+        83 +  
+        84 +        # Store for comparison
+        85 +        enrich_results[[cat_name]] <- ego
+        86 +      } else {
+        87 +        cat("    No significant GO terms found\n")
+        88 +      }
+        89 +    }, error = function(e) {
+        90 +      cat(sprintf("    Error in enrichment: %s\n", 
+           + e$message))
+        91 +    })
+        92    }
+        93    
+        94    # 3. Visualization
+        95 -  cat("\nGenerating enrichment plots...\n")
+        95 +  cat("\n\nGenerating enrichment plots...\n")
+        96    
+        97    # Dotplot for each category
+        98    for (cat_name in names(enrich_results)) {
+        99 -    pdf(file.path(OUTPUT_DIR, paste0("Dotplot_", cat_name, 
+           - ".pdf")), width = 10, height = 8)
+       100 -    print(dotplot(enrich_results[[cat_name]], showCategory = 
+           - 20, title = paste("GO:BP Enrichment -", cat_name)))
+        99 +    cat(sprintf("  Creating dotplot for %s...\n", cat_name))
+       100 +  
+       101 +    pdf(file.path(OUTPUT_DIR, paste0("Dotplot_", cat_name, 
+           + ".pdf")),
+       102 +        width = 10, height = 8)
+       103 +    p <- dotplot(enrich_results[[cat_name]],
+       104 +                 showCategory = 20,
+       105 +                 title = paste("GO:BP Enrichment -", 
+           + cat_name))
+       106 +    print(p)
+       107      dev.off()
+       108    }
+       109    
+       110    # Compare Clusters (if multiple categories have results)
+       111    if (length(enrich_results) > 1) {
+       112 -    cat("  Comparing categories...\n")
+       113 -    
+       114 -    # Create a list of gene vectors
+       112 +    cat("\n  Comparing categories...\n")
+       113 +  
+       114 +    # Create a list of gene vectors (Entrez IDs)
+       115      gene_list <- lapply(categories, function(x) {
+       116 -      unique(anno_df$geneId[anno_df$category == x])
+       116 +      genes <- unique(anno_df$geneId[anno_df$category == x])
+       117 +      genes <- genes[!is.na(genes)]
+       118 +      as.character(genes)
+       119      })
+       120      names(gene_list) <- categories
+       121 -    
+       122 -    # CompareCluster
+       123 -    ck <- compareCluster(geneCluster = gene_list, 
+       124 -                         fun = "enrichGO", 
+       125 -                         OrgDb = org.Hs.eg.db,
+       126 -                         ont = "BP")
+       127 -    
+       128 -    pdf(file.path(OUTPUT_DIR, "Comparison_Dotplot.pdf"), 
+           - width = 12, height = 8)
+       129 -    print(dotplot(ck, showCategory = 10, title = "Functional 
+           - Comparison of Peak Categories"))
+       130 -    dev.off()
+       121 +  
+       122 +    # Remove empty categories
+       123 +    gene_list <- gene_list[sapply(gene_list, length) >= 10]
+       124 +  
+       125 +    if (length(gene_list) > 1) {
+       126 +      tryCatch({
+       127 +        # CompareCluster
+       128 +        ck <- compareCluster(geneCluster = gene_list,
+       129 +                             fun = "enrichGO",
+       130 +                             OrgDb = org.Hs.eg.db,
+       131 +                             keyType = "ENTREZID",
+       132 +                             ont = "BP",
+       133 +                             pAdjustMethod = "BH",
+       134 +                             pvalueCutoff = 0.05)
+       135 +  
+       136 +        if (!is.null(ck) && nrow(ck) > 0) {
+       137 +          pdf(file.path(OUTPUT_DIR, 
+           + "Comparison_Dotplot.pdf"),
+       138 +              width = 12, height = 10)
+       139 +          p <- dotplot(ck,
+       140 +                       showCategory = 10,
+       141 +                       title = "Functional Comparison of Peak
+           +  Categories")
+       142 +          print(p)
+       143 +          dev.off()
+       144 +  
+       145 +          # Save comparison results
+       146 +          write.csv(as.data.frame(ck),
+       147 +                    file.path(OUTPUT_DIR, 
+           + "Comparison_All_Categories.csv"),
+       148 +                    row.names = FALSE)
+       149 +  
+       150 +          cat("    Comparison plot generated\n")
+       151 +        }
+       152 +      }, error = function(e) {
+       153 +        cat(sprintf("    Error in comparison: %s\n", 
+           + e$message))
+       154 +      })
+       155 +    }
+       156    }
+       157    
+       158 +  # 4. Summary
+       159 +  cat("\n=== Summary ===\n")
+       160 +  for (cat_name in names(enrich_results)) {
+       161 +    n_terms <- nrow(enrich_results[[cat_name]])
+       162 +    cat(sprintf("  %s: %d enriched GO:BP terms\n", cat_name, 
+           + n_terms))
+       163 +  }
+       164 +  
+       165    cat("\nAnalysis complete. Results saved to", OUTPUT_DIR, 
+             "\n")
+
+● Now fixing the master script and shell scripts:
+
+● Write(00_run_all_new_modules.sh)
+  ⎿  Error writing file
+
+● Read(00_run_all_new_modules.sh)
+  ⎿  Read 40 lines
+
+● Write(00_run_all_new_modules.sh)
+  ⎿  Updated 00_run_all_new_modules.sh with 58 additions and 22 removals 
+        1    #!/bin/bash
+        2    #SBATCH --job-name=run_all_modules
+        3 +  #SBATCH --account=kubacki.michal
+        4 +  #SBATCH --partition=workq
+        5    #SBATCH --output=logs/run_all_modules_%j.out
+        6    #SBATCH --error=logs/run_all_modules_%j.err
+        7 -  #SBATCH --time=12:00:00
+        7 +  #SBATCH --time=01:00:00
+        8    #SBATCH --mem=4G
+        9    #SBATCH --cpus-per-task=1
+       10 +  #SBATCH --mail-type=END,FAIL
+       11 +  #SBATCH --mail-user=kubacki.michal@hsr.it
+       12    
+       13    # Master script to run the new multiomic analysis modules
+       14 +  # FIXED: Added job dependencies to ensure proper execution 
+          + order
+       15    
+       16 -  # Set working directory to analysis_2
+       17 -  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+       16 +  set -e
+       17 +  
+       18 +  # Navigate to the correct directory
+       19 +  SCRIPT_DIR="/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva
+          + _top/SRF_Eva_integrated_analysis/scripts/analysis_2"
+       20    cd "$SCRIPT_DIR"
+       21 -  echo "Working directory: $(pwd)"
+       21    
+       22 -  echo "Starting Multiomic Analysis Pipeline..."
+       22 +  # Create logs directory if it doesn't exist
+       23 +  mkdir -p logs
+       24    
+       25 -  # Module 1: Peak Classification
+       26 -  echo "Running Module 1: Peak Classification..."
+       27 -  sbatch "${SCRIPT_DIR}/01_peak_classification.sh"
+       25 +  echo "=============================================="
+       26 +  echo "Starting Multiomic Analysis Pipeline"
+       27 +  echo "Working directory: $(pwd)"
+       28 +  echo "Date: $(date)"
+       29 +  echo "=============================================="
+       30    
+       31 -  # Module 2: Motif Analysis
+       32 -  # Note: Requires HOMER. Uncomment if installed.
+       33 -  echo "Running Module 2: Motif Analysis..."
+       34 -  sbatch "${SCRIPT_DIR}/02_motif_analysis.sh"
+       31 +  # Module 1: Peak Classification (no dependencies - runs 
+          + first)
+       32 +  echo ""
+       33 +  echo "[1/5] Submitting Module 1: Peak Classification..."
+       34 +  JOB1=$(sbatch --parsable 01_peak_classification.sh)
+       35 +  echo "  Job ID: $JOB1"
+       36    
+       37 -  # Module 3: meDIP Integration
+       38 -  echo "Running Module 3: meDIP Integration..."
+       39 -  sbatch "${SCRIPT_DIR}/03_medip_integration.sh"
+       37 +  # Module 2: Motif Analysis (depends on Module 1 for BED 
+          + files)
+       38 +  echo ""
+       39 +  echo "[2/5] Submitting Module 2: Motif Analysis (depends on 
+          + Job $JOB1)..."
+       40 +  JOB2=$(sbatch --parsable --dependency=afterok:$JOB1 
+          + 02_motif_analysis.sh)
+       41 +  echo "  Job ID: $JOB2"
+       42    
+       43 -  # Module 4: Gene Regulatory Logic
+       44 -  echo "Running Module 4: Gene Regulatory Logic..."
+       45 -  sbatch "${SCRIPT_DIR}/04_gene_regulatory_logic.sh"
+       43 +  # Module 3: meDIP Integration (depends on Module 1 for peak 
+          + categories)
+       44 +  echo ""
+       45 +  echo "[3/5] Submitting Module 3: meDIP Integration (depends 
+          + on Job $JOB1)..."
+       46 +  JOB3=$(sbatch --parsable --dependency=afterok:$JOB1 
+          + 03_medip_integration.sh)
+       47 +  echo "  Job ID: $JOB3"
+       48    
+       49 -  # Module 5: Functional Enrichment
+       50 -  echo "Running Module 5: Functional Enrichment..."
+       51 -  sbatch "${SCRIPT_DIR}/05_functional_enrichment.sh"
+       49 +  # Module 4: Gene Regulatory Logic (depends on Module 1 for 
+          + peak categories)
+       50 +  echo ""
+       51 +  echo "[4/5] Submitting Module 4: Gene Regulatory Logic 
+          + (depends on Job $JOB1)..."
+       52 +  JOB4=$(sbatch --parsable --dependency=afterok:$JOB1 
+          + 04_gene_regulatory_logic.sh)
+       53 +  echo "  Job ID: $JOB4"
+       54    
+       55 -  echo "All jobs submitted. Check ${SCRIPT_DIR}/logs/ for 
+          - progress."
+       55 +  # Module 5: Functional Enrichment (depends on Module 1 for 
+          + annotations)
+       56 +  echo ""
+       57 +  echo "[5/5] Submitting Module 5: Functional Enrichment 
+          + (depends on Job $JOB1)..."
+       58 +  JOB5=$(sbatch --parsable --dependency=afterok:$JOB1 
+          + 05_functional_enrichment.sh)
+       59 +  echo "  Job ID: $JOB5"
+       60 +  
+       61 +  echo ""
+       62 +  echo "=============================================="
+       63 +  echo "All jobs submitted!"
+       64 +  echo ""
+       65 +  echo "Job dependency chain:"
+       66 +  echo "  Module 1 (Peak Classification):    $JOB1"
+       67 +  echo "  Module 2 (Motif Analysis):         $JOB2 -> depends 
+          + on $JOB1"
+       68 +  echo "  Module 3 (meDIP Integration):      $JOB3 -> depends 
+          + on $JOB1"
+       69 +  echo "  Module 4 (Gene Regulatory Logic):  $JOB4 -> depends 
+          + on $JOB1"
+       70 +  echo "  Module 5 (Functional Enrichment):  $JOB5 -> depends 
+          + on $JOB1"
+       71 +  echo ""
+       72 +  echo "Monitor progress with:"
+       73 +  echo "  squeue -u \$USER"
+       74 +  echo "  tail -f logs/*.out"
+       75 +  echo "=============================================="
+
+● Now fixing all individual shell scripts:
+
+● Write(01_peak_classification.sh)
+  ⎿  Error writing file
+
+● Write(02_motif_analysis.sh)
+  ⎿  Error writing file
+
+● Write(03_medip_integration.sh)
+  ⎿  Error writing file
+
+● Write(04_gene_regulatory_logic.sh)
+  ⎿  Error writing file
+
+● Write(05_functional_enrichment.sh)
+  ⎿  Error writing file
+
+● Read(01_peak_classification.sh)
+  ⎿  Read 20 lines
+
+● Read(03_medip_integration.sh)
+  ⎿  Read 20 lines
+
+● Read(04_gene_regulatory_logic.sh)
+  ⎿  Read 20 lines
+
+● Read(05_functional_enrichment.sh)
+  ⎿  Read 20 lines
+
+● Read(02_motif_analysis.sh)
+  ⎿  Read 69 lines
+
+● Write(01_peak_classification.sh)
+  ⎿  Updated 01_peak_classification.sh with 27 additions and 8 removals  
+        1    #!/bin/bash
+        2    #SBATCH --job-name=01_peak_class
+        3 -  #SBATCH --output=logs/01_peak_class.out
+        4 -  #SBATCH --error=logs/01_peak_class.err
+        3 +  #SBATCH --account=kubacki.michal
+        4 +  #SBATCH --partition=workq
+        5 +  #SBATCH --output=logs/01_peak_class_%j.out
+        6 +  #SBATCH --error=logs/01_peak_class_%j.err
+        7    #SBATCH --time=01:00:00
+        8    #SBATCH --mem=16G
+        9    #SBATCH --cpus-per-task=4
+       10 +  #SBATCH --mail-type=END,FAIL
+       11 +  #SBATCH --mail-user=kubacki.michal@hsr.it
+       12    
+       13 -  # Activate environment
+       14 -  source /opt/common/tools/ric.cosr/miniconda3/bin/activate
+       15 -  conda activate genomics_env
+       13 +  # Module 1: Peak Classification
+       14 +  # FIXED: Absolute paths, proper SLURM params, correct conda 
+          + env
+       15    
+       16 -  # Set working directory to analysis_2 (where results are 
+          - stored)
+       17 -  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+       16 +  set -e
+       17 +  
+       18 +  # Navigate to script directory
+       19 +  SCRIPT_DIR="/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva
+          + _top/SRF_Eva_integrated_analysis/scripts/analysis_2"
+       20    cd "$SCRIPT_DIR"
+       21 +  
+       22 +  # Create logs and results directories
+       23 +  mkdir -p logs
+       24 +  mkdir -p results/01_peak_classification
+       25 +  
+       26 +  echo "=== Module 1: Peak Classification ==="
+       27    echo "Working directory: $(pwd)"
+       28 +  echo "Date: $(date)"
+       29    
+       30 +  # Activate conda environment
+       31 +  source /opt/common/tools/ric.cosr/miniconda3/bin/activate
+       32 +  conda activate seurat_full2
+       33 +  
+       34    # Run script
+       35 -  Rscript "${SCRIPT_DIR}/01_peak_classification.R"
+       35 +  Rscript 01_peak_classification.R
+       36 +  
+       37 +  echo ""
+       38 +  echo "Module 1 completed: $(date)"
+
+● Write(02_motif_analysis.sh)
+  ⎿  Updated 02_motif_analysis.sh with 32 additions and 20 removals      
+        1    #!/bin/bash
+        2    #SBATCH --job-name=02_motif_analysis
+        3 +  #SBATCH --account=kubacki.michal
+        4 +  #SBATCH --partition=workq
+        5    #SBATCH --output=logs/02_motif_analysis_%j.out
+        6    #SBATCH --error=logs/02_motif_analysis_%j.err
+        7    #SBATCH --time=04:00:00
+        8    #SBATCH --mem=32G
+        9    #SBATCH --cpus-per-task=8
+       10 +  #SBATCH --mail-type=END,FAIL
+       11 +  #SBATCH --mail-user=kubacki.michal@hsr.it
+       12    
+       13    # Module 2: Motif Enrichment Analysis
+       14    # Requires HOMER (findMotifsGenome.pl)
+       15 +  # FIXED: Absolute paths, proper input checking
+       16    
+       17 -  # Activate environment containing HOMER
+       18 -  # User needs to install HOMER first. 
+       19 -  # Suggested env name: peaks_enrichment or genomics_env
+       20 -  source /opt/common/tools/ric.cosr/miniconda3/bin/activate
+       21 -  conda activate genomics_env
+       17 +  set -e
+       18    
+       19 -  # Set working directory to analysis_2 (where results are 
+          - stored)
+       20 -  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+       19 +  # Navigate to script directory
+       20 +  SCRIPT_DIR="/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva
+          + _top/SRF_Eva_integrated_analysis/scripts/analysis_2"
+       21    cd "$SCRIPT_DIR"
+       22 +  
+       23 +  echo "=== Module 2: Motif Analysis ==="
+       24    echo "Working directory: $(pwd)"
+       25 +  echo "Date: $(date)"
+       26    
+       27 +  # Activate environment containing HOMER
+       28 +  source /opt/common/tools/ric.cosr/miniconda3/bin/activate
+       29 +  conda activate genomics_env
+       30 +  
+       31    # Configuration
+       32    GENOME="hg38"
+       33    INPUT_DIR="${SCRIPT_DIR}/results/01_peak_classification"
+       34    OUTPUT_DIR="${SCRIPT_DIR}/results/02_motif_enrichment"
+       35    
+       36 -  mkdir -p $OUTPUT_DIR
+       36 +  mkdir -p "$OUTPUT_DIR"
+       37    
+       38 -  # Check if HOMER is available
+       39 -  if ! command -v findMotifsGenome.pl &> /dev/null; then
+       40 -      echo "Error: findMotifsGenome.pl not found."
+       41 -      echo "Please install HOMER. See MISSING_PACKAGES.md for 
+          - instructions."
+       42 -      exit 1
+       43 -  fi
+       44 -  
+       45 -  # Verify input files exist
+       38 +  # Check if input files exist
+       39 +  echo ""
+       40    echo "Checking input files..."
+       41    for bed_file in "${INPUT_DIR}/Shared_TES_TEAD1.bed" 
+            "${INPUT_DIR}/TES_Unique.bed" 
+            "${INPUT_DIR}/TEAD1_Unique.bed"; do
+       42        if [[ ! -f "$bed_file" ]]; then
+       43            echo "ERROR: Input file not found: $bed_file"
+       44 -          echo "Please run 01_peak_classification.sh first."
+       44 +          echo "Please run Module 1 (01_peak_classification.sh
+          +  ) first."
+       45            exit 1
+       46        fi
+       47        echo "  Found: $bed_file ($(wc -l < "$bed_file") lines)"
+       48    done
+       49    
+       50 +  # Check if HOMER is available
+       51 +  if ! command -v findMotifsGenome.pl &> /dev/null; then
+       52 +      echo ""
+       53 +      echo "Error: findMotifsGenome.pl not found."
+       54 +      echo "Please install HOMER. See README.md for 
+          + instructions."
+       55 +      exit 1
+       56 +  fi
+       57 +  
+       58    # Function to run HOMER
+       59    run_homer() {
+       60        local bed_file=$1
+       61        local name=$2
+       62 -      
+       62 +  
+       63 +      echo ""
+       64        echo "Running HOMER for $name..."
+       65        mkdir -p "${OUTPUT_DIR}/${name}"
+       66 -      
+       66 +  
+       67        # findMotifsGenome.pl <peak/BED file> <genome> <output 
+            directory> -size given -mask
+       68        findMotifsGenome.pl "$bed_file" "$GENOME" 
+            "${OUTPUT_DIR}/${name}" \
+       69            -size given \
+     ...
+       65    run_homer "${INPUT_DIR}/TES_Unique.bed" "TES_Unique"
+       66    run_homer "${INPUT_DIR}/TEAD1_Unique.bed" "TEAD1_Unique"
+       67    
+       68 -  echo "Motif analysis complete."
+       68 +  echo ""
+       69 +  echo "Module 2 completed: $(date)"
+
+● Write(03_medip_integration.sh)
+  ⎿  Updated 03_medip_integration.sh with 25 additions and 6 removals    
+        1    #!/bin/bash
+        2    #SBATCH --job-name=03_medip_int
+        3 +  #SBATCH --account=kubacki.michal
+        4 +  #SBATCH --partition=workq
+        5    #SBATCH --output=logs/03_medip_int_%j.out
+        6    #SBATCH --error=logs/03_medip_int_%j.err
+        7    #SBATCH --time=02:00:00
+        8    #SBATCH --mem=32G
+        9    #SBATCH --cpus-per-task=4
+       10 +  #SBATCH --mail-type=END,FAIL
+       11 +  #SBATCH --mail-user=kubacki.michal@hsr.it
+       12    
+       13 -  # Activate environment
+       14 -  source /opt/common/tools/ric.cosr/miniconda3/bin/activate
+       15 -  conda activate genomics_env
+       13 +  # Module 3: meDIP Integration
+       14 +  # FIXED: Absolute paths, proper SLURM params, correct conda 
+          + env
+       15    
+       16 -  # Set working directory to analysis_2 (where results are 
+          - stored)
+       17 -  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+       16 +  set -e
+       17 +  
+       18 +  # Navigate to script directory
+       19 +  SCRIPT_DIR="/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva
+          + _top/SRF_Eva_integrated_analysis/scripts/analysis_2"
+       20    cd "$SCRIPT_DIR"
+       21 +  
+       22 +  # Create directories
+       23 +  mkdir -p logs
+       24 +  mkdir -p results/03_medip_integration
+       25 +  
+       26 +  echo "=== Module 3: meDIP Integration ==="
+       27    echo "Working directory: $(pwd)"
+       28 +  echo "Date: $(date)"
+       29    
+       30 +  # Activate conda environment
+       31 +  source /opt/common/tools/ric.cosr/miniconda3/bin/activate
+       32 +  conda activate seurat_full2
+       33 +  
+       34    # Run script
+       35 -  Rscript "${SCRIPT_DIR}/03_medip_integration.R"
+       35 +  Rscript 03_medip_integration.R
+       36 +  
+       37 +  echo ""
+       38 +  echo "Module 3 completed: $(date)"
+
+● Write(04_gene_regulatory_logic.sh)
+  ⎿  Updated 04_gene_regulatory_logic.sh with 25 additions and 6 removals
+        1    #!/bin/bash
+        2    #SBATCH --job-name=04_gene_reg
+        3 +  #SBATCH --account=kubacki.michal
+        4 +  #SBATCH --partition=workq
+        5    #SBATCH --output=logs/04_gene_reg_%j.out
+        6    #SBATCH --error=logs/04_gene_reg_%j.err
+        7    #SBATCH --time=01:00:00
+        8    #SBATCH --mem=16G
+        9    #SBATCH --cpus-per-task=4
+       10 +  #SBATCH --mail-type=END,FAIL
+       11 +  #SBATCH --mail-user=kubacki.michal@hsr.it
+       12    
+       13 -  # Activate environment
+       14 -  source /opt/common/tools/ric.cosr/miniconda3/bin/activate
+       15 -  conda activate genomics_env
+       13 +  # Module 4: Gene Regulatory Logic
+       14 +  # FIXED: Absolute paths, proper SLURM params, correct conda 
+          + env
+       15    
+       16 -  # Set working directory to analysis_2 (where results are 
+          - stored)
+       17 -  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+       16 +  set -e
+       17 +  
+       18 +  # Navigate to script directory
+       19 +  SCRIPT_DIR="/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva
+          + _top/SRF_Eva_integrated_analysis/scripts/analysis_2"
+       20    cd "$SCRIPT_DIR"
+       21 +  
+       22 +  # Create directories
+       23 +  mkdir -p logs
+       24 +  mkdir -p results/04_gene_regulatory_logic
+       25 +  
+       26 +  echo "=== Module 4: Gene Regulatory Logic ==="
+       27    echo "Working directory: $(pwd)"
+       28 +  echo "Date: $(date)"
+       29    
+       30 +  # Activate conda environment
+       31 +  source /opt/common/tools/ric.cosr/miniconda3/bin/activate
+       32 +  conda activate seurat_full2
+       33 +  
+       34    # Run script
+       35 -  Rscript "${SCRIPT_DIR}/04_gene_regulatory_logic.R"
+       35 +  Rscript 04_gene_regulatory_logic.R
+       36 +  
+       37 +  echo ""
+       38 +  echo "Module 4 completed: $(date)"
+
+● Write(05_functional_enrichment.sh)
+  ⎿  Updated 05_functional_enrichment.sh with 25 additions and 6 removals
+        1    #!/bin/bash
+        2    #SBATCH --job-name=05_func_enrich
+        3 +  #SBATCH --account=kubacki.michal
+        4 +  #SBATCH --partition=workq
+        5    #SBATCH --output=logs/05_func_enrich_%j.out
+        6    #SBATCH --error=logs/05_func_enrich_%j.err
+        7    #SBATCH --time=01:00:00
+        8    #SBATCH --mem=16G
+        9    #SBATCH --cpus-per-task=4
+       10 +  #SBATCH --mail-type=END,FAIL
+       11 +  #SBATCH --mail-user=kubacki.michal@hsr.it
+       12    
+       13 -  # Activate environment
+       14 -  source /opt/common/tools/ric.cosr/miniconda3/bin/activate
+       15 -  conda activate genomics_env
+       13 +  # Module 5: Functional Enrichment
+       14 +  # FIXED: Absolute paths, proper SLURM params, correct conda 
+          + env
+       15    
+       16 -  # Set working directory to analysis_2 (where results are 
+          - stored)
+       17 -  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+       16 +  set -e
+       17 +  
+       18 +  # Navigate to script directory
+       19 +  SCRIPT_DIR="/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva
+          + _top/SRF_Eva_integrated_analysis/scripts/analysis_2"
+       20    cd "$SCRIPT_DIR"
+       21 +  
+       22 +  # Create directories
+       23 +  mkdir -p logs
+       24 +  mkdir -p results/05_functional_enrichment
+       25 +  
+       26 +  echo "=== Module 5: Functional Enrichment ==="
+       27    echo "Working directory: $(pwd)"
+       28 +  echo "Date: $(date)"
+       29    
+       30 +  # Activate conda environment
+       31 +  source /opt/common/tools/ric.cosr/miniconda3/bin/activate
+       32 +  conda activate seurat_full2
+       33 +  
+       34    # Run script
+       35 -  Rscript "${SCRIPT_DIR}/05_functional_enrichment.R"
+       35 +  Rscript 05_functional_enrichment.R
+       36 +  
+       37 +  echo ""
+       38 +  echo "Module 5 completed: $(date)"
+
+● All fixes have been applied. Here's a summary:
+
+  ---
+  Summary of Fixes Applied to analysis_2
+
+  R Scripts Fixed:
+
+  | Script                     | Key Fixes
+
+       |
+  |----------------------------|--------------------------------------------
+  --------------------------------------------------------------------------
+  -----|
+  | 01_peak_classification.R   | Removed unused ggVennDiagram, absolute
+  paths, added summary stats
+           |
+  | 03_medip_integration.R     | Fixed signal extraction, correct TES vs GFP
+   naming (not "INPUT"), absolute paths, chromosome style handling
+       |
+  | 04_gene_regulatory_logic.R | Absolute paths, added significance 
+  filtering (padj < 0.05), added direction analysis, new plots for
+  significant DEGs only |
+  | 05_functional_enrichment.R | Absolute paths, added error handling,
+  explicit keyType for enrichGO
+            |
+
+  Shell Scripts Fixed:
+
+  | Script                      | Key Fixes
+                                 |
+  |-----------------------------|-------------------------------------------
+  -------------------------------|
+  | 00_run_all_new_modules.sh   | Added SLURM job dependencies
+  (--dependency=afterok), proper SLURM params |
+  | 01_peak_classification.sh   | SLURM account/partition/mail, seurat_full2
+   conda env                     |
+  | 02_motif_analysis.sh        | SLURM params, input file validation before
+   HOMER                         |
+  | 03_medip_integration.sh     | SLURM params, seurat_full2 conda env
+                                 |
+  | 04_gene_regulatory_logic.sh | SLURM params, seurat_full2 conda env
+                                 |
+  | 05_functional_enrichment.sh | SLURM params, seurat_full2 conda env
+                                 |
+
+  Key Improvements:
+
+  1. All paths are now absolute - no more working directory confusion
+  2. Job dependencies added - Modules 2-5 wait for Module 1 to complete
+  3. meDIP signal extraction rewritten - should now produce actual values
+  instead of NA
+  4. DEG filtering added - Module 4 now shows both all genes AND significant
+   DEGs (padj < 0.05)
+  5. Proper SLURM configuration - account, partition, mail notifications
+  6. Correct conda environment - seurat_full2 for R scripts, genomics_env
+  for HOMER
+
+  To Run the Pipeline:
+
+  cd /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_integrated
+  _analysis/scripts/analysis_2
+
+  # Option 1: Run master script (submits all jobs with dependencies)
+  bash 00_run_all_new_modules.sh
+
+  # Option 2: Run modules individually
+  sbatch 01_peak_classification.sh
+  # Wait for completion, then:
+  sbatch 02_motif_analysis.sh
+  sbatch 03_medip_integration.sh
+  sbatch 04_gene_regulatory_logic.sh
+  sbatch 05_functional_enrichment.sh
+
+
+

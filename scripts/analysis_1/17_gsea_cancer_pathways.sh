@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=17_gsea_cancer_pathways
+#SBATCH --job-name=a1_17_gsea_cancer_pathways
 #SBATCH --account=kubacki.michal
 #SBATCH --partition=workq
 #SBATCH --time=2:00:00

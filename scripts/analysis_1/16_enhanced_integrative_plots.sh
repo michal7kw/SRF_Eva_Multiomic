@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=16_enhanced_integrative_plots
+#SBATCH --job-name=a1_16_enhanced_integrative_plots
 #SBATCH --account=kubacki.michal
 #SBATCH --partition=workq
 #SBATCH --time=6:00:00

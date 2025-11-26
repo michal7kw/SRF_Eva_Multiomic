@@ -1,14 +1,14 @@
 === Phase 2.1: Category-Specific Expression Analysis ===
-Date: 2025-11-25 21:44:22.814761 
+Date: 2025-11-26 07:18:25.515193 
 
 Summary Statistics by Binding Category:
 # A tibble: 4 × 9
   primary_category n_genes n_DEGs pct_DEG  n_up n_down mean_log2FC median_log2FC
   <chr>              <int>  <int>   <dbl> <int>  <int>       <dbl>         <dbl>
-1 Shared_equivale…    1530    869    56.8   368    501     -0.0852      -0.0507 
-2 TEAD1_unique        3932   2171    55.2   932   1239     -0.0426      -0.0383 
-3 TES_unique          1937   1090    56.3   485    605     -0.0284       0.00662
-4 Unbound            26560   8238    31.0  4527   3711      0.188        0.108  
+1 Shared_equivale…    1528    869    56.9   366    503     -0.0908       -0.0513
+2 TEAD1_unique        3928   2178    55.4   938   1240     -0.0409       -0.0366
+3 TES_unique          1921   1086    56.5   484    602     -0.0231        0.0127
+4 Unbound            26582   8235    31.0  4524   3711      0.187         0.107 
 # ℹ 1 more variable: mean_baseMean <dbl>
 
 
@@ -16,6 +16,6 @@ Statistical Comparison (vs Unbound):
 # A tibble: 3 × 8
   .y.            group1  group2              p    p.adj p.format p.signif method
   <chr>          <chr>   <chr>           <dbl>    <dbl> <chr>    <chr>    <chr> 
-1 log2FoldChange Unbound TEAD1_unique 7.31e-24 2.20e-23 < 2e-16  ****     Wilco…
-2 log2FoldChange Unbound TES_unique   1.26e- 9 1.3 e- 9 1.3e-09  ****     Wilco…
-3 log2FoldChange Unbound Shared_equi… 2.41e-13 4.80e-13 2.4e-13  ****     Wilco…
+1 log2FoldChange Unbound TEAD1_unique 1.89e-23 5.7 e-23 < 2e-16  ****     Wilco…
+2 log2FoldChange Unbound TES_unique   3.67e- 9 3.7 e- 9 3.7e-09  ****     Wilco…
+3 log2FoldChange Unbound Shared_equi… 1.07e-13 2.10e-13 1.1e-13  ****     Wilco…

@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=motif_analysis
+#SBATCH --job-name=motif_analysis_a3_
 #SBATCH --account=kubacki.michal
 #SBATCH --mem=16GB
 #SBATCH --cpus-per-task=8

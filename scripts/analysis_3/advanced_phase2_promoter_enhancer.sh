@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=phase2_2_promoter_enh
+#SBATCH --job-name=phase2_2_promoter_enh_a3_
 #SBATCH --account=kubacki.michal
 #SBATCH --mem=16GB
 #SBATCH --cpus-per-task=4

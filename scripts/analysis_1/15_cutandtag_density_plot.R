@@ -123,8 +123,7 @@ bigwig_files <- list(
   TES_rep2 = file.path(BIGWIG_DIR, "TES-2_CPM.bw"),
   TES_rep3 = file.path(BIGWIG_DIR, "TES-3_CPM.bw"),
   TES_combined = file.path(BIGWIG_DIR, "TES_comb.bw"),
-  TEAD1_combined = file.path(BIGWIG_DIR, "TEAD1_comb.bw"),
-  TESmut_combined = file.path(BIGWIG_DIR, "TESmut_comb.bw")
+  TEAD1_combined = file.path(BIGWIG_DIR, "TEAD1_comb.bw")
 )
 
 # Check which files exist
@@ -276,7 +275,7 @@ create_heatmap <- function(mat, sample_name, gene_regions) {
 }
 
 # Generate heatmaps for key samples
-for (sample_name in c("TES_combined", "TEAD1_combined", "TESmut_combined")) {
+for (sample_name in c("TES_combined", "TEAD1_combined")) {
   if (sample_name %in% names(signal_matrices)) {
     cat("  Creating heatmap for", sample_name, "\n")
 
@@ -437,7 +436,7 @@ ht_opt$message <- FALSE
 # Create list of heatmaps
 ht_list <- NULL
 
-for (sample_name in c("TES_combined", "TEAD1_combined", "TESmut_combined")) {
+for (sample_name in c("TES_combined", "TEAD1_combined")) {
   if (sample_name %in% names(signal_matrices)) {
     cat("  Adding", sample_name, "to combined heatmap...\n")
 

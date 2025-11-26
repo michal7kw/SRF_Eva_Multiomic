@@ -1,14 +1,4 @@
 #!/bin/bash
-#SBATCH --job-name=run_all_modules
-#SBATCH --account=kubacki.michal
-#SBATCH --partition=workq
-#SBATCH --output=logs/run_all_modules.out
-#SBATCH --error=logs/run_all_modules.err
-#SBATCH --time=01:00:00
-#SBATCH --mem=4G
-#SBATCH --cpus-per-task=1
-#SBATCH --mail-type=END,FAIL
-#SBATCH --mail-user=kubacki.michal@hsr.it
 
 # Master script to run the new multiomic analysis modules
 # FIXED: Added job dependencies to ensure proper execution order
@@ -34,11 +24,11 @@ echo "[1/5] Submitting Module 1: Peak Classification..."
 JOB1=$(sbatch --parsable 01_peak_classification.sh)
 echo "  Job ID: $JOB1"
 
-# Module 2: Motif Analysis (depends on Module 1 for BED files)
+# Module 2: Motif Analysis (depends on Module 1 for BED files) - SKIPPED
 echo ""
-echo "[2/5] Submitting Module 2: Motif Analysis (depends on Job $JOB1)..."
-JOB2=$(sbatch --parsable --dependency=afterok:$JOB1 02_motif_analysis.sh)
-echo "  Job ID: $JOB2"
+echo "[2/5] Skipping Module 2: Motif Analysis..."
+# JOB2=$(sbatch --parsable --dependency=afterok:$JOB1 02_motif_analysis.sh)
+# echo "  Job ID: $JOB2"
 
 # Module 3: meDIP Integration (depends on Module 1 for peak categories)
 echo ""
@@ -64,7 +54,7 @@ echo "All jobs submitted!"
 echo ""
 echo "Job dependency chain:"
 echo "  Module 1 (Peak Classification):    $JOB1"
-echo "  Module 2 (Motif Analysis):         $JOB2 -> depends on $JOB1"
+echo "  Module 2 (Motif Analysis):         SKIPPED"
 echo "  Module 3 (meDIP Integration):      $JOB3 -> depends on $JOB1"
 echo "  Module 4 (Gene Regulatory Logic):  $JOB4 -> depends on $JOB1"
 echo "  Module 5 (Functional Enrichment):  $JOB5 -> depends on $JOB1"

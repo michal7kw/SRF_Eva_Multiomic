@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=11_final_integrative_analysis
+#SBATCH --job-name=a1_11_final_integrative_analysis
 #SBATCH --account=kubacki.michal
 #SBATCH --partition=workq
 #SBATCH --time=6:00:00

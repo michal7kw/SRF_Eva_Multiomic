@@ -1,4 +1,4 @@
 ".y.","group1","group2","p","p.adj","p.format","p.signif","method"
-"log2FoldChange","Unbound","TEAD1_unique",7.31314469322633e-24,2.2e-23,"< 2e-16","****","Wilcoxon"
-"log2FoldChange","Unbound","TES_unique",1.26008124776442e-09,1.3e-09,"1.3e-09","****","Wilcoxon"
-"log2FoldChange","Unbound","Shared_equivalent",2.40844446991773e-13,4.8e-13,"2.4e-13","****","Wilcoxon"
+"log2FoldChange","Unbound","TEAD1_unique",1.88819638229211e-23,5.7e-23,"< 2e-16","****","Wilcoxon"
+"log2FoldChange","Unbound","TES_unique",3.67464292495512e-09,3.7e-09,"3.7e-09","****","Wilcoxon"
+"log2FoldChange","Unbound","Shared_equivalent",1.06817785620224e-13,2.1e-13,"1.1e-13","****","Wilcoxon"

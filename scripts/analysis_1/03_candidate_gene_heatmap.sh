@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=03_candidate_gene_heatmap
+#SBATCH --job-name=a1_03_candidate_gene_heatmap
 #SBATCH --account=kubacki.michal
 #SBATCH --partition=workq
 #SBATCH --time=1:00:00

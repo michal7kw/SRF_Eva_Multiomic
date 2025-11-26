@@ -651,6 +651,19 @@ log_message("Creating Figure 7: Comprehensive Summary...")
 
 if (!is.null(binding_data) && !is.null(expr_data)) {
   # Panel A: Numbers overview (text-based)
+  # Count TES/TEAD1 bound from expr_data if available
+  tes_direct_count <- if ("tes_bound" %in% names(expr_data)) {
+    sum(expr_data$tes_bound & expr_data$padj < 0.05, na.rm = TRUE)
+  } else if ("primary_category" %in% names(expr_data)) {
+    sum(str_detect(expr_data$primary_category, "TES") & expr_data$padj < 0.05, na.rm = TRUE)
+  } else 0
+
+  tead1_direct_count <- if ("tead1_bound" %in% names(expr_data)) {
+    sum(expr_data$tead1_bound & expr_data$padj < 0.05, na.rm = TRUE)
+  } else if ("primary_category" %in% names(expr_data)) {
+    sum(str_detect(expr_data$primary_category, "TEAD1") & expr_data$padj < 0.05, na.rm = TRUE)
+  } else 0
+
   summary_stats <- data.frame(
     Metric = c(
       "Total Binding Sites",
@@ -664,13 +677,13 @@ if (!is.null(binding_data) && !is.null(expr_data)) {
     ),
     Value = c(
       nrow(binding_data),
-      sum(binding_data$binding_category == "TES_unique"),
-      sum(binding_data$binding_category == "TEAD1_unique"),
-      sum(str_detect(binding_data$binding_category, "Shared")),
+      sum(binding_data$category == "TES_unique", na.rm = TRUE),
+      sum(binding_data$category == "TEAD1_unique", na.rm = TRUE),
+      sum(str_detect(binding_data$category, "Shared"), na.rm = TRUE),
       nrow(expr_data),
       sum(expr_data$padj < 0.05, na.rm = TRUE),
-      sum(expr_data$tes_bound & expr_data$padj < 0.05, na.rm = TRUE),
-      sum(expr_data$tead1_bound & expr_data$padj < 0.05, na.rm = TRUE)
+      tes_direct_count,
+      tead1_direct_count
     )
   )
 

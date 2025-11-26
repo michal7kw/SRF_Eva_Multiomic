@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=binding_classification
+#SBATCH --job-name=binding_classification_a3_
 #SBATCH --account=kubacki.michal
 #SBATCH --mem=32GB
 #SBATCH --cpus-per-task=8

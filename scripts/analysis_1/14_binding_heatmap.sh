@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=14_binding_heatmap
+#SBATCH --job-name=a1_14_binding_heatmap
 #SBATCH --account=kubacki.michal
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=kubacki.michal@hsr.it

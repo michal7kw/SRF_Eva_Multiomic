@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=02_dir_go
+#SBATCH --job-name=a1_02_dir_go
 #SBATCH --account=kubacki.michal
 #SBATCH --partition=workq
 #SBATCH --time=2:00:00

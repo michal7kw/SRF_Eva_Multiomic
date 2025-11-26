@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=phase2_3_cascades
+#SBATCH --job-name=phase2_3_cascades_a3_
 #SBATCH --account=kubacki.michal
 #SBATCH --mem=32GB
 #SBATCH --cpus-per-task=8

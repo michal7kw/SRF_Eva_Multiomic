@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=phase5_2_master_reg
+#SBATCH --job-name=phase5_2_master_reg_a3_
 #SBATCH --account=kubacki.michal
 #SBATCH --mem=32GB
 #SBATCH --cpus-per-task=8

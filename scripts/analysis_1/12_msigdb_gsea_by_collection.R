@@ -421,11 +421,11 @@ cat(sprintf("  Collections analyzed: %d\n\n", length(collections_in_results)),
 )
 
 cat("RESULTS BY COLLECTION:\n", file = master_summary_file, append = TRUE)
-for (collection in sort(collections_in_results)) {
-  coll_results <- fgsea_all_results %>% filter(collection == collection)
-  coll_sig <- coll_results %>% filter(padj < FDR_THRESHOLD)
+for (coll_name in sort(collections_in_results)) {
+  coll_results <- fgsea_all_results %>% dplyr::filter(collection == coll_name)
+  coll_sig <- coll_results %>% dplyr::filter(padj < FDR_THRESHOLD)
 
-  cat(sprintf("  %s:\n", collection), file = master_summary_file, append = TRUE)
+  cat(sprintf("  %s:\n", coll_name), file = master_summary_file, append = TRUE)
   cat(
     sprintf(
       "    Tested: %d | Significant: %d | Up: %d | Down: %d\n",
@@ -434,7 +434,7 @@ for (collection in sort(collections_in_results)) {
     ),
     file = master_summary_file, append = TRUE
   )
-  cat(sprintf("    Output: %s\n\n", file.path(BASE_OUTPUT_DIR, collection)),
+  cat(sprintf("    Output: %s\n\n", file.path(BASE_OUTPUT_DIR, coll_name)),
     file = master_summary_file, append = TRUE
   )
 }

@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=phase3_1_meth_binding
+#SBATCH --job-name=phase3_1_meth_binding_a3_
 #SBATCH --account=kubacki.michal
 #SBATCH --mem=32GB
 #SBATCH --cpus-per-task=16
@@ -158,12 +158,12 @@ if (!file.exists(medip_dmrs_file)) {
   dmrs <- read.csv(medip_dmrs_file)
   message("  Loaded ", nrow(dmrs), " DMRs")
 
-  # Convert to GRanges
+  # Convert to GRanges (add "chr" prefix to match binding sites)
   dmrs_gr <- GRanges(
-    seqnames = dmrs$chr,
+    seqnames = paste0("chr", dmrs$chr),
     ranges = IRanges(start = dmrs$start, end = dmrs$stop),
-    logFC = dmrs$edgeR.logFC,
-    FDR = dmrs$edgeR.adj.p.val
+    logFC = dmrs$logFC,
+    FDR = dmrs$FDR
   )
   dmrs_available <- TRUE
 }
@@ -213,16 +213,32 @@ if (dmrs_available) {
   tes_related <- all_peaks_unique$category %in% c("TES_unique", "Shared_TES_dominant")
   tead1_related <- all_peaks_unique$category %in% c("TEAD1_unique", "Shared_TEAD1_dominant")
 
-  # Fisher's exact test
-  tes_hyper_test <- fisher.test(table(
-    tes_related,
-    as.data.frame(all_peaks_unique)$has_hyper_dmr
-  ))
+  # Fisher's exact test (with error handling for insufficient data)
+  tes_hyper_test <- tryCatch({
+    tbl <- table(tes_related, as.data.frame(all_peaks_unique)$has_hyper_dmr)
+    if (nrow(tbl) >= 2 && ncol(tbl) >= 2) {
+      fisher.test(tbl)
+    } else {
+      list(p.value = NA, estimate = NA, conf.int = c(NA, NA),
+           method = "Fisher's Exact Test (insufficient data)")
+    }
+  }, error = function(e) {
+    list(p.value = NA, estimate = NA, conf.int = c(NA, NA),
+         method = paste("Fisher's Exact Test failed:", e$message))
+  })
 
-  tead1_hyper_test <- fisher.test(table(
-    tead1_related,
-    as.data.frame(all_peaks_unique)$has_hyper_dmr
-  ))
+  tead1_hyper_test <- tryCatch({
+    tbl <- table(tead1_related, as.data.frame(all_peaks_unique)$has_hyper_dmr)
+    if (nrow(tbl) >= 2 && ncol(tbl) >= 2) {
+      fisher.test(tbl)
+    } else {
+      list(p.value = NA, estimate = NA, conf.int = c(NA, NA),
+           method = "Fisher's Exact Test (insufficient data)")
+    }
+  }, error = function(e) {
+    list(p.value = NA, estimate = NA, conf.int = c(NA, NA),
+         method = paste("Fisher's Exact Test failed:", e$message))
+  })
 
   # Visualizations
   message("Creating visualizations...")

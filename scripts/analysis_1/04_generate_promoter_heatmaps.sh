@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=04_generate_promoter_heatmaps
+#SBATCH --job-name=a1_04_generate_promoter_heatmaps
 #SBATCH --account=kubacki.michal
 #SBATCH --partition=workq
 #SBATCH --time=4:00:00

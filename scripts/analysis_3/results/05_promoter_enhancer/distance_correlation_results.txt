@@ -6,11 +6,11 @@ TES-related peaks:
 	Spearman's rank correlation rho
 
 data:  abs(distal_peaks$distance[distal_peaks$category %in% c("TES_unique", "Shared_TES_dominant")]) and abs(distal_peaks$log2FoldChange[distal_peaks$category %in% c("TES_unique", "Shared_TES_dominant")])
-S = 1834385605, p-value = 0.9699
+S = 1807578771, p-value = 0.7277
 alternative hypothesis: true rho is not equal to 0
 sample estimates:
-         rho 
-0.0008011493 
+       rho 
+0.00739453 
 
 
 
@@ -19,9 +19,9 @@ TEAD1-related peaks:
 	Spearman's rank correlation rho
 
 data:  abs(distal_peaks$distance[distal_peaks$category %in% c("TEAD1_unique", "Shared_TEAD1_dominant")]) and abs(distal_peaks$log2FoldChange[distal_peaks$category %in% c("TEAD1_unique", "Shared_TEAD1_dominant")])
-S = 3656597420, p-value = 0.008581
+S = 3679288225, p-value = 0.008348
 alternative hypothesis: true rho is not equal to 0
 sample estimates:
        rho 
-0.04925062 
+0.04937376 
 

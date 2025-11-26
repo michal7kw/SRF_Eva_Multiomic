@@ -35,16 +35,16 @@ cat("=== PHASE 1: Loading Integrative Analysis Results ===\n")
 
 # Load direct target classifications
 cat("Loading direct target gene lists...\n")
-tes_direct <- read.csv("output/results/10_direct_targets/TES_direct_targets_all_genes.csv",
+tes_direct <- read.csv("output/11_final_integrative_analysis_all_genes/direct_targets/TES_direct_targets_all_genes.csv",
   stringsAsFactors = FALSE
 )
-tead1_direct <- read.csv("output/results/10_direct_targets/TEAD1_direct_targets_all_genes.csv",
+tead1_direct <- read.csv("output/11_final_integrative_analysis_all_genes/direct_targets/TEAD1_direct_targets_all_genes.csv",
   stringsAsFactors = FALSE
 )
-tes_specific <- read.csv("output/results/10_direct_targets/TES_specific_targets_all_genes.csv",
+tes_specific <- read.csv("output/11_final_integrative_analysis_all_genes/direct_targets/TES_specific_targets_all_genes.csv",
   stringsAsFactors = FALSE
 )
-tead1_specific <- read.csv("output/results/10_direct_targets/TEAD1_specific_targets_all_genes.csv",
+tead1_specific <- read.csv("output/11_final_integrative_analysis_all_genes/direct_targets/TEAD1_specific_targets_all_genes.csv",
   stringsAsFactors = FALSE
 )
 
@@ -58,13 +58,13 @@ cat(sprintf("✓ Shared TES/TEAD1 targets: %d genes\n\n", nrow(shared_targets)))
 
 # Load GO enrichment results
 cat("Loading GO enrichment pathway data...\n")
-tes_go <- read.csv("output/results/10_pathway_analysis/TES_direct_GO_enrichment_all_genes.csv",
+tes_go <- read.csv("output/11_final_integrative_analysis_all_genes/pathway_analysis/TES_direct_GO_enrichment_all_genes.csv",
   stringsAsFactors = FALSE
 )
-tead1_go <- read.csv("output/results/10_pathway_analysis/TEAD1_direct_GO_enrichment_all_genes.csv",
+tead1_go <- read.csv("output/11_final_integrative_analysis_all_genes/pathway_analysis/TEAD1_direct_GO_enrichment_all_genes.csv",
   stringsAsFactors = FALSE
 )
-shared_go <- read.csv("output/results/10_pathway_analysis/TES_TEAD1_shared_GO_enrichment_all_genes.csv",
+shared_go <- read.csv("output/11_final_integrative_analysis_all_genes/pathway_analysis/TES_TEAD1_shared_GO_enrichment_all_genes.csv",
   stringsAsFactors = FALSE
 )
 

@@ -96,6 +96,7 @@ tead1_peaks$peak_id <- paste0("TEAD1_", seq_along(tead1_peaks))
 message("\n[Step 2] Quantifying binding signals from BigWig files...")
 
 # Function to extract mean signal from BigWig
+# Handles chromosome naming mismatches (chr1 vs 1)
 extract_signal <- function(peaks, bigwig_files) {
   signals <- matrix(NA, nrow = length(peaks), ncol = length(bigwig_files))
 
@@ -108,65 +109,58 @@ extract_signal <- function(peaks, bigwig_files) {
       next
     }
 
-    # Import BigWig as GRanges for the regions we need (more reliable)
     tryCatch({
-      # Method 1: Direct import with selection (faster and more reliable)
-      bw_data <- import(bigwig_files[i], format = "BigWig", which = peaks)
+      # Import BigWig as RleList - most reliable method for signal extraction
+      bw <- import(bigwig_files[i], format = "BigWig", as = "RleList")
+      bw_chroms <- names(bw)
 
-      # Find overlaps between peaks and bigwig data
-      overlaps <- findOverlaps(peaks, bw_data)
+      # Determine chromosome naming style in BigWig
+      has_chr_prefix <- any(grepl("^chr", bw_chroms))
+      message("    BigWig chromosome style: ", ifelse(has_chr_prefix, "UCSC (chr1)", "Ensembl (1)"))
 
-      # Calculate mean signal per peak
-      for (j in seq_along(peaks)) {
-        hits <- subjectHits(overlaps[queryHits(overlaps) == j])
-        if (length(hits) > 0) {
-          # Weight by overlap width
-          peak_range <- peaks[j]
-          overlap_ranges <- pintersect(
-            rep(peak_range, length(hits)),
-            bw_data[hits]
-          )
-          overlap_widths <- width(overlap_ranges)
-          overlap_scores <- bw_data$score[hits]
+      # Extract signal for each peak
+      signals[, i] <- sapply(seq_along(peaks), function(j) {
+        chr <- as.character(seqnames(peaks[j]))
 
-          # Weighted mean by overlap width
-          if (sum(overlap_widths) > 0) {
-            signals[j, i] <- sum(overlap_scores * overlap_widths) / sum(overlap_widths)
-          }
+        # Convert chromosome name to match BigWig style
+        if (has_chr_prefix) {
+          # BigWig uses chr1, chr2, etc.
+          target_chr <- if (!grepl("^chr", chr)) paste0("chr", chr) else chr
+        } else {
+          # BigWig uses 1, 2, etc.
+          target_chr <- gsub("^chr", "", chr)
         }
-      }
+
+        # Check if chromosome exists in BigWig
+        if (!target_chr %in% bw_chroms) {
+          return(NA)
+        }
+
+        tryCatch({
+          st <- start(peaks[j])
+          en <- end(peaks[j])
+
+          # Ensure indices are within bounds
+          chr_len <- length(bw[[target_chr]])
+          st <- max(1, st)
+          en <- min(chr_len, en)
+
+          if (st <= en && en > 0) {
+            region_signal <- as.numeric(bw[[target_chr]][st:en])
+            val <- mean(region_signal, na.rm = TRUE)
+            if (is.nan(val) || is.infinite(val)) NA else val
+          } else {
+            NA
+          }
+        }, error = function(e) NA)
+      })
+
+      # Report extraction success rate
+      n_extracted <- sum(!is.na(signals[, i]))
+      message("    Extracted signal for ", n_extracted, "/", length(peaks), " peaks")
+
     }, error = function(e) {
       message("    WARNING: Error reading BigWig: ", e$message)
-      # Fallback: try RleList method with proper subsetting
-      tryCatch({
-        bw <- import(bigwig_files[i], format = "BigWig", as = "RleList")
-
-        signals[, i] <<- sapply(seq_along(peaks), function(j) {
-          chr <- as.character(seqnames(peaks[j]))
-          # Try both with and without 'chr' prefix
-          chr_alt <- if (grepl("^chr", chr)) gsub("^chr", "", chr) else paste0("chr", chr)
-
-          target_chr <- if (chr %in% names(bw)) chr else if (chr_alt %in% names(bw)) chr_alt else NULL
-
-          if (!is.null(target_chr)) {
-            tryCatch({
-              st <- start(peaks[j])
-              en <- end(peaks[j])
-              # Ensure indices are within bounds
-              chr_len <- length(bw[[target_chr]])
-              st <- max(1, st)
-              en <- min(chr_len, en)
-              if (st <= en) {
-                region_signal <- as.numeric(bw[[target_chr]][st:en])
-                val <- mean(region_signal, na.rm = TRUE)
-                if (is.nan(val) || is.infinite(val)) NA else val
-              } else NA
-            }, error = function(e2) NA)
-          } else NA
-        })
-      }, error = function(e2) {
-        message("    WARNING: Fallback method also failed: ", e2$message)
-      })
     })
   }
 
@@ -174,6 +168,12 @@ extract_signal <- function(peaks, bigwig_files) {
   result <- rowMeans(signals, na.rm = TRUE)
   # Convert NaN to NA
   result[is.nan(result)] <- NA
+
+  # Final report
+  n_valid <- sum(!is.na(result))
+  message("  Final: ", n_valid, "/", length(result), " peaks have valid signal (",
+          round(100*n_valid/length(result), 1), "%)")
+
   result
 }
 

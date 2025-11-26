@@ -1,7 +1,7 @@
 DIRECTIONAL GO ENRICHMENT ANALYSIS SUMMARY
 ==========================================
 
-Generated: 2025-11-25 20:37:27.867423 
+Generated: 2025-11-26 07:42:11.663466 
 
 GENE COUNTS:
   Total significant DEGs: 12370

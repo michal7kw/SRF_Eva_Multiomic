@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=15_cutandtag_density
+#SBATCH --job-name=a1_15_cutandtag_density
 #SBATCH --account=kubacki.michal
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=kubacki.michal@hsr.it

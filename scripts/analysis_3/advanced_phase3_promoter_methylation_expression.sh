@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=phase3_2_prom_meth_expr
+#SBATCH --job-name=phase3_2_prom_meth_expr_a3_
 #SBATCH --account=kubacki.michal
 #SBATCH --mem=32GB
 #SBATCH --cpus-per-task=8

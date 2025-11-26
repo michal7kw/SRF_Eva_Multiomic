@@ -15,7 +15,7 @@
 # 2. KEGG pathway analysis for cancer-related pathways
 # 3. Reactome pathway analysis
 # 4. Custom gene set analysis for oncology-relevant pathways
-# 5. Comparative analysis between TES, TESmut, and TEAD1
+# 5. Comparative analysis between TES and TEAD1
 # ===============================================================================
 
 library(clusterProfiler)
@@ -47,7 +47,6 @@ cat("Focus: TES/TEAD1 regulation of cell survival in glioblastoma\n\n")
 # Load annotated peak data (from CUTandTAG pipeline)
 annotation_dir <- "/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_CUTandTAG/results/07_analysis_narrow"
 tes_file <- file.path(annotation_dir, "TES_peaks_annotated.csv")
-tesmut_file <- file.path(annotation_dir, "TESmut_peaks_annotated.csv")
 tead1_file <- file.path(annotation_dir, "TEAD1_peaks_annotated.csv")
 
 # Function to extract gene IDs from annotation files
@@ -71,13 +70,11 @@ extract_gene_ids <- function(file_path, sample_name) {
 
 # Extract gene IDs for each condition
 tes_genes <- extract_gene_ids(tes_file, "TES")
-tesmut_genes <- extract_gene_ids(tesmut_file, "TESmut")
 tead1_genes <- extract_gene_ids(tead1_file, "TEAD1")
 
 # Create gene lists for analysis
 gene_lists <- list(
     TES = tes_genes,
-    TESmut = tesmut_genes,
     TEAD1 = tead1_genes
 )
 
@@ -192,7 +189,7 @@ perform_focused_go <- function(gene_ids, sample_name, focus_terms, focus_name) {
             theme(axis.text.y = element_text(size = 8))
 
         # Save plots
-        filename_base <- paste0("output/cell_death_proliferation/", sample_name, "_", focus_name, "_GO")
+        filename_base <- paste0("output/05_cell_death_proliferation/", sample_name, "_", focus_name, "_GO")
 
         ggsave(paste0(filename_base, ".pdf"), p1, width = 12, height = 8)
         ggsave(paste0(filename_base, ".png"), p1, width = 12, height = 8, dpi = 300)
@@ -279,7 +276,7 @@ perform_kegg_analysis <- function(gene_ids, sample_name) {
             theme(axis.text.y = element_text(size = 8))
 
         # Save results
-        filename_base <- paste0("output/cell_death_proliferation/", sample_name, "_KEGG_cancer")
+        filename_base <- paste0("output/05_cell_death_proliferation/", sample_name, "_KEGG_cancer")
 
         ggsave(paste0(filename_base, ".pdf"), p1, width = 14, height = 8)
         ggsave(paste0(filename_base, ".png"), p1, width = 14, height = 8, dpi = 300)
@@ -359,7 +356,7 @@ perform_reactome_analysis <- function(gene_ids, sample_name) {
                     theme(axis.text.y = element_text(size = 7))
 
                 # Save results
-                filename_base <- paste0("output/cell_death_proliferation/", sample_name, "_Reactome")
+                filename_base <- paste0("output/05_cell_death_proliferation/", sample_name, "_Reactome")
 
                 ggsave(paste0(filename_base, ".pdf"), p1, width = 16, height = 8)
                 ggsave(paste0(filename_base, ".png"), p1, width = 16, height = 8, dpi = 300)
@@ -396,7 +393,7 @@ if (length(gene_lists) >= 2) {
     if (length(gene_lists) == 2) {
         venn_data <- gene_lists
         venn.diagram(venn_data,
-            filename = "output/cell_death_proliferation/gene_overlap_venn.png",
+            filename = "output/05_cell_death_proliferation/gene_overlap_venn.png",
             category.names = names(venn_data),
             output = TRUE,
             imagetype = "png",
@@ -406,7 +403,7 @@ if (length(gene_lists) >= 2) {
     } else if (length(gene_lists) == 3) {
         venn_data <- gene_lists
         venn.diagram(venn_data,
-            filename = "output/cell_death_proliferation/gene_overlap_venn.png",
+            filename = "output/05_cell_death_proliferation/gene_overlap_venn.png",
             category.names = names(venn_data),
             output = TRUE,
             imagetype = "png",
@@ -444,7 +441,7 @@ if (length(gene_lists) >= 2) {
         }
     }
 
-    write.csv(overlap_stats, "output/cell_death_proliferation/gene_overlap_stats.csv", row.names = FALSE)
+    write.csv(overlap_stats, "output/05_cell_death_proliferation/gene_overlap_stats.csv", row.names = FALSE)
     cat("Gene overlap analysis completed\n")
 }
 
@@ -490,14 +487,14 @@ for (sample in names(gene_lists)) {
         if (sample %in% names(kegg_counts)) kegg_counts[[sample]] else 0
 }
 
-write.csv(summary_table, "output/cell_death_proliferation/analysis_summary.csv", row.names = FALSE)
+write.csv(summary_table, "output/05_cell_death_proliferation/analysis_summary.csv", row.names = FALSE)
 
 # Print summary
 cat("\n=== ANALYSIS SUMMARY ===\n")
 print(summary_table)
 
 cat("\n=== OUTPUT FILES ===\n")
-cat("Results saved in: output/cell_death_proliferation/\n")
+cat("Results saved in: output/05_cell_death_proliferation/\n")
 cat("- GO enrichment plots and results (PDF/PNG/CSV)\n")
 cat("- KEGG pathway analysis (PDF/PNG/CSV)\n")
 cat("- Reactome pathway analysis (PDF/PNG/CSV)\n")

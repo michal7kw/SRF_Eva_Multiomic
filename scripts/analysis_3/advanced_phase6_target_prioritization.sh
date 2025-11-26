@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=phase6_3_prioritization
+#SBATCH --job-name=phase6_3_prioritization_a3_
 #SBATCH --account=kubacki.michal
 #SBATCH --mem=32GB
 #SBATCH --cpus-per-task=8

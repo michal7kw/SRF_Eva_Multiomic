@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=05_cell_death_analysis
+#SBATCH --job-name=a1_05_cell_death_analysis
 #SBATCH --account=kubacki.michal
 #SBATCH --partition=workq
 #SBATCH --mem=16GB

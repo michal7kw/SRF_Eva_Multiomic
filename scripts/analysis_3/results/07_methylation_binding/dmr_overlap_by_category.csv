@@ -1,4 +1,4 @@
 "category","n_peaks","n_with_hyper","pct_hyper","n_with_hypo","pct_hypo"
-"Shared_equivalent",8667,0,0,0,0
-"TEAD1_unique",13205,0,0,0,0
-"TES_unique",11537,0,0,0,0
+"Shared_equivalent",8667,17,0.2,5,0.06
+"TEAD1_unique",13205,54,0.41,0,0
+"TES_unique",11537,20,0.17,34,0.29

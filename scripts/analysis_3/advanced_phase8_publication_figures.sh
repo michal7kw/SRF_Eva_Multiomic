@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=phase8_pub_figures
+#SBATCH --job-name=phase8_pub_figures_a3_
 #SBATCH --account=kubacki.michal
 #SBATCH --mem=32GB
 #SBATCH --cpus-per-task=8

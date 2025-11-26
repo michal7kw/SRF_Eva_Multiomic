@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=13_msigdb_gsea_selected
+#SBATCH --job-name=a1_13_msigdb_gsea_selected
 #SBATCH --account=kubacki.michal
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=kubacki.michal@hsr.it

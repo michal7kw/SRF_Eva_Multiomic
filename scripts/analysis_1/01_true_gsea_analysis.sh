@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=01_true_gsea
+#SBATCH --job-name=a1_01_true_gsea
 #SBATCH --account=kubacki.michal
 #SBATCH --partition=workq
 #SBATCH --time=2:00:00

@@ -16,6 +16,7 @@ message("Start time: ", Sys.time())
 suppressPackageStartupMessages({
   library(dplyr)
   library(ggplot2)
+  library(ggrepel)
   library(pheatmap)
   library(RColorBrewer)
   library(clusterProfiler)
@@ -86,7 +87,7 @@ message("  Differentially expressed TFs: ", nrow(deg_tfs))
 
 # Check which TFs are TES/TEAD1 targets
 deg_tfs <- deg_tfs %>%
-  left_join(gene_data %>% select(gene_name, primary_category, has_promoter_peak),
+  left_join(gene_data %>% dplyr::select(gene_name, primary_category, has_promoter_peak),
             by = c("gene_symbol" = "gene_name"))
 
 deg_tfs$is_direct_target <- deg_tfs$primary_category %in% c(
@@ -225,7 +226,7 @@ message("  Significant master regulators (padj < 0.05): ",
 message("\n[Step 5] Checking if master regulators are TES/TEAD1 targets...")
 
 master_regulator_df <- master_regulator_df %>%
-  left_join(deg_tfs %>% select(gene_symbol, primary_category, is_direct_target),
+  left_join(deg_tfs %>% dplyr::select(gene_symbol, primary_category, is_direct_target),
             by = c("TF" = "gene_symbol"))
 
 master_regulator_df$is_TES_TEAD1_target <- !is.na(master_regulator_df$is_direct_target) &
@@ -332,7 +333,7 @@ dev.off()
 # 7.4: Heatmap of top MRs and their expression
 if (nrow(top_mrs) > 0) {
   mr_matrix <- top_mrs %>%
-    select(TF, TF_log2FC, n_targets_in_DEGs, odds_ratio_all) %>%
+    dplyr::select(TF, TF_log2FC, n_targets_in_DEGs, odds_ratio_all) %>%
     filter(!is.na(TF_log2FC)) %>%
     as.data.frame()
 
@@ -383,7 +384,7 @@ cat(sum(master_regulator_df$is_TES_TEAD1_target, na.rm = TRUE), "master regulato
 cat("Top 10 Master Regulators:\n")
 cat("=========================\n")
 print(head(master_regulator_df %>%
-           select(TF, n_targets_in_DEGs, padj_all, odds_ratio_all, TF_log2FC, direction_bias),
+           dplyr::select(TF, n_targets_in_DEGs, padj_all, odds_ratio_all, TF_log2FC, direction_bias),
            10))
 
 sink()

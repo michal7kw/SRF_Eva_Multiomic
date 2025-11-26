@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=signal_dynamics
+#SBATCH --job-name=signal_dynamics_a3_
 #SBATCH --account=kubacki.michal
 #SBATCH --mem=64GB
 #SBATCH --cpus-per-task=16
