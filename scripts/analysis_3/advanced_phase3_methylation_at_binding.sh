@@ -68,21 +68,31 @@ for BW in ${GFP_BIGWIGS} ${TES_BIGWIGS}; do
     fi
 done
 
-# Categories to analyze
-CATEGORIES=(
-    "TES_unique"
-    "TEAD1_unique"
-    "Shared_high"
-)
-
-# Create region file list
+# Dynamically find available BED files
+echo "  Finding available BED files..."
 REGION_FILES=""
-for CATEGORY in "${CATEGORIES[@]}"; do
-    BED_FILE="${INPUT_DIR}/${CATEGORY}.bed"
-    if [ -f "${BED_FILE}" ]; then
+REGION_LABELS=""
+
+for BED_FILE in ${INPUT_DIR}/*.bed; do
+    if [ -f "${BED_FILE}" ] && [ -s "${BED_FILE}" ]; then
         REGION_FILES="${REGION_FILES} ${BED_FILE}"
+        CATEGORY=$(basename "${BED_FILE}" .bed)
+        if [ -z "${REGION_LABELS}" ]; then
+            REGION_LABELS="${CATEGORY}"
+        else
+            REGION_LABELS="${REGION_LABELS} ${CATEGORY}"
+        fi
+        echo "    Found: ${CATEGORY} ($(wc -l < ${BED_FILE}) peaks)"
     fi
 done
+
+if [ -z "${REGION_FILES}" ]; then
+    echo "ERROR: No BED files found in ${INPUT_DIR}"
+    exit 1
+fi
+
+echo "  Region files: ${REGION_FILES}"
+echo "  Region labels: ${REGION_LABELS}"
 
 # Compute methylation matrix
 echo "  Computing methylation matrix for all categories..."
@@ -110,7 +120,7 @@ plotHeatmap \
     --heatmapHeight 15 \
     --heatmapWidth 6 \
     --refPointLabel "Peak Center" \
-    --regionsLabel "TES_unique" "TEAD1_unique" "Shared_high" \
+    --regionsLabel ${REGION_LABELS} \
     --legendLocation upper-left
 
 # Profile plots
@@ -122,7 +132,7 @@ plotProfile \
     --plotHeight 12 \
     --plotWidth 15 \
     --refPointLabel "Peak Center" \
-    --regionsLabel "TES_unique" "TEAD1_unique" "Shared_high" \
+    --regionsLabel ${REGION_LABELS} \
     --legendLocation upper-right
 
 echo ""

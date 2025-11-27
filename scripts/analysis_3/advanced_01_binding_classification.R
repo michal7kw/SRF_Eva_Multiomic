@@ -68,22 +68,19 @@ if (!file.exists(TES_PEAKS)) {
   stop("TES peaks file not found: ", TES_PEAKS)
 }
 tes_peaks <- import(TES_PEAKS, format = "narrowPeak")
-# Standardize chromosome naming to UCSC style (chr1, chr2, ...)
-suppressWarnings({
-  seqlevelsStyle(tes_peaks) <- "UCSC"
-})
+# NOTE: Do NOT convert to UCSC style here - BigWig files use Ensembl style (1, 2, 3...)
+# We will convert to UCSC style AFTER signal extraction
 message("  Loaded ", length(tes_peaks), " TES peaks")
+message("  Chromosome style: ", paste(head(seqlevels(tes_peaks), 5), collapse = ", "), "...")
 
 # Load TEAD1 peaks
 if (!file.exists(TEAD1_PEAKS)) {
   stop("TEAD1 peaks file not found: ", TEAD1_PEAKS)
 }
 tead1_peaks <- import(TEAD1_PEAKS, format = "narrowPeak")
-# Standardize chromosome naming to UCSC style
-suppressWarnings({
-  seqlevelsStyle(tead1_peaks) <- "UCSC"
-})
+# NOTE: Do NOT convert to UCSC style here - keep Ensembl style for BigWig compatibility
 message("  Loaded ", length(tead1_peaks), " TEAD1 peaks")
+message("  Chromosome style: ", paste(head(seqlevels(tead1_peaks), 5), collapse = ", "), "...")
 
 # Add unique IDs
 tes_peaks$peak_id <- paste0("TES_", seq_along(tes_peaks))
@@ -100,67 +97,104 @@ message("\n[Step 2] Quantifying binding signals from BigWig files...")
 extract_signal <- function(peaks, bigwig_files) {
   signals <- matrix(NA, nrow = length(peaks), ncol = length(bigwig_files))
 
+  # Get peak chromosome style
+  peak_chroms <- unique(as.character(seqnames(peaks)))
+  peak_has_chr <- any(grepl("^chr", peak_chroms))
+  message("    Peak chromosome style: ",
+          ifelse(peak_has_chr, "UCSC (chr1)", "Ensembl (1)"))
+  message("    Sample peak chromosomes: ",
+          paste(head(peak_chroms, 5), collapse = ", "))
+
   for (i in seq_along(bigwig_files)) {
-    message("  Processing: ", basename(bigwig_files[i]))
+    message("    Processing: ", basename(bigwig_files[i]))
 
     # Check if file exists
     if (!file.exists(bigwig_files[i])) {
-      message("    WARNING: File not found: ", bigwig_files[i])
+      message("      WARNING: File not found: ", bigwig_files[i])
       next
     }
 
     tryCatch({
-      # Import BigWig as RleList - most reliable method for signal extraction
+      # Import BigWig as RleList - direct chromosome access
       bw <- import(bigwig_files[i], format = "BigWig", as = "RleList")
       bw_chroms <- names(bw)
 
       # Determine chromosome naming style in BigWig
-      has_chr_prefix <- any(grepl("^chr", bw_chroms))
-      message("    BigWig chromosome style: ", ifelse(has_chr_prefix, "UCSC (chr1)", "Ensembl (1)"))
+      bw_has_chr <- any(grepl("^chr", bw_chroms))
+      message("      BigWig chromosome style: ",
+              ifelse(bw_has_chr, "UCSC (chr1)", "Ensembl (1)"))
+      message("      Sample BigWig chromosomes: ",
+              paste(head(bw_chroms, 5), collapse = ", "))
 
-      # Extract signal for each peak
-      signals[, i] <- sapply(seq_along(peaks), function(j) {
-        chr <- as.character(seqnames(peaks[j]))
-
-        # Convert chromosome name to match BigWig style
-        if (has_chr_prefix) {
-          # BigWig uses chr1, chr2, etc.
-          target_chr <- if (!grepl("^chr", chr)) paste0("chr", chr) else chr
+      # Build chromosome name mapping
+      chr_map <- function(chr) {
+        if (bw_has_chr && !grepl("^chr", chr)) {
+          # BigWig uses chr1, peak uses 1 -> add chr prefix
+          return(paste0("chr", chr))
+        } else if (!bw_has_chr && grepl("^chr", chr)) {
+          # BigWig uses 1, peak uses chr1 -> remove chr prefix
+          return(gsub("^chr", "", chr))
         } else {
-          # BigWig uses 1, 2, etc.
-          target_chr <- gsub("^chr", "", chr)
+          # Same style, return as-is
+          return(chr)
         }
+      }
+
+      # Test the mapping on first peak
+      test_chr <- as.character(seqnames(peaks[1]))
+      test_mapped <- chr_map(test_chr)
+      message("      Chromosome mapping test: '", test_chr, "' -> '", test_mapped, "'")
+      message("      Mapped chr in BigWig: ", test_mapped %in% bw_chroms)
+
+      # Extract signal for each peak with progress
+      n_success <- 0
+      n_chr_miss <- 0
+      n_error <- 0
+
+      for (j in seq_along(peaks)) {
+        chr <- as.character(seqnames(peaks[j]))
+        target_chr <- chr_map(chr)
 
         # Check if chromosome exists in BigWig
         if (!target_chr %in% bw_chroms) {
-          return(NA)
+          n_chr_miss <- n_chr_miss + 1
+          signals[j, i] <- NA
+          next
         }
 
-        tryCatch({
+        result <- tryCatch({
           st <- start(peaks[j])
           en <- end(peaks[j])
 
-          # Ensure indices are within bounds
+          # Get chromosome length from BigWig
           chr_len <- length(bw[[target_chr]])
+
+          # Ensure indices are within bounds
           st <- max(1, st)
           en <- min(chr_len, en)
 
-          if (st <= en && en > 0) {
+          if (st <= en && en > 0 && chr_len > 0) {
             region_signal <- as.numeric(bw[[target_chr]][st:en])
             val <- mean(region_signal, na.rm = TRUE)
             if (is.nan(val) || is.infinite(val)) NA else val
           } else {
             NA
           }
-        }, error = function(e) NA)
-      })
+        }, error = function(e) {
+          n_error <<- n_error + 1
+          NA
+        })
 
-      # Report extraction success rate
-      n_extracted <- sum(!is.na(signals[, i]))
-      message("    Extracted signal for ", n_extracted, "/", length(peaks), " peaks")
+        if (!is.na(result)) n_success <- n_success + 1
+        signals[j, i] <- result
+      }
+
+      # Report extraction results
+      message("      Results: ", n_success, " successful, ",
+              n_chr_miss, " chr mismatches, ", n_error, " errors")
 
     }, error = function(e) {
-      message("    WARNING: Error reading BigWig: ", e$message)
+      message("      WARNING: Error reading BigWig: ", e$message)
     })
   }
 
@@ -171,8 +205,8 @@ extract_signal <- function(peaks, bigwig_files) {
 
   # Final report
   n_valid <- sum(!is.na(result))
-  message("  Final: ", n_valid, "/", length(result), " peaks have valid signal (",
-          round(100*n_valid/length(result), 1), "%)")
+  message("  Final: ", n_valid, "/", length(result),
+          " peaks have valid signal (", round(100*n_valid/length(result), 1), "%)")
 
   result
 }

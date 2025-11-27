@@ -60,13 +60,34 @@ dmrs <- read.csv(MEDIP_DMRS)
 message("  Loaded DMRs: ", nrow(dmrs))
 
 # Convert DMRs to GRanges
+# Note: Column names vary between DMR files - handle both formats
+if ("edgeR.logFC" %in% colnames(dmrs)) {
+  logfc_col <- dmrs$edgeR.logFC
+  fdr_col <- dmrs$edgeR.adj.p.val
+} else {
+  logfc_col <- dmrs$logFC
+  fdr_col <- dmrs$FDR
+}
+
+# Handle mean signal columns (may be named differently)
+if ("mean_TES" %in% colnames(dmrs)) {
+  mean_tes_col <- dmrs$mean_TES
+  mean_gfp_col <- dmrs$mean_GFP
+} else if ("mean_group1" %in% colnames(dmrs)) {
+  mean_tes_col <- dmrs$mean_group1
+  mean_gfp_col <- dmrs$mean_group2
+} else {
+  mean_tes_col <- rep(NA, nrow(dmrs))
+  mean_gfp_col <- rep(NA, nrow(dmrs))
+}
+
 dmrs_gr <- GRanges(
   seqnames = dmrs$chr,
   ranges = IRanges(start = dmrs$start, end = dmrs$stop),
-  logFC = dmrs$edgeR.logFC,
-  FDR = dmrs$edgeR.adj.p.val,
-  mean_TES = dmrs$mean_TES,
-  mean_GFP = dmrs$mean_GFP
+  logFC = logfc_col,
+  FDR = fdr_col,
+  mean_TES = mean_tes_col,
+  mean_GFP = mean_gfp_col
 )
 
 # Classify DMRs
