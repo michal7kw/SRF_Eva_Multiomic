@@ -379,22 +379,41 @@ message("\n[Step 7] Exporting results...")
 
 # Convert to data frame for export
 peaks_df <- as.data.frame(all_peaks_unique)
+
+# Add simplified 3-category classification
 peaks_df <- peaks_df %>%
-  dplyr::select(seqnames, start, end, width, peak_id, category,
+  mutate(
+    category_simple = case_when(
+      category == "TES_unique" ~ "TES_Unique",
+      category == "TEAD1_unique" ~ "TEAD1_Unique",
+      TRUE ~ "Shared"  # All Shared_* categories become "Shared"
+    )
+  ) %>%
+  dplyr::select(seqnames, start, end, width, peak_id,
+         category, category_simple,
          tes_signal, tead1_signal,
          annotation, gene_name, distance_to_tss,
          peak_width)
 
-# Write main classification file
+# Write main classification file (includes both detailed and simple categories)
 output_file <- file.path(OUTPUT_DIR, "binding_site_classification.csv")
 write.csv(peaks_df, output_file, row.names = FALSE)
 message("  Saved: ", output_file)
 
-# Write separate BED files for each category
+# Write separate BED files for each detailed category (6 categories)
 categories <- unique(peaks_df$category)
 for (cat in categories) {
   cat_peaks <- all_peaks_unique[all_peaks_unique$category == cat]
   bed_file <- file.path(OUTPUT_DIR, paste0(cat, ".bed"))
+  export(cat_peaks, bed_file, format = "BED")
+  message("  Saved: ", bed_file)
+}
+
+# Write separate BED files for simplified categories (3 categories)
+message("  Creating simplified category BED files...")
+for (cat_simple in c("TES_Unique", "Shared", "TEAD1_Unique")) {
+  cat_peaks <- all_peaks_unique[peaks_df$category_simple == cat_simple]
+  bed_file <- file.path(OUTPUT_DIR, paste0(cat_simple, "_simple.bed"))
   export(cat_peaks, bed_file, format = "BED")
   message("  Saved: ", bed_file)
 }
@@ -405,17 +424,33 @@ for (cat in categories) {
 
 message("\n[Step 8] Generating summary statistics...")
 
-# Category counts
+# Category counts - detailed (6 categories)
 category_counts <- table(peaks_df$category)
+
+# Category counts - simplified (3 categories)
+category_counts_simple <- table(peaks_df$category_simple)
 
 # Genomic distribution by category
 genomic_dist <- peaks_df %>%
   group_by(category, annotation) %>%
   summarise(count = n(), .groups = "drop")
 
-# Signal statistics by category
+# Signal statistics by detailed category (6 categories)
 signal_stats <- peaks_df %>%
   group_by(category) %>%
+  summarise(
+    n_peaks = n(),
+    mean_tes_signal = mean(tes_signal, na.rm = TRUE),
+    median_tes_signal = median(tes_signal, na.rm = TRUE),
+    mean_tead1_signal = mean(tead1_signal, na.rm = TRUE),
+    median_tead1_signal = median(tead1_signal, na.rm = TRUE),
+    mean_peak_width = mean(peak_width, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Signal statistics by simplified category (3 categories)
+signal_stats_simple <- peaks_df %>%
+  group_by(category_simple) %>%
   summarise(
     n_peaks = n(),
     mean_tes_signal = mean(tes_signal, na.rm = TRUE),
@@ -438,11 +473,34 @@ cat("Parameters:\n")
 cat("  Overlap threshold:", OVERLAP_THRESHOLD, "bp\n")
 cat("  Signal ratio threshold:", SIGNAL_RATIO_EQUIV, "(log2)\n")
 cat("  High signal percentile:", SIGNAL_PERCENTILE_HIGH, "\n\n")
+
+cat("=====================================\n")
+cat("DETAILED CLASSIFICATION (6 categories)\n")
+cat("=====================================\n")
 cat("Category Counts:\n")
 print(category_counts)
-cat("\n\nSignal Statistics by Category:\n")
+cat("\nSignal Statistics by Category:\n")
 print(signal_stats)
-cat("\n\nGenomic Distribution:\n")
+
+cat("\n\n=====================================\n")
+cat("SIMPLIFIED CLASSIFICATION (3 categories)\n")
+cat("=====================================\n")
+cat("Category Counts:\n")
+print(category_counts_simple)
+cat("\nSignal Statistics by Category:\n")
+print(signal_stats_simple)
+
+cat("\n\n=====================================\n")
+cat("SHARED PEAKS BREAKDOWN\n")
+cat("=====================================\n")
+shared_only <- peaks_df %>% filter(category_simple == "Shared")
+cat("Total Shared peaks:", nrow(shared_only), "\n")
+cat("  - Shared_high:", sum(peaks_df$category == "Shared_high"), "\n")
+cat("  - Shared_TES_dominant:", sum(peaks_df$category == "Shared_TES_dominant"), "\n")
+cat("  - Shared_TEAD1_dominant:", sum(peaks_df$category == "Shared_TEAD1_dominant"), "\n")
+cat("  - Shared_equivalent:", sum(peaks_df$category == "Shared_equivalent"), "\n")
+
+cat("\n\nGenomic Distribution (detailed):\n")
 print(genomic_dist)
 sink()
 message("  Saved: ", summary_file)
@@ -554,6 +612,125 @@ ggplot(peaks_df, aes(x = category, y = peak_width, fill = category)) +
     y = "Peak Width (bp, log scale)"
   )
 dev.off()
+
+# 9.6: Create simplified 3-category classification for comparison
+message("  Creating simplified 3-category plots...")
+
+peaks_df <- peaks_df %>%
+  mutate(
+    category_simple = case_when(
+      category == "TES_unique" ~ "TES_Unique",
+      category == "TEAD1_unique" ~ "TEAD1_Unique",
+      TRUE ~ "Shared"  # All Shared_* categories become "Shared"
+    )
+  )
+
+# 9.6a: Simplified 3-category bar plot (like analysis_2)
+simple_counts <- peaks_df %>%
+  group_by(category_simple) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  mutate(category_simple = factor(category_simple,
+         levels = c("TES_Unique", "Shared", "TEAD1_Unique")))
+
+pdf(file.path(OUTPUT_DIR, "category_counts_barplot_simple.pdf"), width = 8, height = 6)
+ggplot(simple_counts, aes(x = category_simple, y = count, fill = category_simple)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5, size = 5) +
+  scale_fill_manual(values = c("TES_Unique" = "#E41A1C",
+                                "Shared" = "#984EA3",
+                                "TEAD1_Unique" = "#377EB8")) +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "none") +
+  labs(
+    title = "Peak Classification (Simplified 3-Category)",
+    subtitle = sprintf("TES peaks: %d | TEAD1 peaks: %d",
+                       length(tes_peaks), length(tead1_peaks)),
+    x = "", y = "Number of Peaks"
+  ) +
+  ylim(0, max(simple_counts$count) * 1.15)
+dev.off()
+
+# 9.6b: Side-by-side comparison of both classification schemes
+detailed_counts <- peaks_df %>%
+  group_by(category) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  mutate(scheme = "Detailed (6 categories)")
+
+simple_counts_long <- simple_counts %>%
+  rename(category = category_simple) %>%
+  mutate(scheme = "Simplified (3 categories)")
+
+comparison_df <- bind_rows(detailed_counts, simple_counts_long)
+
+pdf(file.path(OUTPUT_DIR, "category_comparison_both_schemes.pdf"), width = 14, height = 6)
+p_comparison <- ggplot(comparison_df, aes(x = category, y = count, fill = category)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5, size = 4) +
+  facet_wrap(~scheme, scales = "free_x") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none",
+    strip.text = element_text(size = 14, face = "bold")
+  ) +
+  labs(
+    title = "Binding Site Classification: Detailed vs Simplified",
+    x = "", y = "Number of Peaks"
+  )
+print(p_comparison)
+dev.off()
+
+# 9.6c: Stacked bar showing how Shared breaks down into subcategories
+shared_breakdown <- peaks_df %>%
+  filter(grepl("Shared", category)) %>%
+  group_by(category) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  mutate(
+    percentage = round(100 * count / sum(count), 1),
+    label = paste0(category, "\n(", count, ", ", percentage, "%)")
+  )
+
+pdf(file.path(OUTPUT_DIR, "shared_category_breakdown.pdf"), width = 10, height = 8)
+# Pie chart for Shared breakdown
+ggplot(shared_breakdown, aes(x = "", y = count, fill = category)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  scale_fill_brewer(palette = "Pastel1") +
+  theme_void(base_size = 14) +
+  theme(legend.position = "right") +
+  geom_text(aes(label = paste0(count, "\n(", percentage, "%)")),
+            position = position_stack(vjust = 0.5), size = 4) +
+  labs(
+    title = "Breakdown of Shared Binding Sites by Signal Dominance",
+    subtitle = sprintf("Total Shared peaks: %d", sum(shared_breakdown$count)),
+    fill = "Category"
+  )
+dev.off()
+
+# 9.6d: Signal scatter plot with simplified coloring
+pdf(file.path(OUTPUT_DIR, "signal_comparison_simple.pdf"), width = 10, height = 8)
+ggplot(peaks_df, aes(x = log2(tes_signal + 1), y = log2(tead1_signal + 1),
+                     color = category_simple)) +
+  geom_point(alpha = 0.4, size = 1) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
+  scale_color_manual(values = c("TES_Unique" = "#E41A1C",
+                                 "Shared" = "#984EA3",
+                                 "TEAD1_Unique" = "#377EB8")) +
+  theme_classic(base_size = 12) +
+  theme(legend.position = "right") +
+  labs(
+    title = "TES vs TEAD1 Signal (Simplified Categories)",
+    x = "log2(TES Signal + 1)",
+    y = "log2(TEAD1 Signal + 1)",
+    color = "Category"
+  )
+dev.off()
+
+# Add simplified category to the main data frame for export
+all_peaks_unique$category_simple <- peaks_df$category_simple
+
+message("  Saved additional comparison plots")
 
 ################################################################################
 # Step 10: Save R objects for downstream analysis
