@@ -1,0 +1,60 @@
+====================================================
+Multi-Omics Integration Summary Report
+====================================================
+Generated: 2025-11-12 14:35:28.078337 
+
+INPUT DATA:
+  RNA-seq DEGs: 7581 
+  TES binding (promoters): 1438 
+  TESmut binding (promoters): 1863 
+  TEAD1 binding (promoters): 2497 
+  Promoter DMRs (TES vs GFP): 3771 
+    - Hypermethylated: 3635 
+    - Hypomethylated: 171 
+
+INTEGRATION RESULTS:
+  Total genes analyzed: 34936 
+
+  Regulatory categories:
+
+          Direct epigenetic       Direct non-epigenetic 
+                         63                         366 
+        Indirect expression        Indirect methylation 
+                       6500                         647 
+              Not regulated Poised (bound + methylated) 
+                      27208                         152 
+
+HYPOTHESIS TESTING:
+  1. TES-bound genes with hypermethylation: 13.4%
+  2. Hypermethylated DEGs downregulated: 53.1%
+  3. TES-specific DMR genes: 68.9%
+  4. Direct targets matching pattern: 61.9%
+
+KEY FINDINGS:
+  ✓ Direct epigenetic regulation detected
+  ✓ Pattern: TES binding → Hypermethylation → Repression
+  ✓ 39 genes follow expected mechanism
+
+TOP 10 DIRECT EPIGENETIC TARGETS:
+       gene log2FC_expression padj_expression is_hypermethylated
+      CRACD          6.781559   2.536464e-273               TRUE
+       PI15         -5.028252   2.881582e-156              FALSE
+  LINC01198          4.246613    2.210287e-14               TRUE
+ ZNF503-AS1         -3.371581    6.215646e-10               TRUE
+      CALD1         -3.273936   4.135965e-149               TRUE
+       NAV3         -2.759951    1.137296e-35               TRUE
+     DENND3          2.648133    1.552530e-47               TRUE
+      NDRG1         -2.565119   1.413569e-107               TRUE
+      GPR39         -2.344502    1.150144e-37               TRUE
+       LNX1         -2.222331    5.672191e-15              FALSE
+ has_TES_binding
+            TRUE
+            TRUE
+            TRUE
+            TRUE
+            TRUE
+            TRUE
+            TRUE
+            TRUE
+            TRUE
+            TRUE
