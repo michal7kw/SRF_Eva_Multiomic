@@ -15,6 +15,8 @@ suppressPackageStartupMessages({
   library(org.Hs.eg.db)
   library(ggplot2)
   library(dplyr)
+  library(VennDiagram)
+  library(grid)
 })
 
 # ===================== Configuration =====================
@@ -348,24 +350,38 @@ if (length(anno_list) > 0) {
   cat("  Saved distance_to_TSS.pdf\n")
 }
 
-# Venn-style visualization (using UpSet-like bar chart)
-pdf(file.path(OUTPUT_DIR, "binding_category_venn.pdf"), width = 8, height = 6)
-venn_data <- data.frame(
-  Category = c("TES only", "Both TES & TEAD1", "TEAD1 only"),
-  Peaks = c(length(tes_unique), length(shared_ranges), length(tead1_unique)),
-  TF = c("TES", "Shared", "TEAD1")
+# Venn diagram showing TES and TEAD1 peak overlap
+pdf(file.path(OUTPUT_DIR, "binding_category_venn.pdf"), width = 8, height = 8)
+
+# Suppress VennDiagram log file creation
+futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger")
+
+venn.plot <- draw.pairwise.venn(
+  area1 = length(tes_peaks),
+  area2 = length(tead1_peaks),
+  cross.area = sum(tes_overlaps_tead1),
+  category = c("TES", "TEAD1"),
+  fill = c("#E41A1C", "#377EB8"),
+  alpha = 0.5,
+  col = c("#E41A1C", "#377EB8"),
+  lwd = 2,
+  fontfamily = "sans",
+  cat.fontfamily = "sans",
+  cat.fontface = "bold",
+  cat.cex = 1.5,
+  cex = 1.3,
+  cat.pos = c(-20, 20),
+  cat.dist = 0.05,
+  margin = 0.1,
+  scaled = TRUE
 )
-p_venn <- ggplot(venn_data, aes(x = Category, y = Peaks, fill = TF)) +
-  geom_bar(stat = "identity") +
-  geom_text(aes(label = Peaks), vjust = -0.5, size = 5) +
-  scale_fill_manual(values = c("TES" = "#E41A1C", "Shared" = "#984EA3", "TEAD1" = "#377EB8")) +
-  theme_minimal(base_size = 14) +
-  labs(title = "TES and TEAD1 Binding Site Overlap",
-       y = "Number of Binding Sites") +
-  theme(legend.position = "none",
-        axis.text.x = element_text(angle = 0, hjust = 0.5)) +
-  ylim(0, max(venn_data$Peaks) * 1.15)
-print(p_venn)
+
+# Add title
+grid.text("TES and TEAD1 Binding Site Overlap",
+          y = 0.95, gp = gpar(fontsize = 16, fontface = "bold"))
+grid.text(sprintf("Consensus peaks (≥%d/3 replicates)", MIN_REPLICATE_OVERLAP),
+          y = 0.90, gp = gpar(fontsize = 11))
+
 dev.off()
 cat("  Saved binding_category_venn.pdf\n")
 

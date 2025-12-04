@@ -663,11 +663,26 @@ simple_counts_long <- simple_counts %>%
 comparison_df <- bind_rows(detailed_counts, simple_counts_long)
 
 pdf(file.path(OUTPUT_DIR, "category_comparison_both_schemes.pdf"), width = 14, height = 6)
+# Define colors for all 9 unique categories (6 detailed + 3 simplified)
+# Using consistent color scheme: red tones for TES, blue tones for TEAD1, purple for shared
+category_colors <- c(
+  # Detailed categories (6)
+  "TES_unique" = "#E41A1C",
+  "TEAD1_unique" = "#377EB8",
+  "Shared_high" = "#984EA3",
+  "Shared_TES_dominant" = "#FF7F00",
+  "Shared_TEAD1_dominant" = "#4DAF4A",
+  "Shared_equivalent" = "#A65628",
+  # Simplified categories (3)
+  "TES_Unique" = "#E41A1C",
+  "TEAD1_Unique" = "#377EB8",
+  "Shared" = "#984EA3"
+)
 p_comparison <- ggplot(comparison_df, aes(x = category, y = count, fill = category)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = count), vjust = -0.5, size = 4) +
   facet_wrap(~scheme, scales = "free_x") +
-  scale_fill_brewer(palette = "Set2") +
+  scale_fill_manual(values = category_colors) +
   theme_minimal(base_size = 12) +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1),

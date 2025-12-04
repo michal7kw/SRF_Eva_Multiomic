@@ -29,7 +29,7 @@ echo "Date: $(date)"
 
 # Activate conda environment
 source /opt/common/tools/ric.cosr/miniconda3/bin/activate
-conda activate seurat_full2
+conda activate chipseq_env
 
 # Run script
 Rscript 01_peak_classification.R

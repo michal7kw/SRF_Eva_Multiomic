@@ -4,6 +4,7 @@
 # Phase 3.2: Promoter Methylation and Gene Silencing
 #
 # Purpose: Three-way integration of binding + methylation + expression
+#          Creates BOTH simplified (3-category) and detailed (6-category) analyses
 #
 # Author: Advanced Multi-Omics Analysis Plan
 # Date: 2025-01-24
@@ -11,6 +12,7 @@
 
 message("=== Phase 3.2: Promoter Methylation and Gene Silencing ===")
 message("Start time: ", Sys.time())
+message("NOTE: Creating both SIMPLIFIED (3-cat) and DETAILED (6-cat) analyses")
 
 # Load required libraries
 suppressPackageStartupMessages({
@@ -34,9 +36,27 @@ BINDING_DATA <- "SRF_Eva_integrated_analysis/scripts/analysis_3/results/01_bindi
 GENE_EXPR_BINDING <- "SRF_Eva_integrated_analysis/scripts/analysis_3/results/04_category_expression/genes_with_binding_and_expression.csv"
 MEDIP_DMRS <- "meDIP/results/07_differential_MEDIPS/TES_vs_GFP_DMRs_FDR05_FC2.csv"
 
-# Output directory
+# Output directories - separate for detailed vs simplified
 OUTPUT_DIR <- "SRF_Eva_integrated_analysis/scripts/analysis_3/results/08_methylation_expression"
+OUTPUT_DIR_DETAILED <- file.path(OUTPUT_DIR, "detailed_6cat")
+OUTPUT_DIR_SIMPLE <- file.path(OUTPUT_DIR, "simplified_3cat")
 dir.create(OUTPUT_DIR, recursive = TRUE, showWarnings = FALSE)
+dir.create(OUTPUT_DIR_DETAILED, recursive = TRUE, showWarnings = FALSE)
+dir.create(OUTPUT_DIR_SIMPLE, recursive = TRUE, showWarnings = FALSE)
+
+################################################################################
+# Helper function: Convert detailed to simplified categories
+################################################################################
+
+convert_to_simple_category <- function(category) {
+  dplyr::case_when(
+    category == "TES_unique" ~ "TES_Unique",
+    category == "TEAD1_unique" ~ "TEAD1_Unique",
+    grepl("Shared", category) ~ "Shared",
+    category == "Unbound" ~ "Unbound",
+    TRUE ~ category
+  )
+}
 
 ################################################################################
 # Step 1: Load all data

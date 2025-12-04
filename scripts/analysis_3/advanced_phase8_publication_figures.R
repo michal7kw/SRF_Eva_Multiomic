@@ -5,6 +5,7 @@
 # TES vs TEAD1 Comparative Study (Excluding TESmut)
 #
 # Purpose: Generate comprehensive, publication-ready multi-panel figures
+#          Creates BOTH simplified (3-category) and detailed (6-category) versions
 #
 # Figures:
 # 1. Figure 1: Study Overview (binding sites, categories, pipeline)
@@ -15,6 +16,10 @@
 # 6. Figure 6: Pathway Analysis (enrichment, hub pathways, crosstalk)
 # 7. Figure 7: Target Prioritization (scores, validation candidates)
 # 8. Supplementary Figures (additional details)
+#
+# NOTE: All category-based figures are generated in both:
+#       - detailed_6cat/ (6 binding categories)
+#       - simplified_3cat/ (3 binding categories: TES_Unique, Shared, TEAD1_Unique)
 #
 # Author: Advanced Multi-Omics Analysis Pipeline
 # Date: 2025-01-24
@@ -39,9 +44,27 @@ library(cowplot)
 # Set working directory
 setwd("/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top")
 
-# Create output directory
+# Create output directories - separate for detailed vs simplified
 output_dir <- "SRF_Eva_integrated_analysis/scripts/analysis_3/results/13_publication_figures"
+output_dir_detailed <- file.path(output_dir, "detailed_6cat")
+output_dir_simple <- file.path(output_dir, "simplified_3cat")
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(output_dir_detailed, recursive = TRUE, showWarnings = FALSE)
+dir.create(output_dir_simple, recursive = TRUE, showWarnings = FALSE)
+
+################################################################################
+# Helper function: Convert detailed to simplified categories
+################################################################################
+
+convert_to_simple_category <- function(category) {
+  dplyr::case_when(
+    category == "TES_unique" ~ "TES_Unique",
+    category == "TEAD1_unique" ~ "TEAD1_Unique",
+    grepl("Shared", category) ~ "Shared",
+    category == "Unbound" ~ "Unbound",
+    TRUE ~ category
+  )
+}
 
 # Logging function
 log_message <- function(msg) {
@@ -66,14 +89,24 @@ theme_pub <- function(base_size = 12) {
     )
 }
 
-# Color palettes
+# Color palettes - DETAILED (6-category)
 category_colors <- c(
   "TES_unique" = "#E41A1C",
   "TEAD1_unique" = "#377EB8",
   "Shared_equivalent" = "#4DAF4A",
   "Shared_TES_dominant" = "#FF7F00",
   "Shared_TEAD1_dominant" = "#984EA3",
-  "Shared" = "#999999"
+  "Shared_high" = "#A65628",
+  "Shared" = "#999999",
+  "Unbound" = "#999999"
+)
+
+# Color palettes - SIMPLIFIED (3-category)
+simple_colors <- c(
+  "TES_Unique" = "#E41A1C",
+  "Shared" = "#984EA3",
+  "TEAD1_Unique" = "#377EB8",
+  "Unbound" = "#999999"
 )
 
 ################################################################################
@@ -103,6 +136,15 @@ prior_file <- "SRF_Eva_integrated_analysis/scripts/analysis_3/results/12_target_
 prior_data <- if (file.exists(prior_file)) read_csv(prior_file, show_col_types = FALSE) else NULL
 
 log_message("Data loading complete")
+
+# Add simplified categories to data frames
+if (!is.null(binding_data) && "category" %in% names(binding_data)) {
+  binding_data$category_simple <- convert_to_simple_category(binding_data$category)
+}
+if (!is.null(expr_data) && "primary_category" %in% names(expr_data)) {
+  expr_data$category_simple <- convert_to_simple_category(expr_data$primary_category)
+}
+log_message("Added simplified 3-category classifications")
 
 ################################################################################
 # FIGURE 1: Study Overview
@@ -160,23 +202,59 @@ if (!is.null(binding_data)) {
       panel.border = element_blank()
     )
 
-  # Combine panels
+  # Combine panels - DETAILED version
   fig1 <- p1a + p1b + plot_layout(ncol = 2, widths = c(2, 1))
 
-  ggsave(
-    file.path(output_dir, "Figure1_Study_Overview.pdf"),
-    fig1,
-    width = 12,
-    height = 6
-  )
+  # Save DETAILED version
+  ggsave(file.path(output_dir_detailed, "Figure1_Study_Overview.pdf"),
+         fig1, width = 12, height = 6)
+  ggsave(file.path(output_dir_detailed, "Figure1_Study_Overview.png"),
+         fig1, width = 12, height = 6, dpi = 300)
 
-  ggsave(
-    file.path(output_dir, "Figure1_Study_Overview.png"),
-    fig1,
-    width = 12,
-    height = 6,
-    dpi = 300
-  )
+  # Also save backward-compatible copy
+  ggsave(file.path(output_dir, "Figure1_Study_Overview.pdf"),
+         fig1, width = 12, height = 6)
+  ggsave(file.path(output_dir, "Figure1_Study_Overview.png"),
+         fig1, width = 12, height = 6, dpi = 300)
+
+  # ============================================================================
+  # SIMPLIFIED (3-category) version
+  # ============================================================================
+  binding_summary_simple <- binding_data %>%
+    count(category_simple) %>%
+    mutate(category_simple = factor(category_simple,
+                                     levels = names(simple_colors)))
+
+  p1a_simple <- ggplot(binding_summary_simple,
+                        aes(x = category_simple, y = n, fill = category_simple)) +
+    geom_bar(stat = "identity") +
+    geom_text(aes(label = comma(n)), vjust = -0.5, size = 4) +
+    scale_fill_manual(values = simple_colors, na.value = "gray50") +
+    labs(title = "A. Binding Site Classification (Simplified)",
+         x = "Binding Category", y = "Number of Peaks") +
+    theme_pub() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          legend.position = "none")
+
+  p1b_simple <- ggplot(binding_summary_simple,
+                        aes(x = "", y = n, fill = category_simple)) +
+    geom_bar(stat = "identity", width = 1) +
+    coord_polar("y") +
+    scale_fill_manual(values = simple_colors, na.value = "gray50") +
+    labs(title = "B. Category Proportions", fill = "Category") +
+    theme_pub() +
+    theme(axis.title = element_blank(), axis.text = element_blank(),
+          axis.ticks = element_blank(), panel.grid = element_blank(),
+          panel.border = element_blank())
+
+  fig1_simple <- p1a_simple + p1b_simple + plot_layout(ncol = 2, widths = c(2, 1))
+
+  ggsave(file.path(output_dir_simple, "Figure1_Study_Overview.pdf"),
+         fig1_simple, width = 12, height = 6)
+  ggsave(file.path(output_dir_simple, "Figure1_Study_Overview.png"),
+         fig1_simple, width = 12, height = 6, dpi = 300)
+
+  log_message("  Created Figure 1 (DETAILED and SIMPLIFIED versions)")
 }
 
 ################################################################################

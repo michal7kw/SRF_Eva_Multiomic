@@ -130,17 +130,33 @@ plotProfile \
 
 # Heatmap without clustering (preserve category order)
 echo "  Generating non-clustered heatmap..."
+
+# Create shorter labels to avoid y-axis overlap
+SHORT_LABELS=""
+for CAT in "${CATEGORIES[@]}"; do
+    # Abbreviate long category names
+    SHORT_CAT=$(echo "$CAT" | sed 's/Shared_TES_dominant/Shared_TES/g' | \
+                              sed 's/Shared_TEAD1_dominant/Shared_TEAD1/g' | \
+                              sed 's/Shared_equivalent/Shared_Eq/g' | \
+                              sed 's/Shared_high/Shared_Hi/g')
+    if [ -z "$SHORT_LABELS" ]; then
+        SHORT_LABELS="\"${SHORT_CAT}\""
+    else
+        SHORT_LABELS="${SHORT_LABELS} \"${SHORT_CAT}\""
+    fi
+done
+
 plotHeatmap \
     -m ${OUTPUT_DIR}/signal_matrix_all_categories.mat.gz \
     -o ${OUTPUT_DIR}/binding_signal_heatmap_by_category.pdf \
     --colorMap RdYlBu_r \
     --whatToShow 'heatmap and colorbar' \
     --sortRegions keep \
-    --heatmapHeight 20 \
-    --heatmapWidth 6 \
+    --heatmapHeight 30 \
+    --heatmapWidth 8 \
     --legendLocation upper-left \
     --refPointLabel "Peak Center" \
-    --regionsLabel ${CATEGORY_LABELS}
+    --regionsLabel ${SHORT_LABELS}
 
 echo ""
 echo "Step 4: Separate analysis for TES-unique and TEAD1-unique peaks..."

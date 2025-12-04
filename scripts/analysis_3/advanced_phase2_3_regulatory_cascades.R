@@ -32,9 +32,27 @@ GENE_BINDING_EXPR <- "SRF_Eva_integrated_analysis/scripts/analysis_3/results/04_
 # If not available, this script will still work but without master regulator integration
 MASTER_REGULATORS <- "SRF_Eva_integrated_analysis/scripts/analysis_3/results/09_tf_networks/master_regulator_analysis.csv"
 
-# Output directory
+# Output directories - separate for detailed vs simplified
 OUTPUT_DIR <- "SRF_Eva_integrated_analysis/scripts/analysis_3/results/06_regulatory_cascades"
+OUTPUT_DIR_DETAILED <- file.path(OUTPUT_DIR, "detailed_6cat")
+OUTPUT_DIR_SIMPLE <- file.path(OUTPUT_DIR, "simplified_3cat")
 dir.create(OUTPUT_DIR, recursive = TRUE, showWarnings = FALSE)
+dir.create(OUTPUT_DIR_DETAILED, recursive = TRUE, showWarnings = FALSE)
+dir.create(OUTPUT_DIR_SIMPLE, recursive = TRUE, showWarnings = FALSE)
+
+################################################################################
+# Helper function: Convert detailed to simplified categories
+################################################################################
+
+convert_to_simple_category <- function(category) {
+  dplyr::case_when(
+    category == "TES_unique" ~ "TES_Unique",
+    category == "TEAD1_unique" ~ "TEAD1_Unique",
+    grepl("Shared", category) ~ "Shared",
+    category == "Unbound" ~ "Unbound",
+    TRUE ~ category
+  )
+}
 
 ################################################################################
 # Step 1: Load data

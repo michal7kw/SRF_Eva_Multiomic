@@ -4,6 +4,7 @@
 # Phase 2.2: Promoter vs Enhancer Binding Effects
 #
 # Purpose: Distinguish transcriptional effects of promoter vs distal binding
+#          Creates BOTH simplified (3-category) and detailed (6-category) analyses
 #
 # Author: Advanced Multi-Omics Analysis Plan
 # Date: 2025-01-24
@@ -11,6 +12,7 @@
 
 message("=== Phase 2.2: Promoter vs Enhancer Binding Effects ===")
 message("Start time: ", Sys.time())
+message("NOTE: Creating both SIMPLIFIED (3-cat) and DETAILED (6-cat) analyses")
 
 # Load required libraries
 suppressPackageStartupMessages({
@@ -28,9 +30,45 @@ setwd("/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top")
 PHASE2_1_DIR <- "SRF_Eva_integrated_analysis/scripts/analysis_3/results/04_category_expression"
 BINDING_DATA <- "SRF_Eva_integrated_analysis/scripts/analysis_3/results/01_binding_classification/binding_classification_data.RData"
 
-# Output directory
+# Output directories - separate for detailed vs simplified
 OUTPUT_DIR <- "SRF_Eva_integrated_analysis/scripts/analysis_3/results/05_promoter_enhancer"
+OUTPUT_DIR_DETAILED <- file.path(OUTPUT_DIR, "detailed_6cat")
+OUTPUT_DIR_SIMPLE <- file.path(OUTPUT_DIR, "simplified_3cat")
 dir.create(OUTPUT_DIR, recursive = TRUE, showWarnings = FALSE)
+dir.create(OUTPUT_DIR_DETAILED, recursive = TRUE, showWarnings = FALSE)
+dir.create(OUTPUT_DIR_SIMPLE, recursive = TRUE, showWarnings = FALSE)
+
+################################################################################
+# Helper function: Convert detailed to simplified categories
+################################################################################
+
+convert_to_simple_category <- function(category) {
+  dplyr::case_when(
+    category == "TES_unique" ~ "TES_Unique",
+    category == "TEAD1_unique" ~ "TEAD1_Unique",
+    grepl("Shared", category) ~ "Shared",
+    category == "Unbound" ~ "Unbound",
+    TRUE ~ category
+  )
+}
+
+# Color palettes
+DETAILED_COLORS <- c(
+  "TES_unique" = "#E41A1C",
+  "TEAD1_unique" = "#377EB8",
+  "Shared_high" = "#984EA3",
+  "Shared_TES_dominant" = "#FF7F00",
+  "Shared_TEAD1_dominant" = "#4DAF4A",
+  "Shared_equivalent" = "#A65628",
+  "Unbound" = "#999999"
+)
+
+SIMPLE_COLORS <- c(
+  "TES_Unique" = "#E41A1C",
+  "Shared" = "#984EA3",
+  "TEAD1_Unique" = "#377EB8",
+  "Unbound" = "#999999"
+)
 
 ################################################################################
 # Step 1: Load data
@@ -47,6 +85,10 @@ peak_gene_data <- read.csv(file.path(PHASE2_1_DIR, "peak_gene_associations.csv")
 
 message("  Loaded ", nrow(gene_data), " genes")
 message("  Loaded ", nrow(peak_gene_data), " peak-gene associations")
+
+# Add simplified category to peak_gene_data
+peak_gene_data$category_simple <- convert_to_simple_category(peak_gene_data$category)
+message("  Added simplified 3-category classification")
 
 ################################################################################
 # Step 2: Stratify by genomic location
@@ -241,32 +283,62 @@ write.csv(binding_pattern_stats,
           row.names = FALSE)
 
 ################################################################################
-# Step 7: Visualizations
+# Step 7: Visualizations (BOTH detailed and simplified)
 ################################################################################
 
 message("\n[Step 7] Generating visualizations...")
 
-# 7.1: Expression by location type
-pdf(file.path(OUTPUT_DIR, "expression_by_location_boxplots.pdf"), width = 14, height = 8)
-ggplot(gene_location, aes(x = location_type, y = log2FoldChange, fill = category)) +
-  geom_violin(alpha = 0.7) +
-  geom_boxplot(width = 0.3, position = position_dodge(0.9), alpha = 0.5, outlier.shape = NA) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
-  facet_wrap(~ category, ncol = 3) +
-  scale_fill_brewer(palette = "Set2") +
-  theme_classic() +
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    legend.position = "none",
-    strip.text = element_text(face = "bold")
-  ) +
-  labs(
-    title = "Gene Expression Changes by Peak Location",
-    subtitle = "Stratified by binding category",
-    x = "Peak Location Type",
-    y = "log2 Fold Change (TES vs GFP)"
-  )
-dev.off()
+# Add simplified category to gene_location
+gene_location$category_simple <- convert_to_simple_category(gene_location$category)
+
+#' Helper function to create location boxplot
+create_location_boxplot <- function(data, category_col, colors, output_file,
+                                     title_suffix = "") {
+  pdf(output_file, width = 14, height = 8)
+  p <- ggplot(data, aes(x = location_type, y = log2FoldChange,
+                         fill = .data[[category_col]])) +
+    geom_violin(alpha = 0.7) +
+    geom_boxplot(width = 0.3, position = position_dodge(0.9),
+                 alpha = 0.5, outlier.shape = NA) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+    facet_wrap(as.formula(paste("~", category_col)), ncol = 3) +
+    scale_fill_manual(values = colors, na.value = "gray50") +
+    theme_classic() +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      legend.position = "none",
+      strip.text = element_text(face = "bold")
+    ) +
+    labs(
+      title = paste("Gene Expression Changes by Peak Location", title_suffix),
+      subtitle = "Stratified by binding category",
+      x = "Peak Location Type",
+      y = "log2 Fold Change (TES vs GFP)"
+    )
+  print(p)
+  dev.off()
+}
+
+# Create DETAILED (6-category) version
+create_location_boxplot(
+  gene_location, "category", DETAILED_COLORS,
+  file.path(OUTPUT_DIR_DETAILED, "expression_by_location_boxplots.pdf"),
+  "(Detailed)"
+)
+
+# Create SIMPLIFIED (3-category) version
+create_location_boxplot(
+  gene_location, "category_simple", SIMPLE_COLORS,
+  file.path(OUTPUT_DIR_SIMPLE, "expression_by_location_boxplots.pdf"),
+  "(Simplified)"
+)
+
+# Backward compatible copy
+create_location_boxplot(
+  gene_location, "category", DETAILED_COLORS,
+  file.path(OUTPUT_DIR, "expression_by_location_boxplots.pdf"),
+  ""
+)
 
 # 7.2: Distance decay plot
 pdf(file.path(OUTPUT_DIR, "distance_decay_plot.pdf"), width = 12, height = 10)

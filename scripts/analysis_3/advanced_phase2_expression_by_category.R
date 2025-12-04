@@ -4,6 +4,7 @@
 # Phase 2.1: Category-Specific Expression Analysis
 #
 # Purpose: Analyze gene expression changes for genes in each binding category
+#          Creates BOTH simplified (3-category) and detailed (6-category) analyses
 #
 # Author: Advanced Multi-Omics Analysis Plan
 # Date: 2025-01-24
@@ -11,6 +12,7 @@
 
 message("=== Phase 2.1: Category-Specific Expression Analysis ===")
 message("Start time: ", Sys.time())
+message("NOTE: Creating both SIMPLIFIED (3-category) and DETAILED (6-category) analyses")
 
 # Load required libraries
 suppressPackageStartupMessages({
@@ -32,9 +34,45 @@ setwd("/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top")
 BINDING_DATA <- "SRF_Eva_integrated_analysis/scripts/analysis_3/results/01_binding_classification/binding_classification_data.RData"
 RNA_SEQ_FILE <- "SRF_Eva_RNA/results/05_deseq2/deseq2_results_TES_vs_GFP.txt"
 
-# Output directory
+# Output directories - separate for detailed vs simplified
 OUTPUT_DIR <- "SRF_Eva_integrated_analysis/scripts/analysis_3/results/04_category_expression"
+OUTPUT_DIR_DETAILED <- file.path(OUTPUT_DIR, "detailed_6cat")
+OUTPUT_DIR_SIMPLE <- file.path(OUTPUT_DIR, "simplified_3cat")
 dir.create(OUTPUT_DIR, recursive = TRUE, showWarnings = FALSE)
+dir.create(OUTPUT_DIR_DETAILED, recursive = TRUE, showWarnings = FALSE)
+dir.create(OUTPUT_DIR_SIMPLE, recursive = TRUE, showWarnings = FALSE)
+
+################################################################################
+# Helper function: Convert detailed to simplified categories
+################################################################################
+
+convert_to_simple_category <- function(category) {
+  case_when(
+    category == "TES_unique" ~ "TES_Unique",
+    category == "TEAD1_unique" ~ "TEAD1_Unique",
+    grepl("Shared", category) ~ "Shared",
+    category == "Unbound" ~ "Unbound",
+    TRUE ~ category
+  )
+}
+
+# Color palettes
+DETAILED_COLORS <- c(
+  "TES_unique" = "#E41A1C",
+  "TEAD1_unique" = "#377EB8",
+  "Shared_high" = "#984EA3",
+  "Shared_TES_dominant" = "#FF7F00",
+  "Shared_TEAD1_dominant" = "#4DAF4A",
+  "Shared_equivalent" = "#A65628",
+  "Unbound" = "#999999"
+)
+
+SIMPLE_COLORS <- c(
+  "TES_Unique" = "#E41A1C",
+  "Shared" = "#984EA3",
+  "TEAD1_Unique" = "#377EB8",
+  "Unbound" = "#999999"
+)
 
 ################################################################################
 # Step 1: Load binding and expression data
@@ -205,6 +243,10 @@ all_genes$regulation <- ifelse(
   ifelse(all_genes$log2FoldChange > 0, "Up", "Down")
 )
 
+# Add simplified category (3-category: TES_Unique, Shared, TEAD1_Unique, Unbound)
+all_genes$primary_category_simple <- convert_to_simple_category(all_genes$primary_category)
+message("  Added simplified 3-category classification")
+
 ################################################################################
 # Step 4: Statistical comparisons
 ################################################################################
@@ -259,81 +301,184 @@ print(chi_test)
 sink()
 
 ################################################################################
-# Step 5: Generate visualizations
+# Step 5: Generate visualizations (BOTH detailed and simplified)
 ################################################################################
 
 message("\n[Step 5] Generating visualizations...")
 
-# 5.1: Boxplot of expression changes by category
-pdf(file.path(OUTPUT_DIR, "expression_by_category_boxplots.pdf"), width = 12, height = 8)
+#' Helper function to create expression boxplot
+create_expression_boxplot <- function(data, category_col, colors, output_file,
+                                       title_suffix = "") {
+  # Get category counts and valid categories
+  category_counts <- table(data[[category_col]])
+  valid_cats <- names(category_counts[category_counts >= 3])
 
-# Build comparisons dynamically based on available categories
-comparisons_list <- list()
-for (cat in setdiff(valid_categories, ref_group)) {
-  comparisons_list <- c(comparisons_list, list(c(cat, ref_group)))
+  plot_data <- data %>%
+    dplyr::filter(.data[[category_col]] %in% valid_cats)
+
+  # Reference group
+  ref_grp <- if ("Unbound" %in% valid_cats) "Unbound" else valid_cats[1]
+
+  # Build comparisons
+  comparisons_list <- list()
+  for (cat in setdiff(valid_cats, ref_grp)) {
+    comparisons_list <- c(comparisons_list, list(c(cat, ref_grp)))
+  }
+
+  pdf(output_file, width = 12, height = 8)
+  p <- ggplot(plot_data,
+              aes(x = .data[[category_col]], y = log2FoldChange,
+                  fill = .data[[category_col]])) +
+    geom_violin(alpha = 0.7) +
+    geom_boxplot(width = 0.3, alpha = 0.5, outlier.shape = NA) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+    scale_fill_manual(values = colors, na.value = "gray50") +
+    theme_classic() +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      legend.position = "none"
+    ) +
+    labs(
+      title = paste("Gene Expression Changes by Binding Category", title_suffix),
+      subtitle = "TES vs GFP (RNA-seq)",
+      x = "Binding Category",
+      y = "log2 Fold Change"
+    )
+
+  if (length(comparisons_list) > 0 && length(comparisons_list) <= 10) {
+    p <- p + stat_compare_means(comparisons = comparisons_list,
+                                 method = "wilcox.test")
+  }
+  print(p)
+  dev.off()
 }
 
-p <- ggplot(expr_data, aes(x = primary_category, y = log2FoldChange, fill = primary_category)) +
-  geom_violin(alpha = 0.7) +
-  geom_boxplot(width = 0.3, alpha = 0.5, outlier.shape = NA) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
-  scale_fill_brewer(palette = "Set2") +
-  theme_classic() +
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    legend.position = "none"
-  ) +
-  labs(
-    title = "Gene Expression Changes by Binding Category",
-    subtitle = "TES vs GFP (RNA-seq)",
-    x = "Binding Category",
-    y = "log2 Fold Change"
-  )
+#' Helper function to create cumulative distribution plot
+create_ecdf_plot <- function(data, category_col, colors, output_file,
+                              title_suffix = "") {
+  category_counts <- table(data[[category_col]])
+  valid_cats <- names(category_counts[category_counts >= 3])
 
-# Add statistical comparisons only if we have valid comparisons
-if (length(comparisons_list) > 0 && length(comparisons_list) <= 10) {
-  p <- p + stat_compare_means(comparisons = comparisons_list, method = "wilcox.test")
+  plot_data <- data %>%
+    dplyr::filter(.data[[category_col]] %in% valid_cats)
+
+  pdf(output_file, width = 10, height = 8)
+  p <- ggplot(plot_data, aes(x = log2FoldChange, color = .data[[category_col]])) +
+    stat_ecdf(geom = "step", size = 1) +
+    scale_color_manual(values = colors, na.value = "gray50") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
+    theme_classic() +
+    labs(
+      title = paste("Cumulative Distribution of Expression Changes", title_suffix),
+      x = "log2 Fold Change (TES vs GFP)",
+      y = "Cumulative Proportion",
+      color = "Category"
+    )
+  print(p)
+  dev.off()
 }
-print(p)
-dev.off()
 
-# 5.2: Cumulative distribution of expression changes
-pdf(file.path(OUTPUT_DIR, "expression_cumulative_distribution.pdf"), width = 10, height = 8)
-ggplot(expr_data, aes(x = log2FoldChange, color = primary_category)) +
-  stat_ecdf(geom = "step", size = 1) +
-  scale_color_brewer(palette = "Set2") +
-  geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
-  theme_classic() +
-  labs(
-    title = "Cumulative Distribution of Expression Changes",
-    x = "log2 Fold Change (TES vs GFP)",
-    y = "Cumulative Proportion",
-    color = "Category"
-  )
-dev.off()
+# ============================================================================
+# 5.1: DETAILED (6-category) plots
+# ============================================================================
+message("  Creating DETAILED (6-category) plots...")
 
-# 5.3: Stacked bar chart of regulation proportions
-regulation_counts <- expr_data %>%
-  dplyr::filter(is_DEG) %>%
-  group_by(primary_category, regulation) %>%
-  summarise(count = n(), .groups = "drop") %>%
-  group_by(primary_category) %>%
-  mutate(percentage = count / sum(count) * 100)
+create_expression_boxplot(
+  all_genes, "primary_category", DETAILED_COLORS,
+  file.path(OUTPUT_DIR_DETAILED, "expression_by_category_boxplots.pdf"),
+  "(Detailed)"
+)
 
-pdf(file.path(OUTPUT_DIR, "regulation_proportions_barplot.pdf"), width = 10, height = 6)
-ggplot(regulation_counts, aes(x = primary_category, y = count, fill = regulation)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  geom_text(aes(label = count), position = position_dodge(width = 0.9), vjust = -0.5) +
-  scale_fill_manual(values = c("Up" = "red", "Down" = "blue")) +
-  theme_classic() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(
-    title = "Number of Upregulated and Downregulated DEGs by Category",
-    x = "Binding Category",
-    y = "Number of DEGs",
-    fill = "Regulation"
-  )
-dev.off()
+create_ecdf_plot(
+  all_genes, "primary_category", DETAILED_COLORS,
+  file.path(OUTPUT_DIR_DETAILED, "expression_cumulative_distribution.pdf"),
+  "(Detailed)"
+)
+
+# ============================================================================
+# 5.2: SIMPLIFIED (3-category) plots
+# ============================================================================
+message("  Creating SIMPLIFIED (3-category) plots...")
+
+create_expression_boxplot(
+  all_genes, "primary_category_simple", SIMPLE_COLORS,
+  file.path(OUTPUT_DIR_SIMPLE, "expression_by_category_boxplots.pdf"),
+  "(Simplified)"
+)
+
+create_ecdf_plot(
+  all_genes, "primary_category_simple", SIMPLE_COLORS,
+  file.path(OUTPUT_DIR_SIMPLE, "expression_cumulative_distribution.pdf"),
+  "(Simplified)"
+)
+
+# ============================================================================
+# Also save copies to main OUTPUT_DIR for backward compatibility (use detailed)
+# ============================================================================
+message("  Creating backward-compatible copies in main output directory...")
+
+create_expression_boxplot(
+  all_genes, "primary_category", DETAILED_COLORS,
+  file.path(OUTPUT_DIR, "expression_by_category_boxplots.pdf"),
+  ""
+)
+
+create_ecdf_plot(
+  all_genes, "primary_category", DETAILED_COLORS,
+  file.path(OUTPUT_DIR, "expression_cumulative_distribution.pdf"),
+  ""
+)
+
+# 5.3: Stacked bar chart of regulation proportions (BOTH versions)
+#' Helper function to create regulation barplot
+create_regulation_barplot <- function(data, category_col, output_file,
+                                       title_suffix = "") {
+  reg_counts <- data %>%
+    dplyr::filter(is_DEG) %>%
+    group_by(.data[[category_col]], regulation) %>%
+    summarise(count = n(), .groups = "drop") %>%
+    group_by(.data[[category_col]]) %>%
+    mutate(percentage = count / sum(count) * 100)
+
+  pdf(output_file, width = 10, height = 6)
+  p <- ggplot(reg_counts,
+              aes(x = .data[[category_col]], y = count, fill = regulation)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    geom_text(aes(label = count),
+              position = position_dodge(width = 0.9), vjust = -0.5) +
+    scale_fill_manual(values = c("Up" = "red", "Down" = "blue")) +
+    theme_classic() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    labs(
+      title = paste("Number of Up/Down-regulated DEGs by Category", title_suffix),
+      x = "Binding Category",
+      y = "Number of DEGs",
+      fill = "Regulation"
+    )
+  print(p)
+  dev.off()
+}
+
+# Create DETAILED version
+create_regulation_barplot(
+  all_genes, "primary_category",
+  file.path(OUTPUT_DIR_DETAILED, "regulation_proportions_barplot.pdf"),
+  "(Detailed)"
+)
+
+# Create SIMPLIFIED version
+create_regulation_barplot(
+  all_genes, "primary_category_simple",
+  file.path(OUTPUT_DIR_SIMPLE, "regulation_proportions_barplot.pdf"),
+  "(Simplified)"
+)
+
+# Backward compatible copy
+create_regulation_barplot(
+  all_genes, "primary_category",
+  file.path(OUTPUT_DIR, "regulation_proportions_barplot.pdf"),
+  ""
+)
 
 # 5.4: Scatter plot: binding signal vs expression change
 pdf(file.path(OUTPUT_DIR, "binding_signal_vs_expression.pdf"), width = 12, height = 10)
@@ -395,7 +540,7 @@ write.csv(gene_peak_map,
           file.path(OUTPUT_DIR, "peak_gene_associations.csv"),
           row.names = FALSE)
 
-# Summary statistics
+# Summary statistics - DETAILED (6-category)
 summary_stats <- all_genes %>%
   group_by(primary_category) %>%
   summarise(
@@ -410,20 +555,60 @@ summary_stats <- all_genes %>%
     .groups = "drop"
   )
 
+# Summary statistics - SIMPLIFIED (3-category)
+summary_stats_simple <- all_genes %>%
+  group_by(primary_category_simple) %>%
+  summarise(
+    n_genes = n(),
+    n_DEGs = sum(is_DEG),
+    pct_DEG = round(sum(is_DEG) / n() * 100, 2),
+    n_up = sum(regulation == "Up"),
+    n_down = sum(regulation == "Down"),
+    mean_log2FC = mean(log2FoldChange, na.rm = TRUE),
+    median_log2FC = median(log2FoldChange, na.rm = TRUE),
+    mean_baseMean = mean(baseMean, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Save both detailed and simplified summaries
 write.csv(summary_stats,
           file.path(OUTPUT_DIR, "category_summary_statistics.csv"),
+          row.names = FALSE)
+write.csv(summary_stats,
+          file.path(OUTPUT_DIR_DETAILED, "category_summary_statistics.csv"),
+          row.names = FALSE)
+write.csv(summary_stats_simple,
+          file.path(OUTPUT_DIR_SIMPLE, "category_summary_statistics.csv"),
           row.names = FALSE)
 
 # Write summary report
 sink(file.path(OUTPUT_DIR, "PHASE2_SUMMARY.txt"))
 cat("=== Phase 2.1: Category-Specific Expression Analysis ===\n")
 cat("Date:", as.character(Sys.time()), "\n\n")
-cat("Summary Statistics by Binding Category:\n")
+
+cat("NOTE: Analysis creates BOTH detailed (6-category) and simplified (3-category)\n")
+cat("      versions of all plots and statistics.\n\n")
+
+cat("Output directories:\n")
+cat("  - Detailed (6-category): ", OUTPUT_DIR_DETAILED, "\n")
+cat("  - Simplified (3-category): ", OUTPUT_DIR_SIMPLE, "\n\n")
+
+cat("=== DETAILED (6-category) Summary ===\n")
+cat("Categories: TES_unique, TEAD1_unique, Shared_high, Shared_TES_dominant,\n")
+cat("            Shared_TEAD1_dominant, Shared_equivalent, Unbound\n\n")
 print(summary_stats)
+
+cat("\n\n=== SIMPLIFIED (3-category) Summary ===\n")
+cat("Categories: TES_Unique, Shared, TEAD1_Unique, Unbound\n\n")
+print(summary_stats_simple)
+
 cat("\n\nStatistical Comparison (vs Unbound):\n")
 print(stat_results)
 sink()
 
 message("\n=== Analysis Complete ===")
-message("Output directory: ", OUTPUT_DIR)
+message("Output directories:")
+message("  Main: ", OUTPUT_DIR)
+message("  Detailed (6-cat): ", OUTPUT_DIR_DETAILED)
+message("  Simplified (3-cat): ", OUTPUT_DIR_SIMPLE)
 message("End time: ", Sys.time())

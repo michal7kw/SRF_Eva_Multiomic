@@ -37,9 +37,27 @@ library(visNetwork)
 # Set working directory
 setwd("/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top")
 
-# Create output directory
+# Create output directories - separate for detailed vs simplified
 output_dir <- "SRF_Eva_integrated_analysis/scripts/analysis_3/results/11_pathway_crosstalk"
+output_dir_detailed <- file.path(output_dir, "detailed_6cat")
+output_dir_simple <- file.path(output_dir, "simplified_3cat")
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(output_dir_detailed, recursive = TRUE, showWarnings = FALSE)
+dir.create(output_dir_simple, recursive = TRUE, showWarnings = FALSE)
+
+################################################################################
+# Helper function: Convert detailed to simplified categories
+################################################################################
+
+convert_to_simple_category <- function(category) {
+  dplyr::case_when(
+    category == "TES_unique" ~ "TES_Unique",
+    category == "TEAD1_unique" ~ "TEAD1_Unique",
+    grepl("Shared", category) ~ "Shared",
+    category == "Unbound" ~ "Unbound",
+    TRUE ~ category
+  )
+}
 
 # Logging function
 log_message <- function(msg) {

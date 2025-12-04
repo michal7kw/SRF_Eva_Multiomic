@@ -1,0 +1,35 @@
+
+=== Methylation at Regulated Genes Analysis ===
+Date: 2025-12-01 12:18:21.558709
+
+Input Data:
+  RNA-seq: /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_RNA/results/05_deseq2/deseq2_results_TES_vs_GFP.txt
+  DMRs: /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/meDIP/results/07_differential_MEDIPS/TES_vs_GFP_DMRs_FDR05.csv
+
+Gene Counts:
+  Total genes analyzed: 30830
+  DEGs (padj < 0.05): 12370
+    - Upregulated: 6313
+    - Downregulated: 6057
+
+DMR Statistics:
+  Total DMRs: 31920
+    - Hypermethylated: 29034
+    - Hypomethylated: 2886
+
+DMR Enrichment at DEGs:
+  DEGs with ≥1 DMR: 4111 / 8860 (46.4%)
+  Non-DEGs with ≥1 DMR: 5026 / 21970 (22.9%)
+
+  Fisher's exact test:
+    p-value: 0.00e+00
+    Odds ratio: 2.92
+
+  Interpretation: DEGs are ENRICHED for DMRs - supports indirect methylation hypothesis
+
+Output Files:
+  - Gene_DMR_counts.csv: All genes with DMR counts
+  - DEG_vs_nonDEG_DMR_stats.csv: Summary statistics
+  - DEGs_with_DMRs_direction.csv: Direction correlation analysis
+  - 01-05_*.pdf: Visualization plots
+
