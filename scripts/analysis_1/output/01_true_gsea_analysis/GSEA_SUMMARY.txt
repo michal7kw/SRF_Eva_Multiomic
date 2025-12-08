@@ -1,0 +1,46 @@
+TRUE GSEA ANALYSIS SUMMARY
+==========================
+
+Generated: 2025-11-26 07:40:54.216207 
+
+METHOD:
+  - Algorithm: fgsea (Fast Gene Set Enrichment Analysis)
+  - Ranking metric: log2FoldChange (TES vs GFP)
+  - Total genes ranked: 22896
+  - Gene sets tested: 5842
+  - Permutations: 10,000
+
+RESULTS:
+  Significant pathways (FDR < 0.05): 161
+    - Positively enriched (NES > 0): 33
+    - Negatively enriched (NES < 0): 128
+
+CANCER-RELEVANT PATHWAYS:
+  Total cancer pathways: 1
+    Signaling: 1 (0 up, 1 down)
+
+
+TOP 10 UPREGULATED PATHWAYS:
+  1. GO:0050911 (NES=2.28, FDR=1.66e-07)
+  2. GO:0045109 (NES=2.27, FDR=4.93e-07)
+  3. GO:0045104 (NES=2.23, FDR=9.81e-07)
+  4. GO:0045103 (NES=2.22, FDR=8.22e-07)
+  5. GO:0031424 (NES=2.21, FDR=9.23e-06)
+  6. GO:0050907 (NES=2.14, FDR=1.05e-06)
+  7. GO:0046068 (NES=1.89, FDR=1.94e-02)
+  8. GO:0009190 (NES=1.89, FDR=2.04e-02)
+  9. GO:0042634 (NES=1.86, FDR=1.89e-02)
+  10. GO:0060263 (NES=1.86, FDR=2.85e-02)
+
+
+TOP 10 DOWNREGULATED PATHWAYS:
+  1. GO:0006334 (NES=-2.84, FDR=6.56e-16)
+  2. GO:0034728 (NES=-2.77, FDR=6.56e-16)
+  3. GO:0071459 (NES=-2.54, FDR=3.05e-08)
+  4. GO:0008608 (NES=-2.52, FDR=2.46e-08)
+  5. GO:0010965 (NES=-2.50, FDR=2.46e-08)
+  6. GO:0065004 (NES=-2.50, FDR=1.06e-15)
+  7. GO:0051306 (NES=-2.49, FDR=2.46e-08)
+  8. GO:0007080 (NES=-2.48, FDR=3.35e-08)
+  9. GO:0051310 (NES=-2.48, FDR=3.78e-09)
+  10. GO:0051304 (NES=-2.45, FDR=1.55e-08)

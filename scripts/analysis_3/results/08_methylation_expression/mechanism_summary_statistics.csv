@@ -1,0 +1,6 @@
+"regulatory_mechanism","n_genes","n_with_dmr","mean_log2FC","mean_meth_FC"
+"Indirect",8235,0,0.275418449736263,NA
+"Non_Methylation_Repression",976,0,-1.52694212282468,NA
+"Not_DE",21591,0,0.142624717583027,NA
+"TEAD1_Specific",2389,0,-0.17841304007296,NA
+"TES_Activation",768,0,1.56548506285008,NA

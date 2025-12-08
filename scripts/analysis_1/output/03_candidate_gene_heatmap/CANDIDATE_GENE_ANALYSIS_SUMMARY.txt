@@ -1,0 +1,40 @@
+CANDIDATE GENE HEATMAP ANALYSIS SUMMARY
+========================================
+
+Generated: 2025-11-26 07:41:06.167047 
+
+CANDIDATE GENES:
+  Total loaded: 225
+  Matched to RNA-seq: 189
+  Significant DEGs: 132
+
+RANDOM CONTROLS:
+  Total selected: 189
+  Matching criteria: Expression level (2-fold range)
+
+TF BINDING COMPARISON:
+Candidate genes:
+  - TES binding: 87 genes (46.0%)
+  - TEAD1 binding: 115 genes (60.8%)
+
+Random controls:
+  - TES binding: 61 genes (32.3%)
+  - TEAD1 binding: 77 genes (40.7%)
+
+STATISTICAL TESTS:
+  TES enrichment: X² = 6.94, p = 8.43e-03
+  TEAD1 enrichment: X² = 14.49, p = 1.41e-04
+
+→ TES binding is significantly enriched at candidate genes!
+→ TEAD1 binding is significantly enriched at candidate genes!
+
+
+NEXT STEPS FOR DEEPTOOLS HEATMAP:
+----------------------------------
+BED files created:
+  - candidate_genes.bed
+  - random_control_genes.bed
+
+Run deepTools to generate heatmap:
+  cd ../../../SRF_Eva_CUTandTAG
+  See generate_candidate_heatmap.sh script

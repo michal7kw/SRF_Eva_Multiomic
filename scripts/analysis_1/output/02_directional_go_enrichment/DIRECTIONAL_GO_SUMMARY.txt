@@ -1,0 +1,47 @@
+DIRECTIONAL GO ENRICHMENT ANALYSIS SUMMARY
+==========================================
+
+Generated: 2025-11-26 07:42:11.663466 
+
+GENE COUNTS:
+  Total significant DEGs: 12370
+    - Upregulated (log2FC > 0): 6313 (51.0%)
+    - Downregulated (log2FC < 0): 6057 (49.0%)
+
+GO ENRICHMENT RESULTS:
+
+Upregulated Genes:
+  - Biological Process: 1 pathways
+  - Molecular Function: 0 pathways
+  - Cellular Component: 1 pathways
+
+Downregulated Genes:
+  - Biological Process: 546 pathways
+  - Molecular Function: 20 pathways
+  - Cellular Component: 65 pathways
+
+
+TOP 10 UPREGULATED PATHWAYS (BP):
+  1. intermediate filament organization (FDR=2.66e-03, Count=29)
+  2. intermediate filament-based process (FDR=7.40e-02, Count=34)
+  3. intermediate filament cytoskeleton organization (FDR=9.58e-02, Count=33)
+  4. regulation of mitochondrial membrane potential (FDR=1.48e-01, Count=33)
+  5. regulation of hormone levels (FDR=3.35e-01, Count=151)
+  6. regulation of postsynaptic membrane neurotransmitter receptor levels (FDR=3.94e-01, Count=44)
+  7. T cell mediated immunity (FDR=4.29e-01, Count=44)
+  8. positive regulation of protein-containing complex disassembly (FDR=5.91e-01, Count=19)
+  9. response to dietary excess (FDR=5.99e-01, Count=17)
+  10. peptide transport (FDR=6.26e-01, Count=80)
+
+
+TOP 10 DOWNREGULATED PATHWAYS (BP):
+  1. regulation of mitotic cell cycle (FDR=2.23e-08, Count=184)
+  2. mitotic cell cycle phase transition (FDR=4.45e-08, Count=165)
+  3. regulation of mitotic cell cycle phase transition (FDR=1.31e-07, Count=132)
+  4. negative regulation of cell cycle (FDR=1.31e-07, Count=146)
+  5. regulation of cell cycle phase transition (FDR=3.11e-07, Count=163)
+  6. negative regulation of cell cycle process (FDR=4.96e-07, Count=120)
+  7. regulation of chromosome segregation (FDR=6.18e-07, Count=64)
+  8. chromosome segregation (FDR=1.68e-06, Count=153)
+  9. regulation of mitotic sister chromatid segregation (FDR=1.80e-06, Count=35)
+  10. regulation of mitotic nuclear division (FDR=1.80e-06, Count=58)

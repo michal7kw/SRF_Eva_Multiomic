@@ -1,0 +1,80 @@
+================================================================================
+Publication-Quality Figures - Legend Descriptions
+TES vs TEAD1 Comparative Multi-Omics Study
+================================================================================
+
+FIGURE 1: Study Overview
+-------------------------
+(A) Bar chart showing the number of binding sites in each of six binding
+    categories: TES-unique, TEAD1-unique, and four shared categories
+    (equivalent, TES-dominant, TEAD1-dominant, all shared).
+(B) Pie chart showing the proportional distribution of binding categories.
+
+FIGURE 2: Binding Characterization
+-----------------------------------
+(A) Violin plots showing TES signal intensity (CPM, log10 scale) across
+    binding categories. Box plots overlay shows median and quartiles.
+(B) Violin plots showing TEAD1 signal intensity across binding categories.
+(C) Violin plots showing signal ratio (log2 TES/TEAD1) by binding category.
+    Dashed red line indicates equal binding (ratio = 0).
+
+FIGURE 3: Expression Integration
+---------------------------------
+(A) Violin plots showing log2 fold change (TES vs GFP) stratified by binding
+    category. Dashed red line indicates no change (log2FC = 0).
+(B) Volcano plot showing differential expression with points colored by
+    binding category. Dashed lines indicate significance thresholds
+    (padj < 0.05, |log2FC| > 1).
+(C) Bar chart showing counts of upregulated and downregulated DEGs by
+    binding category.
+
+FIGURE 4: Methylation Integration
+----------------------------------
+(A) Pie chart showing the distribution of genes across regulatory
+    mechanisms identified by three-way integration (binding + methylation
+    + expression).
+(B) Violin plots showing gene expression changes stratified by methylation
+    status (hypermethylated, hypomethylated, no change).
+(C) Bar chart showing mean expression change for each regulatory mechanism.
+    Numbers indicate gene counts per mechanism.
+
+FIGURE 5: Regulatory Networks
+------------------------------
+(A) Volcano plot showing master regulator enrichment. X-axis shows TF
+    expression change, Y-axis shows target gene enrichment significance.
+    Points are colored by significance (padj < 0.05). Top TFs are labeled.
+(B) Bar chart showing the top 20 master regulators ranked by enrichment
+    p-value. Bars are colored by TF expression change (log2FC).
+(C) Scatter plot showing correlation between TF expression change and
+    target gene enrichment. Point size indicates number of target genes
+    in DEG list.
+
+FIGURE 6: Target Prioritization
+--------------------------------
+(A) Histogram showing distribution of priority scores across all genes.
+    Colors indicate priority tiers (High, Medium, Low, Very Low). Dashed
+    lines show tier thresholds (30, 50, 70).
+(B) Heatmap showing component scores for top 30 prioritized genes. Columns
+    represent score components (binding, expression, significance,
+    methylation, biological relevance, novelty).
+(C) Correlation matrix showing pairwise correlations between score
+    components. Values range from -1 (negative) to +1 (positive).
+
+FIGURE 7: Comprehensive Summary
+--------------------------------
+(A) Bar chart summarizing key study statistics including total binding
+    sites, unique/shared sites, genes analyzed, DEGs, and direct targets.
+(B) Workflow diagram illustrating the five analysis phases: binding
+    classification, expression integration, methylation integration,
+    network analysis, and target prioritization.
+
+================================================================================
+Color Schemes:
+  - Binding categories: TES-unique (red), TEAD1-unique (blue),
+                       Shared-equivalent (green), Shared-TES-dominant (orange),
+                       Shared-TEAD1-dominant (purple)
+  - Expression: Up (red), Down (blue), Not significant (gray)
+  - Methylation: Hypermethylated (red), Hypomethylated (blue), No change (gray)
+  - Heatmaps: Blue-White-Red diverging (expression/ratios)
+             White-Red sequential (enrichment/scores)
+================================================================================

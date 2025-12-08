@@ -1,0 +1,19 @@
+Chi-square Test: Regulation Proportions by Category
+===================================================
+
+                       
+                         Down Not_DE    Up
+  Shared_equivalent        70    117    54
+  Shared_high             141    168   110
+  Shared_TEAD1_dominant   129    176    82
+  Shared_TES_dominant     163    198   120
+  TEAD1_unique           1240   1750   938
+  TES_unique              602    835   484
+  Unbound                3711  18347  4524
+
+
+	Pearson's Chi-squared test
+
+data:  regulation_table
+X-squared = 1772, df = 12, p-value < 2.2e-16
+

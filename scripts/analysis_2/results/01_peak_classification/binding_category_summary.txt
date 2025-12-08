@@ -1,0 +1,47 @@
+
+=== Peak Classification Summary ===
+Date: 2025-12-05 12:01:43.755907
+
+Replicate-Based Consensus Peak Analysis
+=======================================
+
+Input Files:
+  TES replicates:
+    - TES-1_peaks.narrowPeak
+    - TES-2_peaks.narrowPeak
+    - TES-3_peaks.narrowPeak
+  TEAD1 replicates:
+    - TEAD1-1_peaks.narrowPeak
+    - TEAD1-2_peaks.narrowPeak
+    - TEAD1-3_peaks.narrowPeak
+
+Consensus Parameters:
+  Minimum replicate overlap: 2 out of 3
+
+Consensus Peak Counts:
+  TES consensus peaks: 17601
+  TEAD1 consensus peaks: 11012
+
+Classification Results:
+  Shared (TES+TEAD1): 4329 merged regions
+    - TES peaks with TEAD1 overlap: 4384 (24.9%)
+    - TEAD1 peaks with TES overlap: 4331 (39.3%)
+  TES-Unique: 13217 (75.1% of TES consensus)
+  TEAD1-Unique: 6681 (60.7% of TEAD1 consensus)
+
+Output Files:
+  Consensus peaks:
+    - TES_consensus_peaks.bed
+    - TEAD1_consensus_peaks.bed
+  Classification:
+    - Shared_TES_TEAD1.bed
+    - TES_Unique.bed
+    - TEAD1_Unique.bed
+    - Master_Peak_List.bed
+    - Master_Peak_Annotation.csv
+  Visualizations:
+    - category_counts_barplot.pdf
+    - genomic_context_enrichment.pdf
+    - distance_to_TSS.pdf
+    - binding_category_venn.pdf
+

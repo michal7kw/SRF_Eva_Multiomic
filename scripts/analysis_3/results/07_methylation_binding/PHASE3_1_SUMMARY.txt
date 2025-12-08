@@ -1,0 +1,45 @@
+=== Phase 3.1: Methylation at Binding Sites ===
+Date: 2025-12-08 15:46:37.589539 
+
+DMR Overlap Counts:
+===================
+# A tibble: 6 × 6
+  category              n_peaks n_with_hyper pct_hyper n_with_hypo pct_hypo
+  <chr>                   <int>        <int>     <dbl>       <int>    <dbl>
+1 Shared_TEAD1_dominant    2509            3      0.12           3     0.12
+2 Shared_TES_dominant      2833            6      0.21           2     0.07
+3 Shared_equivalent        1463            3      0.21           0     0   
+4 Shared_high              1862            5      0.27           0     0   
+5 TEAD1_unique            13205           54      0.41           0     0   
+6 TES_unique              11537           20      0.17          34     0.29
+
+
+Statistical Tests:
+==================
+TES-related peaks vs hypermethylation:
+
+	Fisher's Exact Test for Count Data
+
+data:  tbl
+p-value = 0.005608
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+ 0.3220351 0.8461668
+sample estimates:
+odds ratio 
+ 0.5291264 
+
+
+TEAD1-related peaks vs hypermethylation:
+
+	Fisher's Exact Test for Count Data
+
+data:  tbl
+p-value = 0.003106
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+ 1.214815 2.984156
+sample estimates:
+odds ratio 
+  1.890994 
+

@@ -1,0 +1,27 @@
+Distance-Expression Correlation Analysis
+==========================================
+
+TES-related peaks:
+
+	Spearman's rank correlation rho
+
+data:  abs(distal_peaks$distance[distal_peaks$category %in% c("TES_unique", "Shared_TES_dominant")]) and abs(distal_peaks$log2FoldChange[distal_peaks$category %in% c("TES_unique", "Shared_TES_dominant")])
+S = 5064424734, p-value = 0.5757
+alternative hypothesis: true rho is not equal to 0
+sample estimates:
+      rho 
+0.0100068 
+
+
+
+TEAD1-related peaks:
+
+	Spearman's rank correlation rho
+
+data:  abs(distal_peaks$distance[distal_peaks$category %in% c("TEAD1_unique", "Shared_TEAD1_dominant")]) and abs(distal_peaks$log2FoldChange[distal_peaks$category %in% c("TEAD1_unique", "Shared_TEAD1_dominant")])
+S = 7969330540, p-value = 0.006981
+alternative hypothesis: true rho is not equal to 0
+sample estimates:
+       rho 
+0.04443409 
+

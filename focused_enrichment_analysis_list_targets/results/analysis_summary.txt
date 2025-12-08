@@ -1,0 +1,32 @@
+=================================================================
+YAP/TAZ TARGET ENRICHMENT ANALYSIS SUMMARY
+=================================================================
+
+Total YAP/TAZ target genes: 206
+YAP/TAZ targets with expression data: 188
+
+--- Binding Analysis ---
+Total genes with TES peaks: 7234
+Total genes with TEAD1 peaks: 9355
+
+YAP/TAZ targets bound by TES: 88 (42.7%)
+YAP/TAZ targets bound by TEAD1: 115 (55.8%)
+YAP/TAZ targets bound by both: 82 (39.8%)
+YAP/TAZ targets bound by TES only: 6
+YAP/TAZ targets bound by TEAD1 only: 33
+YAP/TAZ targets with no binding: 85
+
+--- Enrichment Statistics ---
+TES binding enrichment p-value: 5.543366e-02
+TEAD1 binding enrichment p-value: 3.421992e-04
+
+--- Overlap with RNA-seq DEGs ---
+YAP/TAZ targets that are also DEGs (padj < 0.05): 131 (63.6%)
+YAP/TAZ DEGs bound by TES: 69
+YAP/TAZ DEGs bound by TEAD1: 87
+YAP/TAZ DEGs bound by both: 65
+
+=================================================================
+Analysis complete: Tue Oct 21 14:43:41 2025
+=================================================================
+

@@ -1,0 +1,28 @@
+=== Phase 3.2: Promoter Methylation and Gene Silencing ===
+Date: 2025-12-08 15:47:07.1047 
+
+Genes with Promoter DMRs: 0 
+Hypermethylated promoters: 0 
+Hypomethylated promoters: 0 
+
+Mechanistic Classification:
+===========================
+
+                  Indirect Non_Methylation_Repression 
+                      8235                        976 
+                    Not_DE             TEAD1_Specific 
+                     21591                       2389 
+            TES_Activation 
+                       768 
+
+Mechanism Statistics:
+=====================
+# A tibble: 5 × 5
+  regulatory_mechanism       n_genes n_with_dmr mean_log2FC mean_meth_FC
+  <chr>                        <int>      <int>       <dbl>        <dbl>
+1 Indirect                      8235          0       0.275          NaN
+2 Non_Methylation_Repression     976          0      -1.53           NaN
+3 Not_DE                       21591          0       0.143          NaN
+4 TEAD1_Specific                2389          0      -0.178          NaN
+5 TES_Activation                 768          0       1.57           NaN
+

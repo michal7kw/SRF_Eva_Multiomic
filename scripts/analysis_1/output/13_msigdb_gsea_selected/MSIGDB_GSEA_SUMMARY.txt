@@ -1,0 +1,128 @@
+=============================================================================
+  COMPREHENSIVE MSIGDB GSEA ANALYSIS - SUMMARY REPORT
+=============================================================================
+
+Generated: 2025-11-26 07:42:39.295671 
+
+INPUT DATA:
+  RNA-seq file: ../../../SRF_Eva_RNA/results/05_deseq2/deseq2_results_TES_vs_GFP.txt
+  Gene sets directory: ../../GENE_SETS_selected
+  Number of .grp files: 239
+
+PARAMETERS:
+  Gene set size range: 10 - 500 genes
+  Permutations: 10000
+  FDR threshold: 0.05
+  Ranking metric: log2FoldChange (TES vs GFP)
+
+GENE SET STATISTICS:
+  Total gene sets tested: 239
+  Genes in ranked list: 22896
+
+ENRICHMENT RESULTS:
+  Significant pathways (FDR < 0.05): 61
+  Positively enriched (NES > 0): 23
+  Negatively enriched (NES < 0): 38
+
+COLLECTION BREAKDOWN:
+  C6 Oncogenic: 42 pathways (21 up, 21 down)
+  Hallmark: 12 pathways (2 up, 10 down)
+  Other: 7 pathways (0 up, 7 down)
+
+TOP 20 UPREGULATED PATHWAYS:
+   1. [C6 Oncogenic] KRAS.LUNG_UP.V1_DN
+      NES=1.99, FDR=2.28e-05, size=103
+   2. [C6 Oncogenic] KRAS.300_UP.V1_DN
+      NES=1.74, FDR=2.84e-03, size=105
+   3. [C6 Oncogenic] KRAS.600_UP.V1_DN
+      NES=1.70, FDR=2.40e-04, size=207
+   4. [C6 Oncogenic] BRCA1_DN.V1_UP
+      NES=1.68, FDR=5.46e-03, size=96
+   5. [C6 Oncogenic] PRC2_SUZ12_UP.V1_DN
+      NES=1.63, FDR=4.98e-03, size=146
+   6. [C6 Oncogenic] KRAS.50_UP.V1_DN
+      NES=1.63, FDR=4.88e-02, size=28
+   7. [C6 Oncogenic] LEF1_UP.V1_UP
+      NES=1.60, FDR=6.17e-03, size=177
+   8. [C6 Oncogenic] KRAS.AMP.LUNG_UP.V1_DN
+      NES=1.59, FDR=1.62e-02, size=112
+   9. [C6 Oncogenic] KRAS.AMP.LUNG_UP.V1_UP
+      NES=1.58, FDR=1.99e-02, size=103
+  10. [C6 Oncogenic] IL21_UP.V1_DN
+      NES=1.58, FDR=1.68e-02, size=142
+  11. [C6 Oncogenic] P53_DN.V2_UP
+      NES=1.56, FDR=2.04e-02, size=106
+  12. [C6 Oncogenic] E2F3_UP.V1_UP
+      NES=1.54, FDR=8.40e-03, size=179
+  13. [C6 Oncogenic] KRAS.PROSTATE_UP.V1_UP
+      NES=1.54, FDR=2.38e-02, size=107
+  14. [C6 Oncogenic] KRAS.600.LUNG.BREAST_UP.V1_DN
+      NES=1.53, FDR=1.19e-02, size=222
+  15. [C6 Oncogenic] KRAS.LUNG.BREAST_UP.V1_DN
+      NES=1.50, FDR=3.43e-02, size=109
+  16. [C6 Oncogenic] KRAS.PROSTATE_UP.V1_DN
+      NES=1.49, FDR=3.98e-02, size=109
+  17. [C6 Oncogenic] DCA_UP.V1_UP
+      NES=1.46, FDR=3.19e-02, size=143
+  18. [Hallmark] HALLMARK_ALLOGRAFT_REJECTION
+      NES=1.46, FDR=2.49e-02, size=160
+  19. [C6 Oncogenic] IL15_UP.V1_UP
+      NES=1.46, FDR=2.49e-02, size=168
+  20. [C6 Oncogenic] PGF_UP.V1_DN
+      NES=1.45, FDR=2.66e-02, size=164
+
+TOP 20 DOWNREGULATED PATHWAYS:
+   1. [Hallmark] HALLMARK_G2M_CHECKPOINT
+      NES=-2.66, FDR=2.13e-20, size=198
+   2. [Hallmark] HALLMARK_E2F_TARGETS
+      NES=-2.60, FDR=3.02e-19, size=198
+   3. [Other] CORDENONSI_YAP_CONSERVED_SIGNATURE
+      NES=-2.32, FDR=1.14e-06, size=55
+   4. [Hallmark] HALLMARK_MITOTIC_SPINDLE
+      NES=-2.22, FDR=7.68e-11, size=199
+   5. [Hallmark] HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION
+      NES=-2.07, FDR=4.11e-08, size=188
+   6. [C6 Oncogenic] VEGF_A_UP.V1_DN
+      NES=-2.01, FDR=2.00e-07, size=183
+   7. [Hallmark] HALLMARK_UV_RESPONSE_DN
+      NES=-2.00, FDR=3.90e-06, size=142
+   8. [Hallmark] HALLMARK_HYPOXIA
+      NES=-1.92, FDR=3.10e-06, size=192
+   9. [Hallmark] HALLMARK_GLYCOLYSIS
+      NES=-1.81, FDR=1.41e-05, size=195
+  10. [C6 Oncogenic] CSR_LATE_UP.V1_UP
+      NES=-1.80, FDR=2.94e-04, size=153
+  11. [Other] HINATA_NFKB_IMMU_INF
+      NES=-1.79, FDR=2.38e-02, size=13
+  12. [C6 Oncogenic] RPS14_DN.V1_DN
+      NES=-1.76, FDR=8.52e-05, size=177
+  13. [Other] TBK1.DF_DN
+      NES=-1.74, FDR=3.90e-06, size=281
+  14. [Hallmark] HALLMARK_MTORC1_SIGNALING
+      NES=-1.71, FDR=3.44e-04, size=200
+  15. [C6 Oncogenic] E2F1_UP.V1_UP
+      NES=-1.68, FDR=2.94e-04, size=184
+  16. [Other] BCAT_BILD_ET_AL_DN
+      NES=-1.61, FDR=4.19e-02, size=46
+  17. [Other] SIRNA_EIF4GI_DN
+      NES=-1.61, FDR=2.04e-02, size=88
+  18. [Hallmark] HALLMARK_MYC_TARGETS_V1
+      NES=-1.60, FDR=3.96e-03, size=200
+  19. [C6 Oncogenic] ERBB2_UP.V1_DN
+      NES=-1.56, FDR=4.22e-03, size=192
+  20. [C6 Oncogenic] PRC2_EZH2_UP.V1_DN
+      NES=-1.54, FDR=7.40e-03, size=171
+
+OUTPUT FILES:
+  CSV files:
+    - 01_msigdb_all_pathways.csv (all tested pathways)
+    - 02_msigdb_significant_pathways.csv (FDR < 0.05)
+    - 03_*_pathways.csv (by collection)
+  Plots:
+    - plot_01_top_pathways_barplot.pdf
+    - plot_02_collection_overview.pdf
+    - plot_03_enrichment_scatter.pdf
+    - plot_04_detailed_enrichment_curves.pdf
+    - plot_05_pathway_heatmap.pdf
+
+=============================================================================

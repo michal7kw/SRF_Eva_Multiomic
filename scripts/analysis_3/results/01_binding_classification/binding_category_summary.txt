@@ -1,0 +1,78 @@
+=== Binding Site Classification Summary ===
+Date: 2025-12-08 15:40:04.084047 
+
+Input Files:
+  TES peaks: SRF_Eva_CUTandTAG/results/05_peaks_narrow/TES_peaks.narrowPeak 
+  TEAD1 peaks: SRF_Eva_CUTandTAG/results/05_peaks_narrow/TEAD1_peaks.narrowPeak 
+
+Parameters:
+  Overlap threshold: 500 bp
+  Signal ratio threshold: 0.2 (log2)
+  High signal percentile: 0.75 
+
+=====================================
+DETAILED CLASSIFICATION (6 categories)
+=====================================
+Category Counts:
+
+    Shared_equivalent           Shared_high Shared_TEAD1_dominant 
+                 1463                  1862                  2509 
+  Shared_TES_dominant          TEAD1_unique            TES_unique 
+                 2833                 13205                 11537 
+
+Signal Statistics by Category:
+# A tibble: 6 × 7
+  category           n_peaks mean_tes_signal median_tes_signal mean_tead1_signal
+  <chr>                <int>           <dbl>             <dbl>             <dbl>
+1 Shared_TEAD1_domi…    2509            2.38             2.21              5.90 
+2 Shared_TES_domina…    2833            5.02             4.55              2.94 
+3 Shared_equivalent     1463            3.02             2.88              3.08 
+4 Shared_high           1862            9.91             8.50             13.0  
+5 TEAD1_unique         13205            1.59             0.958             4.25 
+6 TES_unique           11537            2.89             2.17              0.970
+# ℹ 2 more variables: median_tead1_signal <dbl>, mean_peak_width <dbl>
+
+
+=====================================
+SIMPLIFIED CLASSIFICATION (3 categories)
+=====================================
+Category Counts:
+
+      Shared TEAD1_Unique   TES_Unique 
+        8667        13205        11537 
+
+Signal Statistics by Category:
+# A tibble: 3 × 7
+  category_simple n_peaks mean_tes_signal median_tes_signal mean_tead1_signal
+  <chr>             <int>           <dbl>             <dbl>             <dbl>
+1 Shared             8667            4.97             3.80              5.98 
+2 TEAD1_Unique      13205            1.59             0.958             4.25 
+3 TES_Unique        11537            2.89             2.17              0.970
+# ℹ 2 more variables: median_tead1_signal <dbl>, mean_peak_width <dbl>
+
+
+=====================================
+SHARED PEAKS BREAKDOWN
+=====================================
+Total Shared peaks: 8667 
+  - Shared_high: 1862 
+  - Shared_TES_dominant: 2833 
+  - Shared_TEAD1_dominant: 2509 
+  - Shared_equivalent: 1463 
+
+
+Genomic Distribution (detailed):
+# A tibble: 13,156 × 3
+   category              annotation                                        count
+   <chr>                 <chr>                                             <int>
+ 1 Shared_TEAD1_dominant 3' UTR                                               36
+ 2 Shared_TEAD1_dominant 5' UTR                                                5
+ 3 Shared_TEAD1_dominant Distal Intergenic                                   768
+ 4 Shared_TEAD1_dominant Exon (ENST00000263666.9/23024, exon 3 of 10)          1
+ 5 Shared_TEAD1_dominant Exon (ENST00000266674.10/8549, exon 6 of 18)          1
+ 6 Shared_TEAD1_dominant Exon (ENST00000295269.5/389015, exon 8 of 12)         1
+ 7 Shared_TEAD1_dominant Exon (ENST00000357512.3/168374, exon 3 of 3)          2
+ 8 Shared_TEAD1_dominant Exon (ENST00000380985.10/57486, exon 9 of 13)         1
+ 9 Shared_TEAD1_dominant Exon (ENST00000418403.3/101928353, exon 3 of 3)       1
+10 Shared_TEAD1_dominant Exon (ENST00000429190.2/ENST00000429190.2, exon …     1
+# ℹ 13,146 more rows

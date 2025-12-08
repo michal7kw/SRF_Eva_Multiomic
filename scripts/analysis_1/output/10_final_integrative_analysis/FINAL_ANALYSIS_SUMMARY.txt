@@ -1,0 +1,28 @@
+INTEGRATIVE ANALYSIS SUMMARY REPORT (SIGNIFICANT DEGs ONLY)
+===========================================================
+Generated: 2025-11-26 07:44:02.133727
+
+DATA OVERVIEW:
+  Total genes in full dataset: 33968
+  Significant DE genes analyzed: 12370
+  Genes with symbols: 9817 (79.4%)
+
+BINDING ANALYSIS:
+  TES peaks: 20204 total, 16896 with Ensembl ID, 5425 bound genes
+  TEAD1 peaks: 21712 total, 18575 with Ensembl ID, 7273 bound genes
+
+DIRECT TARGETS:
+  TES direct targets: 2683
+  TEAD1 direct targets: 3542
+  Shared targets: 2087
+  TES-specific: 596
+  TEAD1-specific: 1455
+
+REGULATORY MODES:
+  TES: 1141 upregulated, 1542 downregulated (42.5% activation)
+  TEAD1: 1486 upregulated, 2056 downregulated (42.0% activation)
+
+PATHWAY ENRICHMENT:
+  TES pathways: 346
+  TEAD1 pathways: 465
+  Shared pathways: 511

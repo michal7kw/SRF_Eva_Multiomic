@@ -1,0 +1,32 @@
+=============================================================================
+  MSIGDB GSEA ANALYSIS - MASTER SUMMARY
+=============================================================================
+
+Generated: 2025-11-26 07:43:41.219851 
+
+OVERALL STATISTICS:
+  Total gene sets tested: 7038
+  Significant (FDR < 0.05): 354
+  Collections analyzed: 5
+
+RESULTS BY COLLECTION:
+  02_GO_Biological_Process:
+    Tested: 4920 | Significant: 147 | Up: 40 | Down: 107
+    Output: output/12_msigdb_by_collection/02_GO_Biological_Process
+
+  06_Reactome_Pathways:
+    Tested: 1290 | Significant: 118 | Up: 12 | Down: 106
+    Output: output/12_msigdb_by_collection/06_Reactome_Pathways
+
+  11_C3_Cancer_Atlas:
+    Tested: 6 | Significant: 0 | Up: 0 | Down: 0
+    Output: output/12_msigdb_by_collection/11_C3_Cancer_Atlas
+
+  12_C4_Computational:
+    Tested: 483 | Significant: 48 | Up: 17 | Down: 31
+    Output: output/12_msigdb_by_collection/12_C4_Computational
+
+  14_C2_Curated:
+    Tested: 339 | Significant: 41 | Up: 2 | Down: 39
+    Output: output/12_msigdb_by_collection/14_C2_Curated
+

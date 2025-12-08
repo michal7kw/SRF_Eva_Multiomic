@@ -1,0 +1,7 @@
+"category","n_peaks","n_with_hyper","pct_hyper","n_with_hypo","pct_hypo"
+"Shared_TEAD1_dominant",2509,3,0.12,3,0.12
+"Shared_TES_dominant",2833,6,0.21,2,0.07
+"Shared_equivalent",1463,3,0.21,0,0
+"Shared_high",1862,5,0.27,0,0
+"TEAD1_unique",13205,54,0.41,0,0
+"TES_unique",11537,20,0.17,34,0.29

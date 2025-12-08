@@ -1,0 +1,54 @@
+GSEA CANCER PATHWAYS ANALYSIS SUMMARY
+=====================================
+
+Generated: 2025-11-26 08:16:51.422948 
+
+TARGET GROUPS AND PATHWAY ENRICHMENT
+------------------------------------
+
+Metric	Value
+TES-only targets (genes)	596
+TEAD1-only targets (genes)	1455
+Shared TES/TEAD1 targets (genes)	2087
+	
+TES-only cancer pathways	621
+  - Apoptosis pathways	151
+  - Migration pathways	140
+  - Proliferation pathways	330
+	
+TEAD1-only cancer pathways	629
+  - Apoptosis pathways	151
+  - Migration pathways	141
+  - Proliferation pathways	337
+	
+Shared cancer pathways	617
+  - Apoptosis pathways	149
+  - Migration pathways	139
+  - Proliferation pathways	329
+
+
+KEY FINDINGS:
+-------------
+
+TES-only pathway distribution:
+  Apoptosis: 24.3%, Migration: 22.5%, Proliferation: 53.1%
+
+TEAD1-only pathway distribution:
+  Apoptosis: 24.0%, Migration: 22.4%, Proliferation: 53.6%
+
+
+
+OUTPUT FILES:
+-------------
+CSV Tables:
+  - TES_only_cancer_pathways.csv
+  - TEAD1_only_cancer_pathways.csv
+  - Shared_cancer_pathways.csv
+  - All_cancer_pathways_combined.csv
+
+Visualizations:
+  - 01_pathway_category_counts.pdf
+  - 02_top_pathways_dotplot.pdf
+  - 03_pathway_heatmap.pdf
+  - 04_enrichment_strength_by_category.pdf
+  - 05_gene_count_distribution.pdf

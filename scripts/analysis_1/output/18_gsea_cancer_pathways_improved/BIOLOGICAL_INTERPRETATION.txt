@@ -1,0 +1,16 @@
+BIOLOGICAL INTERPRETATION OF CANCER PATHWAY ANALYSIS
+====================================================
+
+Generated: 2025-11-26 08:16:50.580059 
+
+KEY FINDINGS:
+-------------
+
+TES TRANSCRIPTIONAL EFFECTS:
+  Apoptosis: 5 upregulated, 63 downregulated
+  → Interpretation: TES predominantly INHIBITS apoptosis (pro-survival)
+
+
+NOTE: This analysis provides directional context for pathway regulation.
+Upregulated apoptosis + Downregulated proliferation = Anti-cancer effect
+Upregulated migration = Pro-metastatic effect

@@ -1,0 +1,4 @@
+"peak_group","n_genes","n_DEGs","pct_DEG","mean_abs_log2FC"
+"Multiple Peaks (3+)",1238,808,65.27,1.2734521971547
+"Single Peak",4477,2362,52.76,1.0171461771065
+"Two Peaks",1662,963,57.94,1.06388660597881

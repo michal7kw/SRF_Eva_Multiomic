@@ -1,0 +1,50 @@
+=== Phase 2.1: Category-Specific Expression Analysis ===
+Date: 2025-12-08 15:40:43.380894 
+
+NOTE: Analysis creates BOTH detailed (6-category) and simplified (3-category)
+      versions of all plots and statistics.
+
+Output directories:
+  - Detailed (6-category):  SRF_Eva_integrated_analysis/scripts/analysis_3/results/04_category_expression/detailed_6cat 
+  - Simplified (3-category):  SRF_Eva_integrated_analysis/scripts/analysis_3/results/04_category_expression/simplified_3cat 
+
+=== DETAILED (6-category) Summary ===
+Categories: TES_unique, TEAD1_unique, Shared_high, Shared_TES_dominant,
+            Shared_TEAD1_dominant, Shared_equivalent, Unbound
+
+# A tibble: 7 × 9
+  primary_category n_genes n_DEGs pct_DEG  n_up n_down mean_log2FC median_log2FC
+  <chr>              <int>  <int>   <dbl> <int>  <int>       <dbl>         <dbl>
+1 Shared_TEAD1_do…     387    211    54.5    82    129     -0.195       -0.0876 
+2 Shared_TES_domi…     481    283    58.8   120    163     -0.0805      -0.0227 
+3 Shared_equivale…     241    124    51.4    54     70     -0.0102      -0.00420
+4 Shared_high          419    251    59.9   110    141     -0.0524      -0.0926 
+5 TEAD1_unique        3928   2178    55.4   938   1240     -0.0409      -0.0366 
+6 TES_unique          1921   1086    56.5   484    602     -0.0231       0.0127 
+7 Unbound            26582   8235    31.0  4524   3711      0.187        0.107  
+# ℹ 1 more variable: mean_baseMean <dbl>
+
+
+=== SIMPLIFIED (3-category) Summary ===
+Categories: TES_Unique, Shared, TEAD1_Unique, Unbound
+
+# A tibble: 4 × 9
+  primary_category_simple n_genes n_DEGs pct_DEG  n_up n_down mean_log2FC
+  <chr>                     <int>  <int>   <dbl> <int>  <int>       <dbl>
+1 Shared                     1528    869    56.9   366    503     -0.0908
+2 TEAD1_Unique               3928   2178    55.4   938   1240     -0.0409
+3 TES_Unique                 1921   1086    56.5   484    602     -0.0231
+4 Unbound                   26582   8235    31.0  4524   3711      0.187 
+# ℹ 2 more variables: median_log2FC <dbl>, mean_baseMean <dbl>
+
+
+Statistical Comparison (vs Unbound):
+# A tibble: 6 × 8
+  .y.            group1  group2              p    p.adj p.format p.signif method
+  <chr>          <chr>   <chr>           <dbl>    <dbl> <chr>    <chr>    <chr> 
+1 log2FoldChange Unbound TEAD1_unique 1.89e-23 1.10e-22 < 2e-16  ****     Wilco…
+2 log2FoldChange Unbound TES_unique   3.67e- 9 1.80e- 8 3.7e-09  ****     Wilco…
+3 log2FoldChange Unbound Shared_TEAD… 1.10e- 6 4.40e- 6 1.1e-06  ****     Wilco…
+4 log2FoldChange Unbound Shared_equi… 3.74e- 2 3.7 e- 2 0.03737  *        Wilco…
+5 log2FoldChange Unbound Shared_high  7.57e- 6 2.3 e- 5 7.6e-06  ****     Wilco…
+6 log2FoldChange Unbound Shared_TES_… 4.71e- 4 9.4 e- 4 0.00047  ***      Wilco…

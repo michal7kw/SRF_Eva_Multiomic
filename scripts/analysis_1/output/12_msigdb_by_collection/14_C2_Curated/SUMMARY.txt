@@ -1,0 +1,26 @@
+14_C2_Curated - GSEA SUMMARY
+==============================
+
+Generated: 2025-11-26 07:43:41.189694 
+
+RESULTS:
+  Total gene sets tested: 339
+  Significant (FDR < 0.05): 41
+  Upregulated (NES > 0): 2
+  Downregulated (NES < 0): 39
+
+TOP 10 UPREGULATED:
+   1. GNF2_HPN (NES=1.64, FDR=1.90e-02)
+   2. GNF2_TST (NES=1.63, FDR=4.94e-02)
+
+TOP 10 DOWNREGULATED:
+   1. GNF2_CCNA2 (NES=-2.97, FDR=5.43e-18)
+   2. GNF2_CDC20 (NES=-2.96, FDR=8.50e-18)
+   3. GNF2_CDC2 (NES=-2.96, FDR=5.58e-18)
+   4. GNF2_HMMR (NES=-2.94, FDR=1.20e-17)
+   5. GNF2_CENPF (NES=-2.94, FDR=9.28e-18)
+   6. GNF2_CCNB2 (NES=-2.91, FDR=1.85e-16)
+   7. GNF2_RRM1 (NES=-2.90, FDR=5.81e-18)
+   8. GNF2_PCNA (NES=-2.89, FDR=1.74e-16)
+   9. GNF2_CENPE (NES=-2.84, FDR=1.53e-14)
+  10. GNF2_RRM2 (NES=-2.79, FDR=3.17e-13)

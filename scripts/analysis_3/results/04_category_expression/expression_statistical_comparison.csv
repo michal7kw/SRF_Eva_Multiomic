@@ -1,0 +1,7 @@
+".y.","group1","group2","p","p.adj","p.format","p.signif","method"
+"log2FoldChange","Unbound","TEAD1_unique",1.88819638229211e-23,1.1e-22,"< 2e-16","****","Wilcoxon"
+"log2FoldChange","Unbound","TES_unique",3.67464292495512e-09,1.8e-08,"3.7e-09","****","Wilcoxon"
+"log2FoldChange","Unbound","Shared_TEAD1_dominant",1.10381596231086e-06,4.4e-06,"1.1e-06","****","Wilcoxon"
+"log2FoldChange","Unbound","Shared_equivalent",0.0373735261910759,0.037,"0.03737","*","Wilcoxon"
+"log2FoldChange","Unbound","Shared_high",7.56524639541565e-06,2.3e-05,"7.6e-06","****","Wilcoxon"
+"log2FoldChange","Unbound","Shared_TES_dominant",0.00047051305210811,0.00094,"0.00047","***","Wilcoxon"

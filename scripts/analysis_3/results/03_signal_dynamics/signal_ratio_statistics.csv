@@ -1,0 +1,6 @@
+".y.","group1","group2","p","p.adj","p.format","p.signif","method"
+"log2_signal_ratio","Shared_equivalent","Shared_TES_dominant",0,0,"<2e-16","****","Wilcoxon"
+"log2_signal_ratio","Shared_equivalent","TES_unique",0,0,"<2e-16","****","Wilcoxon"
+"log2_signal_ratio","Shared_equivalent","Shared_high",1.39781719769186e-36,1.4e-36,"<2e-16","****","Wilcoxon"
+"log2_signal_ratio","Shared_equivalent","Shared_TEAD1_dominant",1.70189395706037e-275,3.4e-275,"<2e-16","****","Wilcoxon"
+"log2_signal_ratio","Shared_equivalent","TEAD1_unique",0,0,"<2e-16","****","Wilcoxon"

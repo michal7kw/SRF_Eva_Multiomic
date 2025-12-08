@@ -1,0 +1,81 @@
+=== Phase 2.2: Promoter vs Enhancer Binding Effects ===
+Date: 2025-12-08 15:40:27.239837 
+
+Peak Location Distribution:
+============================
+# A tibble: 18 × 3
+   category              location_type     n_peaks
+   <chr>                 <chr>               <int>
+ 1 Shared_TEAD1_dominant Distal_Enhancer       547
+ 2 Shared_TEAD1_dominant Promoter              272
+ 3 Shared_TEAD1_dominant Proximal_Enhancer     285
+ 4 Shared_TES_dominant   Distal_Enhancer       595
+ 5 Shared_TES_dominant   Promoter              309
+ 6 Shared_TES_dominant   Proximal_Enhancer     317
+ 7 Shared_equivalent     Distal_Enhancer       362
+ 8 Shared_equivalent     Promoter              144
+ 9 Shared_equivalent     Proximal_Enhancer     198
+10 Shared_high           Distal_Enhancer       416
+11 Shared_high           Promoter              333
+12 Shared_high           Proximal_Enhancer     227
+13 TEAD1_unique          Distal_Enhancer      1610
+14 TEAD1_unique          Promoter             2209
+15 TEAD1_unique          Proximal_Enhancer    1243
+16 TES_unique            Distal_Enhancer      1352
+17 TES_unique            Promoter             1002
+18 TES_unique            Proximal_Enhancer     867
+
+
+Expression Statistics by Location:
+====================================
+# A tibble: 18 × 8
+   category       location_type n_genes n_DEGs pct_DEG mean_log2FC median_log2FC
+   <chr>          <chr>           <int>  <int>   <dbl>       <dbl>         <dbl>
+ 1 Shared_TEAD1_… Distal_Enhan…     547    331    60.5    -0.211         -0.196 
+ 2 Shared_TEAD1_… Promoter          272    187    68.8    -0.686         -0.514 
+ 3 Shared_TEAD1_… Proximal_Enh…     285    166    58.2    -0.359         -0.180 
+ 4 Shared_TES_do… Distal_Enhan…     594    341    57.4    -0.146         -0.131 
+ 5 Shared_TES_do… Promoter          309    222    71.8    -0.492         -0.458 
+ 6 Shared_TES_do… Proximal_Enh…     316    193    61.1    -0.246         -0.0646
+ 7 Shared_equiva… Distal_Enhan…     362    214    59.1     0.00617       -0.0648
+ 8 Shared_equiva… Promoter          144     82    56.9    -0.738         -0.390 
+ 9 Shared_equiva… Proximal_Enh…     198    122    61.6    -0.211         -0.112 
+10 Shared_high    Distal_Enhan…     416    240    57.7    -0.112         -0.136 
+11 Shared_high    Promoter          332    220    66.3    -0.545         -0.502 
+12 Shared_high    Proximal_Enh…     227    138    60.8    -0.0680        -0.0870
+13 TEAD1_unique   Distal_Enhan…    1608    887    55.2     0.0595         0.0266
+14 TEAD1_unique   Promoter         2208   1330    60.2    -0.268         -0.177 
+15 TEAD1_unique   Proximal_Enh…    1241    662    53.3    -0.00518       -0.0435
+16 TES_unique     Distal_Enhan…    1348    744    55.2     0.0141        -0.0187
+17 TES_unique     Promoter         1001    629    62.8    -0.280         -0.178 
+18 TES_unique     Proximal_Enh…     867    531    61.2    -0.196         -0.0510
+# ℹ 1 more variable: sd_log2FC <dbl>
+
+
+Distance-Expression Correlation:
+==================================
+TES-related peaks: rho = 0.01 , p = 5.756676e-01 
+TEAD1-related peaks: rho = 0.044 , p = 6.980912e-03 
+
+
+Multiple Peak Effects:
+=======================
+# A tibble: 3 × 5
+  peak_group          n_genes n_DEGs pct_DEG mean_abs_log2FC
+  <chr>                 <int>  <int>   <dbl>           <dbl>
+1 Multiple Peaks (3+)    1238    808    65.3            1.27
+2 Single Peak            4477   2362    52.8            1.02
+3 Two Peaks              1662    963    57.9            1.06
+
+Wilcoxon test (3+ peaks vs 1 peak):
+p-value = 4.599781e-13 
+
+
+Promoter vs Enhancer Binding:
+==============================
+# A tibble: 3 × 6
+  binding_pattern n_genes n_DEGs pct_DEG mean_log2FC median_log2FC
+  <chr>             <int>  <int>   <dbl>       <dbl>         <dbl>
+1 Both               1524   1005    65.9      -0.431       -0.342 
+2 Enhancer Only      3832   1979    51.6       0.167        0.0745
+3 Promoter Only      2021   1149    56.8      -0.161       -0.0679

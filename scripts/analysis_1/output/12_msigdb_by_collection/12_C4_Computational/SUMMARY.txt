@@ -1,0 +1,34 @@
+12_C4_Computational - GSEA SUMMARY
+====================================
+
+Generated: 2025-11-26 07:43:38.150506 
+
+RESULTS:
+  Total gene sets tested: 483
+  Significant (FDR < 0.05): 48
+  Upregulated (NES > 0): 17
+  Downregulated (NES < 0): 31
+
+TOP 10 UPREGULATED:
+   1. MODULE_298 (NES=2.23, FDR=1.48e-06)
+   2. MODULE_68 (NES=2.17, FDR=2.21e-05)
+   3. GCM_PTPRU (NES=1.92, FDR=2.10e-03)
+   4. MODULE_357 (NES=1.88, FDR=3.54e-03)
+   5. MODULE_297 (NES=1.87, FDR=4.78e-03)
+   6. MODULE_316 (NES=1.86, FDR=5.05e-03)
+   7. GCM_HMGA2 (NES=1.82, FDR=9.45e-04)
+   8. MODULE_153 (NES=1.81, FDR=2.30e-02)
+   9. MODULE_104 (NES=1.77, FDR=8.62e-06)
+  10. GCM_LTK (NES=1.77, FDR=2.39e-02)
+
+TOP 10 DOWNREGULATED:
+   1. MODULE_54 (NES=-2.53, FDR=4.57e-18)
+   2. MODULE_57 (NES=-2.21, FDR=2.84e-05)
+   3. MODULE_451 (NES=-2.17, FDR=8.31e-04)
+   4. MODULE_3 (NES=-2.09, FDR=1.90e-13)
+   5. MODULE_127 (NES=-2.09, FDR=1.38e-03)
+   6. MODULE_320 (NES=-2.06, FDR=3.64e-03)
+   7. MODULE_421 (NES=-2.06, FDR=5.58e-03)
+   8. MODULE_168 (NES=-2.04, FDR=2.46e-03)
+   9. MODULE_222 (NES=-2.02, FDR=3.44e-03)
+  10. MODULE_189 (NES=-1.98, FDR=5.50e-03)

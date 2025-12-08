@@ -1,0 +1,66 @@
+
+=== Methylation at Regulated Genes Analysis ===
+Date: 2025-12-05 12:08:34.694124
+
+Input Data:
+  RNA-seq: /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_RNA/results/05_deseq2/deseq2_results_TES_vs_GFP.txt
+  DMRs: /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/meDIP/results/07_differential_MEDIPS/TES_vs_GFP_DMRs_FDR05.csv
+
+Gene Counts:
+  Total genes analyzed: 30830
+  DEGs (padj < 0.05): 12370
+    - Upregulated: 6313
+    - Downregulated: 6057
+
+DMR Statistics:
+  Total DMRs: 31920
+    - Hypermethylated: 29034
+    - Hypomethylated: 2886
+
+DMR Enrichment at DEGs:
+  DEGs with ≥1 DMR: 4111 / 8860 (46.4%)
+  Non-DEGs with ≥1 DMR: 5026 / 21970 (22.9%)
+
+  Fisher's exact test:
+    p-value: 0.00e+00
+    Odds ratio: 2.92
+
+  Interpretation: DEGs are ENRICHED for DMRs - supports indirect methylation hypothesis
+
+BigWig Methylation Signal Analysis:
+  DEGs with valid signal: 8860
+
+  Methylation by Expression Direction:
+    UP-regulated genes:
+      Mean TES methylation: 8.8623
+      Mean GFP methylation: 8.3250
+      Mean difference (TES-GFP): 0.5373
+      N genes: 4566
+    DOWN-regulated genes:
+      Mean TES methylation: 8.9272
+      Mean GFP methylation: 9.4344
+      Mean difference (TES-GFP): -0.5072
+      N genes: 4294
+
+  Statistical Tests:
+    Wilcoxon test (UP vs DOWN meth diff):
+      p-value: 4.2581e-30
+    Spearman correlation (expression vs methylation):
+      rho: 0.1331
+      p-value: 2.5135e-36
+
+Output Files:
+  DMR Analysis:
+    - Gene_DMR_counts.csv: All genes with DMR counts
+    - DEG_vs_nonDEG_DMR_stats.csv: Summary statistics
+    - DEGs_with_DMRs_direction.csv: Direction correlation analysis
+    - 01-05_*.pdf: DMR visualization plots
+
+  BigWig Signal Analysis:
+    - DEG_methylation_signal.csv: Methylation signal per DEG
+    - Methylation_signal_summary.csv: Summary by direction
+    - 06_Methylation_signal_by_direction.pdf: Signal boxplots
+    - 07_Methylation_difference_by_direction.pdf: TES-GFP difference
+    - 08_Expression_vs_Methylation_scatter.pdf: Correlation plot
+    - 09_Methylation_difference_density.pdf: Density distributions
+

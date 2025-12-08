@@ -1,0 +1,43 @@
+=== Phase 5.2: Master Regulator Analysis ===
+Date: 2025-12-08 15:41:39.205748 
+
+Total transcription factors identified: 1458 
+Differentially expressed TFs: 672 
+  - Direct TES/TEAD1 targets: 319 
+
+Master Regulator Enrichment:
+============================
+TFs tested: 132 
+Significant master regulators (padj < 0.05): 104 
+  - With upregulated targets: 16 
+  - With downregulated targets: 20 
+  - With both: 69 
+
+Master Regulators that are TES/TEAD1 Targets:
+==============================================
+53 master regulators are direct targets
+
+Top 10 Master Regulators:
+=========================
+        TF n_targets_in_DEGs     padj_all odds_ratio_all  TF_log2FC
+1   ZNF592               918 2.193600e-44       2.031192 -0.6259032
+2     LHX9               758 2.363456e-44       2.194089  2.9920839
+3     TFEB               698 2.363456e-44       2.279996 -0.4461024
+4     MAFG               828 1.962738e-41       2.044922  0.5402289
+5     SKIL               912 1.184724e-40       1.952442 -1.1423524
+6    MEF2C               825 1.521692e-38       1.983650 -1.2354433
+7     E2F5               639 1.391828e-37       2.182135 -1.1080423
+8    BARX2               910 2.508753e-37       1.887386  5.2291013
+9     E2F2               720 1.004785e-33       1.976086 -3.0637167
+10 CREB3L4               687 2.049112e-31       1.953943 -0.7228993
+   direction_bias
+1            Both
+2            Both
+3            Both
+4            Both
+5            Both
+6            Both
+7            Both
+8            Both
+9            Both
+10           Both
