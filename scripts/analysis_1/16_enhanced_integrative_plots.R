@@ -314,6 +314,7 @@ category_counts <- combined_data %>%
   group_by(category, direction) %>%
   summarise(count = n(), .groups = "drop")
 
+# ORIGINAL PLOT (raw counts - stacked bar)
 p4 <- ggplot(category_counts, aes(x = reorder(category, count), y = count, fill = direction)) +
   geom_bar(stat = "identity", color = "black", linewidth = 0.5, alpha = 0.8) +
   geom_text(aes(label = count),
@@ -337,6 +338,161 @@ ggsave(file.path(OUTPUT_BASE, "04_target_categories.pdf"), p4,
   width = 12, height = 7, device = cairo_pdf
 )
 ggsave(file.path(OUTPUT_BASE, "04_target_categories.png"), p4,
+  width = 12, height = 7, dpi = 300
+)
+
+# =============================================================================
+# PLOT 4b: DIRECTIONAL BIAS CHART (PERCENTAGE-BASED)
+# =============================================================================
+
+cat("4b. Creating directional bias percentage chart...\n")
+
+# Calculate percentages within each category
+category_percentages <- category_counts %>%
+  group_by(category) %>%
+  mutate(
+    total = sum(count),
+    percentage = count / total * 100
+  ) %>%
+  ungroup()
+
+# Print summary to log for verification
+cat("\n=== DIRECTIONAL BIAS SUMMARY ===\n")
+cat("Category-wise UP/DOWN percentages:\n")
+category_percentages %>%
+  arrange(category, direction) %>%
+  mutate(summary = sprintf("  %s (%s): %d genes (%.1f%%)", category, direction, count, percentage)) %>%
+  pull(summary) %>%
+  cat(sep = "\n")
+
+# Calculate UP percentage for each category for the bar chart
+up_percentages <- category_percentages %>%
+  filter(direction == "UP") %>%
+  select(category, up_pct = percentage, up_count = count, total)
+
+down_percentages <- category_percentages %>%
+  filter(direction == "DOWN") %>%
+  select(category, down_pct = percentage, down_count = count)
+
+direction_summary <- up_percentages %>%
+  left_join(down_percentages, by = "category") %>%
+  mutate(
+    bias = case_when(
+      up_pct > 55 ~ "UP bias",
+      up_pct < 45 ~ "DOWN bias",
+      TRUE ~ "Balanced"
+    ),
+    label = sprintf("%.1f%% UP\n(n=%d)", up_pct, total)
+  )
+
+# Horizontal bar chart showing UP percentage with 50% reference line
+p4b <- ggplot(direction_summary, aes(x = reorder(category, up_pct), y = up_pct, fill = bias)) +
+  geom_bar(stat = "identity", color = "black", linewidth = 0.5, width = 0.7) +
+  geom_hline(yintercept = 50, linetype = "dashed", color = "black", linewidth = 1) +
+  geom_text(aes(label = sprintf("%.1f%%", up_pct)),
+            hjust = -0.2, fontface = "bold", size = 4) +
+  geom_text(aes(y = 2, label = sprintf("n=%d", total)),
+            hjust = 0, fontface = "plain", size = 3, color = "white") +
+  scale_fill_manual(
+    values = c("UP bias" = "#E74C3C", "DOWN bias" = "#3498DB", "Balanced" = "#95A5A6"),
+    name = "Directional Bias"
+  ) +
+  coord_flip() +
+  ylim(0, 70) +
+  labs(
+    title = "Directional Bias by Binding Category",
+    subtitle = "Percentage of UP-regulated genes (dashed line = 50%)",
+    x = NULL,
+    y = "% UP-regulated"
+  ) +
+  theme_pub() +
+  annotate("text", x = 0.5, y = 52, label = "50%", hjust = 0, fontface = "italic", size = 3)
+
+ggsave(file.path(OUTPUT_BASE, "04b_directional_bias.pdf"), p4b,
+  width = 12, height = 7, device = cairo_pdf
+)
+ggsave(file.path(OUTPUT_BASE, "04b_directional_bias.png"), p4b,
+  width = 12, height = 7, dpi = 300
+)
+
+# =============================================================================
+# PLOT 4c: DIVERGING BAR CHART (centered at 50%)
+# =============================================================================
+
+cat("4c. Creating diverging bar chart centered at 50%...\n")
+
+# Create data for diverging bars (deviation from 50%)
+diverging_data <- direction_summary %>%
+  mutate(
+    deviation = up_pct - 50,  # Positive = more UP, Negative = more DOWN
+    category_label = sprintf("%s\n(n=%d)", category, total)
+  )
+
+p4c <- ggplot(diverging_data, aes(x = reorder(category, deviation), y = deviation, fill = deviation > 0)) +
+  geom_bar(stat = "identity", color = "black", linewidth = 0.5, width = 0.7) +
+  geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.8) +
+  geom_text(aes(label = sprintf("%+.1f%%", deviation)),
+            hjust = ifelse(diverging_data$deviation > 0, -0.2, 1.2),
+            fontface = "bold", size = 4) +
+  scale_fill_manual(
+    values = c("TRUE" = "#E74C3C", "FALSE" = "#3498DB"),
+    labels = c("TRUE" = "More UP", "FALSE" = "More DOWN"),
+    name = "Direction"
+  ) +
+  coord_flip() +
+  ylim(-15, 15) +
+  labs(
+    title = "Deviation from Expected 50/50 Distribution",
+    subtitle = "Positive = more upregulated, Negative = more downregulated",
+    x = NULL,
+    y = "Deviation from 50% (percentage points)"
+  ) +
+  theme_pub()
+
+ggsave(file.path(OUTPUT_BASE, "04c_diverging_direction.pdf"), p4c,
+  width = 12, height = 7, device = cairo_pdf
+)
+ggsave(file.path(OUTPUT_BASE, "04c_diverging_direction.png"), p4c,
+  width = 12, height = 7, dpi = 300
+)
+
+# =============================================================================
+# PLOT 4d: STACKED PROPORTION BAR (100% bars)
+# =============================================================================
+
+cat("4d. Creating 100% stacked proportion bar chart...\n")
+
+# Add total to category_counts for ordering
+category_counts_with_total <- category_counts %>%
+  group_by(category) %>%
+  mutate(total = sum(count)) %>%
+  ungroup()
+
+p4d <- ggplot(category_counts_with_total,
+              aes(x = reorder(category, -total), y = count, fill = direction)) +
+  geom_bar(stat = "identity", position = "fill", color = "black", linewidth = 0.5) +
+  geom_hline(yintercept = 0.5, linetype = "dashed", color = "white", linewidth = 1) +
+  geom_text(aes(label = sprintf("%d\n(%.0f%%)", count, count/total*100)),
+            position = position_fill(vjust = 0.5),
+            fontface = "bold", size = 3.5, color = "white") +
+  scale_fill_manual(
+    values = c("UP" = "#E74C3C", "DOWN" = "#3498DB"),
+    name = "Direction"
+  ) +
+  scale_y_continuous(labels = scales::percent, expand = c(0, 0)) +
+  coord_flip() +
+  labs(
+    title = "Gene Direction by Binding Category (Proportions)",
+    subtitle = "Dashed line = 50% reference",
+    x = NULL,
+    y = "Proportion of Genes"
+  ) +
+  theme_pub()
+
+ggsave(file.path(OUTPUT_BASE, "04d_stacked_proportions.pdf"), p4d,
+  width = 12, height = 7, device = cairo_pdf
+)
+ggsave(file.path(OUTPUT_BASE, "04d_stacked_proportions.png"), p4d,
   width = 12, height = 7, dpi = 300
 )
 
@@ -462,6 +618,9 @@ cat("\nGenerated files:\n")
 cat("  1. 01_quadrant_binding_expression.pdf/png\n")
 cat("  2. 02_overlap_TES_TEAD1.pdf/png\n")
 cat("  3. 03_top_direct_targets_heatmap.pdf/png\n")
-cat("  4. 04_target_categories.pdf/png\n")
+cat("  4. 04_target_categories.pdf/png (raw counts)\n")
+cat("  4b. 04b_directional_bias.pdf/png (% UP with 50% reference)\n")
+cat("  4c. 04c_diverging_direction.pdf/png (deviation from 50%)\n")
+cat("  4d. 04d_stacked_proportions.pdf/png (100% stacked bars)\n")
 cat("  5. 05_multipanel_integrative_summary.pdf/png\n")
 cat("\n")

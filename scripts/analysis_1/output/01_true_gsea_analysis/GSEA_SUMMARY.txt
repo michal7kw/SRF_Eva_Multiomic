@@ -1,7 +1,7 @@
 TRUE GSEA ANALYSIS SUMMARY
 ==========================
 
-Generated: 2025-11-26 07:40:54.216207 
+Generated: 2025-12-08 19:22:04.964655 
 
 METHOD:
   - Algorithm: fgsea (Fast Gene Set Enrichment Analysis)
@@ -16,8 +16,12 @@ RESULTS:
     - Negatively enriched (NES < 0): 128
 
 CANCER-RELEVANT PATHWAYS:
-  Total cancer pathways: 1
-    Signaling: 1 (0 up, 1 down)
+  Total cancer pathways: 103
+    Proliferation: 73 (0 up, 73 down)
+    Migration: 5 (1 up, 4 down)
+    Signaling: 13 (3 up, 10 down)
+    Transcription: 5 (0 up, 5 down)
+    Metabolism: 3 (1 up, 2 down)
 
 
 TOP 10 UPREGULATED PATHWAYS:

@@ -9,7 +9,9 @@ suppressPackageStartupMessages({
   library(fgsea)
   library(dplyr)
   library(ggplot2)
+  library(ggrepel)
   library(org.Hs.eg.db)
+  library(GO.db)
   library(clusterProfiler)
   library(readr)
   library(stringr)
@@ -189,10 +191,52 @@ cat(sprintf("  Downregulated (negative NES): %d\n\n", sum(fgsea_sig$NES < 0)))
 # %%
 
 # =============================================================================
-# PHASE 4: FILTER FOR CANCER-RELEVANT PATHWAYS
+# PHASE 4: MAP GO IDs TO DESCRIPTIONS AND FILTER FOR CANCER-RELEVANT PATHWAYS
 # =============================================================================
 
-cat("=== PHASE 4: Filtering Cancer-Relevant Pathways ===\n")
+cat("=== PHASE 4: Mapping GO IDs to Descriptions ===\n")
+
+# First, map GO IDs to their human-readable descriptions
+go_ids <- fgsea_sig$pathway[grepl("^GO:", fgsea_sig$pathway)]
+cat(sprintf("  Found %d GO terms to map\n", length(go_ids)))
+
+if(length(go_ids) > 0) {
+  # Get GO term descriptions from GO.db
+  go_descriptions <- AnnotationDbi::select(GO.db,
+    keys = go_ids,
+    columns = "TERM",
+    keytype = "GOID")
+
+  # Create a lookup table
+  go_desc_lookup <- setNames(go_descriptions$TERM, go_descriptions$GOID)
+
+  # Add description column to fgsea_sig
+  fgsea_sig$description <- ifelse(grepl("^GO:", fgsea_sig$pathway),
+    go_desc_lookup[fgsea_sig$pathway],
+    fgsea_sig$pathway)
+
+  cat(sprintf("  Successfully mapped %d GO terms to descriptions\n",
+    sum(!is.na(fgsea_sig$description))))
+} else {
+  fgsea_sig$description <- fgsea_sig$pathway
+}
+
+# Also add descriptions to all results for export
+go_ids_all <- fgsea_results$pathway[grepl("^GO:", fgsea_results$pathway)]
+if(length(go_ids_all) > 0) {
+  go_descriptions_all <- AnnotationDbi::select(GO.db,
+    keys = go_ids_all,
+    columns = "TERM",
+    keytype = "GOID")
+  go_desc_lookup_all <- setNames(go_descriptions_all$TERM, go_descriptions_all$GOID)
+  fgsea_results$description <- ifelse(grepl("^GO:", fgsea_results$pathway),
+    go_desc_lookup_all[fgsea_results$pathway],
+    fgsea_results$pathway)
+} else {
+  fgsea_results$description <- fgsea_results$pathway
+}
+
+cat("\n=== Filtering Cancer-Relevant Pathways ===\n")
 
 # Define keywords - EXPANDED for comprehensive cancer pathway capture
 cancer_keywords <- c(
@@ -241,67 +285,69 @@ cancer_keywords <- c(
 
 pattern <- paste(cancer_keywords, collapse = "|")
 
+# Filter using the DESCRIPTION column (not pathway ID) for proper matching
 fgsea_cancer <- fgsea_sig %>%
-  filter(grepl(pattern, pathway, ignore.case = TRUE))
+  filter(grepl(pattern, description, ignore.case = TRUE))
 
 cat(sprintf("✓ Cancer-relevant pathways: %d\n", nrow(fgsea_cancer)))
 cat(sprintf("  Upregulated: %d\n", sum(fgsea_cancer$NES > 0)))
 cat(sprintf("  Downregulated: %d\n\n", sum(fgsea_cancer$NES < 0)))
 
 # Categorize pathways into functional groups (priority order matters - first match wins)
+# Using DESCRIPTION column for proper matching
 fgsea_cancer$category <- NA
 
 # Cell death (highest priority for apoptosis-related terms)
 fgsea_cancer$category[grepl("apoptosis|apoptotic|death|necrosis|ferroptosis|pyroptosis|anoikis|autophagy|survival|senescence",
-  fgsea_cancer$pathway,
+  fgsea_cancer$description,
   ignore.case = TRUE
 )] <- "Cell Death"
 
 # Cell cycle and proliferation
 fgsea_cancer$category[grepl("proliferation|cell cycle|mitosis|mitotic|division|growth|G1|G2|S phase|M phase|replication|chromosome|spindle|cyclin|checkpoint",
-  fgsea_cancer$pathway,
+  fgsea_cancer$description,
   ignore.case = TRUE
 )] <- "Proliferation"
 
 # Migration and invasion
 fgsea_cancer$category[grepl("migration|invasion|motility|chemotaxis|locomotion|adhesion|cytoskeleton|actin|tubulin",
-  fgsea_cancer$pathway,
+  fgsea_cancer$description,
   ignore.case = TRUE
 )] <- "Migration"
 
 # Angiogenesis
 fgsea_cancer$category[grepl("angiogenesis|angiogenic|blood vessel|vascular|vasculature|endothelial|VEGF",
-  fgsea_cancer$pathway,
+  fgsea_cancer$description,
   ignore.case = TRUE
 )] <- "Angiogenesis"
 
 # Metabolism
 fgsea_cancer$category[grepl("glycolysis|metabolism|metabolic|glucose|ATP|oxidative|respiration|biosynthesis",
-  fgsea_cancer$pathway,
+  fgsea_cancer$description,
   ignore.case = TRUE
 )] <- "Metabolism"
 
 # Signaling pathways
 fgsea_cancer$category[grepl("signaling|signal transduction|kinase|phosphorylation|growth factor|receptor|Hippo|YAP|TEAD|Wnt|Notch",
-  fgsea_cancer$pathway,
+  fgsea_cancer$description,
   ignore.case = TRUE
 )] <- "Signaling"
 
 # Transcription and chromatin regulation
 fgsea_cancer$category[grepl("transcription|gene expression|chromatin|histone|RNA processing|splicing",
-  fgsea_cancer$pathway,
+  fgsea_cancer$description,
   ignore.case = TRUE
 )] <- "Transcription"
 
 # Stress response
 fgsea_cancer$category[grepl("stress|hypoxia|ER stress|unfolded protein|heat shock|inflammatory",
-  fgsea_cancer$pathway,
+  fgsea_cancer$description,
   ignore.case = TRUE
 )] <- "Stress Response"
 
 # EMT and transformation
 fgsea_cancer$category[grepl("EMT|epithelial|mesenchymal|transformation|tumor|cancer|oncogenic",
-  fgsea_cancer$pathway,
+  fgsea_cancer$description,
   ignore.case = TRUE
 )] <- "EMT/Transformation"
 
@@ -315,20 +361,26 @@ cat("=== PHASE 5: Exporting Results ===\n")
 
 # Convert list columns to character strings for CSV export
 fgsea_results_export <- fgsea_results %>%
-  mutate(leadingEdge = sapply(leadingEdge, paste, collapse = ";"))
+  mutate(leadingEdge = sapply(leadingEdge, paste, collapse = ";")) %>%
+  select(pathway, description, everything())  # Put description after pathway
 
 fgsea_sig_export <- fgsea_sig %>%
-  mutate(leadingEdge = sapply(leadingEdge, paste, collapse = ";"))
+  mutate(leadingEdge = sapply(leadingEdge, paste, collapse = ";")) %>%
+  select(pathway, description, everything())
 
 fgsea_cancer_export <- fgsea_cancer %>%
-  mutate(leadingEdge = sapply(leadingEdge, paste, collapse = ";"))
+  mutate(leadingEdge = sapply(leadingEdge, paste, collapse = ";")) %>%
+  select(pathway, description, everything())
 
 # Export all results
 write.csv(fgsea_results_export, file.path(output_dir, "fgsea_all_pathways.csv"), row.names = FALSE)
 write.csv(fgsea_sig_export, file.path(output_dir, "fgsea_significant_pathways.csv"), row.names = FALSE)
 write.csv(fgsea_cancer_export, file.path(output_dir, "fgsea_cancer_pathways.csv"), row.names = FALSE)
 
-cat("✓ Results exported\n\n")
+cat(sprintf("✓ Results exported:\n"))
+cat(sprintf("  - All pathways: %d\n", nrow(fgsea_results_export)))
+cat(sprintf("  - Significant pathways: %d\n", nrow(fgsea_sig_export)))
+cat(sprintf("  - Cancer-relevant pathways: %d\n\n", nrow(fgsea_cancer_export)))
 
 # %%
 
@@ -338,36 +390,46 @@ cat("✓ Results exported\n\n")
 
 cat("=== PHASE 6: Creating Visualizations ===\n")
 
-# Plot 1: Enrichment score plot for top pathways
-cat("Creating enrichment score plots...\n")
+# =============================================================================
+# PLOT 1: TOP SIGNIFICANT PATHWAYS (ALL - no keyword filtering)
+# =============================================================================
+cat("Creating Plot 1: Top significant pathways (all pathways)...\n")
 
-top_pathways_up <- fgsea_cancer %>%
+# Get top pathways from ALL significant results (no cancer keyword filtering)
+top_all_up <- fgsea_sig %>%
   filter(NES > 0) %>%
   arrange(desc(NES)) %>%
-  head(10)
+  head(15)
 
-top_pathways_down <- fgsea_cancer %>%
+top_all_down <- fgsea_sig %>%
   filter(NES < 0) %>%
   arrange(NES) %>%
-  head(10)
+  head(15)
 
-top_pathways <- rbind(top_pathways_up, top_pathways_down)
+top_all_pathways <- rbind(top_all_up, top_all_down)
 
-if (nrow(top_pathways) > 0) {
-  pdf(file.path(output_dir, "01_top_pathways_barplot.pdf"), width = 14, height = 10)
-  p1 <- ggplot(top_pathways, aes(x = reorder(pathway, NES), y = NES, fill = NES > 0)) +
+if (nrow(top_all_pathways) > 0) {
+  # Truncate long descriptions for display
+  top_all_pathways$display_name <- ifelse(
+    nchar(top_all_pathways$description) > 60,
+    paste0(substr(top_all_pathways$description, 1, 57), "..."),
+    top_all_pathways$description
+  )
+
+  pdf(file.path(output_dir, "01_top_pathways_barplot.pdf"), width = 14, height = 12)
+  p1 <- ggplot(top_all_pathways, aes(x = reorder(display_name, NES), y = NES, fill = NES > 0)) +
     geom_bar(stat = "identity", color = "black", linewidth = 0.3) +
     coord_flip() +
     labs(
-      title = "Top 20 Cancer Pathways from GSEA",
-      subtitle = "Normalized Enrichment Score (NES)",
+      title = "Top 30 Significant Pathways from GSEA",
+      subtitle = "All significant pathways (FDR < 0.05) - Normalized Enrichment Score",
       x = "Pathway",
       y = "NES",
       fill = "Direction"
     ) +
     scale_fill_manual(
       values = c("FALSE" = "#1F78B4", "TRUE" = "#E31A1C"),
-      labels = c("Downregulated", "Upregulated")
+      labels = c("Downregulated in TES", "Upregulated in TES")
     ) +
     theme_bw(base_size = 12) +
     theme(
@@ -377,6 +439,60 @@ if (nrow(top_pathways) > 0) {
     )
   print(p1)
   dev.off()
+  cat(sprintf("  ✓ Saved: 01_top_pathways_barplot.pdf (%d pathways)\n", nrow(top_all_pathways)))
+}
+
+# =============================================================================
+# PLOT 1b: TOP CANCER-RELEVANT PATHWAYS (keyword filtered)
+# =============================================================================
+cat("Creating Plot 1b: Top cancer-relevant pathways...\n")
+
+top_cancer_up <- fgsea_cancer %>%
+  filter(NES > 0) %>%
+  arrange(desc(NES)) %>%
+  head(15)
+
+top_cancer_down <- fgsea_cancer %>%
+  filter(NES < 0) %>%
+  arrange(NES) %>%
+  head(15)
+
+top_cancer_pathways <- rbind(top_cancer_up, top_cancer_down)
+
+if (nrow(top_cancer_pathways) > 0) {
+  # Truncate long descriptions for display
+  top_cancer_pathways$display_name <- ifelse(
+    nchar(top_cancer_pathways$description) > 60,
+    paste0(substr(top_cancer_pathways$description, 1, 57), "..."),
+    top_cancer_pathways$description
+  )
+
+  pdf(file.path(output_dir, "01b_cancer_pathways_barplot.pdf"), width = 14, height = 12)
+  p1b <- ggplot(top_cancer_pathways, aes(x = reorder(display_name, NES), y = NES, fill = NES > 0)) +
+    geom_bar(stat = "identity", color = "black", linewidth = 0.3) +
+    coord_flip() +
+    labs(
+      title = "Top Cancer-Relevant Pathways from GSEA",
+      subtitle = "Filtered by cancer keywords - Normalized Enrichment Score",
+      x = "Pathway",
+      y = "NES",
+      fill = "Direction"
+    ) +
+    scale_fill_manual(
+      values = c("FALSE" = "#1F78B4", "TRUE" = "#E31A1C"),
+      labels = c("Downregulated in TES", "Upregulated in TES")
+    ) +
+    theme_bw(base_size = 12) +
+    theme(
+      plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+      plot.subtitle = element_text(size = 12, hjust = 0.5),
+      axis.text.y = element_text(size = 9)
+    )
+  print(p1b)
+  dev.off()
+  cat(sprintf("  ✓ Saved: 01b_cancer_pathways_barplot.pdf (%d pathways)\n", nrow(top_cancer_pathways)))
+} else {
+  cat("  ⚠ No cancer-relevant pathways found for barplot\n")
 }
 
 # Plot 2: Enrichment plots for specific pathways
@@ -404,13 +520,31 @@ if (length(key_pathway_names) > 0) {
 cat("Creating bubble plot...\n")
 
 if (nrow(fgsea_cancer) > 0 && !all(is.na(fgsea_cancer$category))) {
+  # Add text labels for top pathways
+  fgsea_cancer_plot <- fgsea_cancer %>%
+    filter(!is.na(category)) %>%
+    mutate(short_desc = ifelse(nchar(description) > 40,
+      paste0(substr(description, 1, 37), "..."),
+      description))
+
   pdf(file.path(output_dir, "03_cancer_pathways_bubble.pdf"), width = 14, height = 10)
   p3 <- ggplot(
-    fgsea_cancer %>% filter(!is.na(category)),
+    fgsea_cancer_plot,
     aes(x = NES, y = -log10(padj), color = category, size = size)
   ) +
     geom_point(alpha = 0.7) +
     geom_vline(xintercept = 0, linetype = "dashed", color = "gray40") +
+    # Add labels for top pathways
+    ggrepel::geom_text_repel(
+      data = fgsea_cancer_plot %>%
+        group_by(category) %>%
+        slice_max(abs(NES), n = 2) %>%
+        ungroup(),
+      aes(label = short_desc),
+      size = 2.5,
+      max.overlaps = 20,
+      show.legend = FALSE
+    ) +
     labs(
       title = "Cancer Pathway Enrichment (GSEA)",
       subtitle = "Bubble size = number of genes in pathway",
@@ -427,6 +561,9 @@ if (nrow(fgsea_cancer) > 0 && !all(is.na(fgsea_cancer$category))) {
     scale_color_brewer(palette = "Set1")
   print(p3)
   dev.off()
+  cat(sprintf("  ✓ Saved: 03_cancer_pathways_bubble.pdf (%d pathways)\n", nrow(fgsea_cancer_plot)))
+} else {
+  cat("  ⚠ No cancer pathways with categories found for bubble plot\n")
 }
 
 # Plot 4: Category summary
@@ -539,13 +676,17 @@ cat("========================================\n")
 cat("Completed:", as.character(Sys.time()), "\n")
 cat(sprintf("Output directory: %s\n\n", output_dir))
 cat("Key files:\n")
-cat("  - fgsea_all_pathways.csv (all tested pathways)\n")
-cat("  - fgsea_significant_pathways.csv (FDR < 0.05)\n")
-cat("  - fgsea_cancer_pathways.csv (cancer-relevant subset)\n")
-cat("  - 01_top_pathways_barplot.pdf\n")
-cat("  - 02_detailed_enrichment_plots.pdf\n")
-cat("  - 03_cancer_pathways_bubble.pdf\n")
-cat("  - 04_category_summary.pdf\n")
+cat("  CSV Results (with GO term descriptions):\n")
+cat("  - fgsea_all_pathways.csv (all tested pathways with descriptions)\n")
+cat("  - fgsea_significant_pathways.csv (FDR < 0.05 with descriptions)\n")
+cat("  - fgsea_cancer_pathways.csv (cancer-relevant subset with descriptions)\n")
+cat("\n  Visualizations:\n")
+cat("  - 01_top_pathways_barplot.pdf (TOP 30 significant pathways - ALL)\n")
+cat("  - 01b_cancer_pathways_barplot.pdf (TOP cancer-relevant pathways only)\n")
+cat("  - 02_detailed_enrichment_plots.pdf (enrichment curves)\n")
+cat("  - 03_cancer_pathways_bubble.pdf (cancer pathways by category)\n")
+cat("  - 04_category_summary.pdf (category counts)\n")
 cat("  - GSEA_SUMMARY.txt\n\n")
 cat("This is TRUE GSEA using ranked gene lists!\n")
 cat("All genes contribute to enrichment score calculation.\n")
+cat("GO terms now mapped to human-readable descriptions.\n")
