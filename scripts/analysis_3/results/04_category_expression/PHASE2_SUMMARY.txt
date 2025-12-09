@@ -1,5 +1,5 @@
 === Phase 2.1: Category-Specific Expression Analysis ===
-Date: 2025-12-08 15:40:43.380894 
+Date: 2025-12-08 21:13:57.711144 
 
 NOTE: Analysis creates BOTH detailed (6-category) and simplified (3-category)
       versions of all plots and statistics.

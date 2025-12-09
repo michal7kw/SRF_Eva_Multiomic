@@ -1,5 +1,5 @@
 === Binding Site Classification Summary ===
-Date: 2025-12-08 15:40:04.084047 
+Date: 2025-12-08 21:13:23.138897 
 
 Input Files:
   TES peaks: SRF_Eva_CUTandTAG/results/05_peaks_narrow/TES_peaks.narrowPeak 
