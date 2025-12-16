@@ -367,8 +367,12 @@ dev.off()
 
 # 7.3: Network visualization with igraph
 if (nrow(network_edges_df) > 0) {
+  # Ensure no duplicate vertex names (required by igraph)
+  network_nodes_unique <- network_nodes %>%
+    dplyr::distinct(id, .keep_all = TRUE)
+
   # Create igraph object
-  g <- graph_from_data_frame(network_edges_df, directed = TRUE, vertices = network_nodes)
+  g <- graph_from_data_frame(network_edges_df, directed = TRUE, vertices = network_nodes_unique)
 
   # Set node colors
   V(g)$color <- case_when(

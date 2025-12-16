@@ -122,13 +122,15 @@ parse_homer_known <- function(file_path, category) {
 }
 
 # Parse motif results for each binding category
+# Note: HOMER outputs are in directories named {category}_motifs (e.g., TES_unique_motifs)
 categories <- c("TES_unique", "TEAD1_unique",
                 "Shared_equivalent", "Shared_TES_dominant", "Shared_TEAD1_dominant")
 
 motif_results <- list()
 
 for (cat in categories) {
-  homer_file <- file.path(motif_dir, cat, "knownResults.txt")
+  # HOMER directories have "_motifs" suffix
+  homer_file <- file.path(motif_dir, paste0(cat, "_motifs"), "knownResults.txt")
   motif_results[[cat]] <- parse_homer_known(homer_file, cat)
 }
 
@@ -137,13 +139,7 @@ all_motifs <- bind_rows(motif_results)
 
 log_message(sprintf("  Parsed motif enrichment for %d categories", length(categories)))
 
-################################################################################
-# 3. Identify Co-Regulator Motif Families
-################################################################################
-
-log_message("Identifying co-regulator motif families...")
-
-# Define TF family patterns
+# Define TF family patterns (needed in multiple places, so define early)
 tf_families <- list(
   AP1 = c("Jun", "Fos", "ATF", "JDP", "BATF", "AP-1"),
   RUNX = c("Runx", "RUNX", "AML", "Cbfa"),
@@ -154,6 +150,30 @@ tf_families <- list(
   NFY = c("NFY", "NF-Y"),
   SP = c("Sp1", "SP1", "Sp2", "SP2", "KLF")
 )
+
+# Check if we have any motif data
+if (nrow(all_motifs) == 0 || !"Motif Name" %in% colnames(all_motifs)) {
+  log_message("WARNING: No HOMER motif results found. Creating empty outputs...")
+
+  # Create empty output files
+  write_csv(data.frame(category = character(), tf_family = character(),
+                       n_motifs = integer(), median_pvalue = numeric(),
+                       median_enrichment = numeric()),
+            file.path(output_dir, "tf_family_enrichment_summary.csv"))
+  write_csv(data.frame(), file.path(output_dir, "coregulator_motif_enrichment.csv"))
+
+  # Skip to expression analysis section
+  sig_motifs <- data.frame()
+  family_summary <- data.frame()
+  coregulator_motifs <- data.frame()
+
+} else {
+
+################################################################################
+# 3. Identify Co-Regulator Motif Families
+################################################################################
+
+log_message("Identifying co-regulator motif families...")
 
 # Classify motifs by TF family
 classify_tf_family <- function(motif_name) {
@@ -202,11 +222,12 @@ coregulator_motifs <- sig_motifs %>%
 write_csv(coregulator_motifs, file.path(output_dir, "coregulator_motif_enrichment.csv"))
 
 # Create enrichment matrix for heatmap
+# Note: HOMER's Log P-value is negative (e.g., -443.9), so we take absolute value for visualization
 enrichment_matrix <- sig_motifs %>%
   filter(tf_family %in% c("TEAD", coregulator_families)) %>%
   group_by(category, tf_family) %>%
   summarise(
-    enrichment = mean(`Log P-value`),
+    enrichment = mean(abs(`Log P-value`)),  # Take absolute value for positive scale
     .groups = "drop"
   ) %>%
   pivot_wider(names_from = tf_family, values_from = enrichment, values_fill = 0) %>%
@@ -219,7 +240,9 @@ enrichment_matrix <- as.matrix(enrichment_matrix)
 # Create heatmap
 pdf(file.path(output_dir, "coregulator_enrichment_heatmap.pdf"), width = 10, height = 8)
 
-col_fun <- colorRamp2(c(0, 50, 100, 150), c("white", "yellow", "orange", "red"))
+# Use dynamic color scale based on data range
+max_val <- max(enrichment_matrix, na.rm = TRUE)
+col_fun <- colorRamp2(c(0, max_val/3, max_val*2/3, max_val), c("white", "yellow", "orange", "red"))
 
 ht <- Heatmap(
   enrichment_matrix,
@@ -246,6 +269,8 @@ ht <- Heatmap(
 draw(ht, heatmap_legend_side = "right")
 
 dev.off()
+
+}  # End of else block for when motif data exists
 
 ################################################################################
 # 5. Co-Occurrence Analysis

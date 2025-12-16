@@ -161,25 +161,46 @@ ensembl_to_entrez <- mapIds(org.Hs.eg.db,
 
 prioritization_data$entrez_id <- ensembl_to_entrez[prioritization_data$gene_name]
 
-# Get GO annotations
-go_bp <- select(org.Hs.eg.db,
-                keys = prioritization_data$entrez_id,
-                columns = "GO",
-                keytype = "ENTREZID")
+# Get GO annotations - use AnnotationDbi::select explicitly to avoid conflict with dplyr::select
+# Include GOTERM column via GO.db if available
+go_bp <- tryCatch({
+  AnnotationDbi::select(org.Hs.eg.db,
+                        keys = prioritization_data$entrez_id[!is.na(prioritization_data$entrez_id)],
+                        columns = c("GO", "ONTOLOGY"),
+                        keytype = "ENTREZID")
+}, error = function(e) {
+  log_message <- function(msg) message(paste0("[", Sys.time(), "] ", msg))
+  log_message(sprintf("Warning: Could not retrieve GO annotations: %s", e$message))
+  data.frame(ENTREZID = character(), GO = character(), ONTOLOGY = character())
+})
 
-go_bp <- go_bp %>% filter(ONTOLOGY == "BP")
+go_bp <- go_bp %>% dplyr::filter(ONTOLOGY == "BP")
 
-# Flag cancer-related genes
-cancer_terms <- c(
-  "apoptosis", "apoptotic", "cell death", "cell cycle", "proliferation",
-  "migration", "invasion", "metastasis", "angiogenesis", "DNA repair"
+# Flag cancer-related genes using GO term IDs for common cancer-related processes
+# These are GO IDs for cancer-related terms instead of matching term names
+cancer_go_terms <- c(
+  "GO:0006915",  # apoptotic process
+  "GO:0012501",  # programmed cell death
+  "GO:0008219",  # cell death
+  "GO:0007049",  # cell cycle
+  "GO:0008283",  # cell population proliferation
+  "GO:0016477",  # cell migration
+  "GO:0001525",  # angiogenesis
+  "GO:0006281",  # DNA repair
+  "GO:0042981",  # regulation of apoptotic process
+  "GO:0043066",  # negative regulation of apoptotic process
+  "GO:0043065",  # positive regulation of apoptotic process
+  "GO:0008284",  # positive regulation of cell population proliferation
+  "GO:0008285",  # negative regulation of cell population proliferation
+  "GO:0030335",  # positive regulation of cell migration
+  "GO:0001837"   # epithelial to mesenchymal transition
 )
 
 # For each gene, check if it has cancer-related GO terms
 cancer_related <- sapply(prioritization_data$entrez_id, function(eid) {
   if (is.na(eid)) return(FALSE)
-  gene_gos <- go_bp$TERM[go_bp$ENTREZID == eid]
-  any(grepl(paste(cancer_terms, collapse = "|"), gene_gos, ignore.case = TRUE))
+  gene_gos <- go_bp$GO[go_bp$ENTREZID == eid]
+  any(gene_gos %in% cancer_go_terms)
 })
 
 prioritization_data$is_cancer_related <- cancer_related

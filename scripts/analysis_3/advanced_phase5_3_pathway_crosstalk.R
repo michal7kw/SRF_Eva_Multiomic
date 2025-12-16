@@ -79,24 +79,98 @@ log_message("Starting Phase 5.3: Pathway Crosstalk Analysis")
 
 log_message("Loading pathway enrichment results...")
 
-# Load GO enrichment results from Phase 2.1
-go_dir <- "SRF_Eva_integrated_analysis/scripts/analysis_3/results/04_category_expression"
-
-go_files <- list.files(go_dir, pattern = "_GO_enrichment_all_genes.csv", full.names = TRUE)
+# Try multiple possible locations for GO enrichment results
+possible_go_dirs <- c(
+  "SRF_Eva_integrated_analysis/scripts/analysis_3/results/04_category_expression",
+  "SRF_Eva_integrated_analysis/scripts/analysis_1/output/10_final_integrative_analysis/pathway_analysis",
+  "SRF_Eva_integrated_analysis/scripts/analysis_1/output/11_final_integrative_analysis_all_genes/pathway_analysis"
+)
 
 all_go_results <- list()
 
-for (file in go_files) {
-  category <- str_extract(basename(file), "^[^_]+")
-  go_data <- read_csv(file, show_col_types = FALSE) %>%
-    mutate(source = "GO", category = category)
-  all_go_results[[category]] <- go_data
+for (go_dir in possible_go_dirs) {
+  if (!dir.exists(go_dir)) next
+
+  # Try multiple patterns
+  go_files <- list.files(go_dir, pattern = "GO_enrichment.*\\.csv$", full.names = TRUE)
+
+  if (length(go_files) == 0) next
+
+  log_message(sprintf("  Found %d GO files in %s", length(go_files), go_dir))
+
+  for (file in go_files) {
+    # Extract category from filename
+    fname <- basename(file)
+    category <- gsub("_GO_enrichment.*\\.csv$", "", fname)
+
+    tryCatch({
+      go_data <- read_csv(file, show_col_types = FALSE)
+
+      # Check for required columns
+      if (!"ID" %in% colnames(go_data) || !"geneID" %in% colnames(go_data)) {
+        log_message(sprintf("    Skipping %s: missing required columns", fname))
+        next
+      }
+
+      # Add source and category columns if not present
+      go_data <- go_data %>%
+        mutate(source = "GO", category = category)
+
+      all_go_results[[paste0(go_dir, "_", category)]] <- go_data
+    }, error = function(e) {
+      log_message(sprintf("    Error reading %s: %s", fname, e$message))
+    })
+  }
 }
 
 go_combined <- bind_rows(all_go_results)
 
-log_message(sprintf("  Loaded %d GO enrichment results from %d categories",
-                   nrow(go_combined), length(go_files)))
+log_message(sprintf("  Loaded %d GO enrichment results from %d files",
+                   nrow(go_combined), length(all_go_results)))
+
+# Check if we have any data to work with
+if (nrow(go_combined) == 0) {
+  log_message("WARNING: No GO enrichment data found. Creating minimal outputs...")
+
+  # Create empty/minimal output files
+  write_csv(data.frame(pathway = character(), degree = integer()),
+            file.path(output_dir, "hub_pathways_ranked.csv"))
+  write_csv(data.frame(community = integer(), n_pathways = integer()),
+            file.path(output_dir, "pathway_communities.csv"))
+  write_csv(data.frame(ID = character(), n_categories = integer()),
+            file.path(output_dir, "pathway_category_overlap.csv"))
+
+  # Create summary report
+  sink(file.path(output_dir, "PHASE5_3_SUMMARY.txt"))
+  cat("================================================================================\n")
+  cat("Phase 5.3: Pathway Crosstalk Analysis - Analysis Summary\n")
+  cat("================================================================================\n\n")
+  cat("WARNING: No GO enrichment data found.\n")
+  cat("Please run Phase 2.1 (expression by category) or Phase 10 (integrative analysis) first.\n\n")
+  cat("Expected locations checked:\n")
+  for (d in possible_go_dirs) {
+    cat(sprintf("  - %s\n", d))
+  }
+  sink()
+
+  log_message("Phase 5.3 completed (no data to analyze)")
+  quit(save = "no", status = 0)
+}
+
+# Check if qvalue column exists (might be named differently)
+if (!"qvalue" %in% colnames(go_combined)) {
+  if ("p.adjust" %in% colnames(go_combined)) {
+    go_combined$qvalue <- go_combined$p.adjust
+  } else if ("pvalue" %in% colnames(go_combined)) {
+    # Use raw p-value if no adjusted available
+    go_combined$qvalue <- go_combined$pvalue
+    log_message("  WARNING: Using raw p-values as qvalue (no adjusted p-values found)")
+  } else {
+    # Create a placeholder qvalue column with 0 (all pass filter)
+    go_combined$qvalue <- 0.01
+    log_message("  WARNING: No p-value column found, using all pathways")
+  }
+}
 
 # Filter for significant pathways
 sig_pathways <- go_combined %>%
@@ -207,14 +281,19 @@ log_message(sprintf("  Created %d pathway-pathway edges (similarity > %.2f)",
 
 # Create igraph network
 if (nrow(edges) > 0) {
+  # Ensure no duplicate pathway IDs (can happen when combining multiple GO files)
+  top_pathways_unique <- top_pathways %>%
+    dplyr::distinct(ID, .keep_all = TRUE) %>%
+    dplyr::select(ID, Description, category, qvalue)
+
   pathway_network <- graph_from_data_frame(edges, directed = FALSE,
-                                          vertices = top_pathways %>%
-                                            select(ID, Description, category, qvalue))
+                                          vertices = top_pathways_unique)
 
   # Calculate network statistics
-  degree_centrality <- degree(pathway_network)
-  betweenness_centrality <- betweenness(pathway_network)
-  eigenvector_centrality <- eigen_centrality(pathway_network)$vector
+  # Use igraph:: prefix to avoid circlize masking
+  degree_centrality <- as.vector(igraph::degree(pathway_network))
+  betweenness_centrality <- as.vector(igraph::betweenness(pathway_network))
+  eigenvector_centrality <- as.vector(igraph::eigen_centrality(pathway_network)$vector)
 
   # Add to vertex attributes
   V(pathway_network)$degree <- degree_centrality
@@ -234,16 +313,29 @@ if (nrow(edges) > 0) {
 log_message("Identifying hub pathways...")
 
 if (!is.null(pathway_network)) {
+  # Extract vertex attributes safely (some may be lists after merging)
+  # Build vectors first, then create data.frame
+  v_pathway <- V(pathway_network)$name
+  v_desc <- sapply(V(pathway_network)$Description, function(x) if(is.null(x)) NA_character_ else as.character(x[1]))
+  v_cat <- sapply(V(pathway_network)$category, function(x) if(is.null(x)) NA_character_ else as.character(x[1]))
+  v_qval <- sapply(V(pathway_network)$qvalue, function(x) if(is.null(x)) NA_real_ else as.numeric(x[1]))
+
+  # Use the already-converted numeric vectors
+  v_degree <- degree_centrality
+  v_betweenness <- betweenness_centrality
+  v_eigenvector <- eigenvector_centrality
+
   hub_pathways <- data.frame(
-    pathway = V(pathway_network)$name,
-    description = V(pathway_network)$Description,
-    category = V(pathway_network)$category,
-    qvalue = V(pathway_network)$qvalue,
-    degree = V(pathway_network)$degree,
-    betweenness = V(pathway_network)$betweenness,
-    eigenvector = V(pathway_network)$eigenvector
-  ) %>%
-    arrange(desc(degree))
+    pathway = v_pathway,
+    description = v_desc,
+    category = v_cat,
+    qvalue = v_qval,
+    degree = v_degree,
+    betweenness = v_betweenness,
+    eigenvector = v_eigenvector,
+    stringsAsFactors = FALSE
+  )
+  hub_pathways <- hub_pathways[order(-hub_pathways$degree), ]
 
   write_csv(hub_pathways, file.path(output_dir, "hub_pathways_ranked.csv"))
 
@@ -309,9 +401,10 @@ if (file.exists(expr_file)) {
   expr_data <- read_csv(expr_file, show_col_types = FALSE)
 
   # For each pathway, calculate average expression change of member genes
+  # Note: Column name is gene_name (not gene_symbol)
   pathway_scores <- pathway_gene_edges %>%
-    left_join(expr_data %>% select(gene_symbol, log2FoldChange),
-              by = c("gene" = "gene_symbol")) %>%
+    left_join(expr_data %>% dplyr::select(gene_name, log2FoldChange),
+              by = c("gene" = "gene_name")) %>%
     filter(!is.na(log2FoldChange)) %>%
     group_by(pathway, pathway_name, category) %>%
     summarise(
@@ -354,19 +447,22 @@ if (nrow(similarity_matrix) > 0) {
   # Cluster pathways
   pathway_clusters <- hclust(as.dist(1 - similarity_matrix), method = "complete")
 
-  # Annotate by category
+  # Annotate by category (deduplicate IDs first)
   pathway_annotations <- top_pathways %>%
-    select(ID, category) %>%
+    dplyr::distinct(ID, .keep_all = TRUE) %>%
+    dplyr::select(ID, category) %>%
     as.data.frame()
   rownames(pathway_annotations) <- pathway_annotations$ID
   pathway_annotations$ID <- NULL
 
+  # Handle case where fewer than 3 categories exist
+  n_categories <- length(unique(pathway_annotations$category))
+  category_colors <- brewer.pal(max(n_categories, 3), "Set2")[1:n_categories]
+  names(category_colors) <- unique(pathway_annotations$category)
+
   row_ha <- rowAnnotation(
     Category = pathway_annotations[rownames(similarity_matrix), "category"],
-    col = list(Category = setNames(
-      brewer.pal(length(unique(pathway_annotations$category)), "Set2"),
-      unique(pathway_annotations$category)
-    ))
+    col = list(Category = category_colors)
   )
 
   col_fun <- colorRamp2(c(0, 0.5, 1), c("white", "yellow", "red"))
