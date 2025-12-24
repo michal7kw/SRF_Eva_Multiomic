@@ -40,6 +40,19 @@ dir.create(OUTPUT_BASE, showWarnings = FALSE, recursive = TRUE)
 cat("=== PHASE 1: Loading Gene Annotations ===\n")
 
 cat(sprintf("Loading GTF: %s\n", GTF_FILE))
+
+# Column Structure (Tab-separated):
+# seqname: Chromosome name (e.g., chr1)
+# source: Source of the annotation (e.g., HAVANA)
+# feature: Feature type (e.g., gene, transcript, exon)
+# start: Start position (1-based)
+# end: End position (inclusive)
+# score: Score (often .)
+# strand: Strand (+ or -)
+# frame: Reading frame (often .)
+# attribute: Semicolon-separated list of tags/values.
+#       -> gene_id "ENSG00000290825.1"; gene_type "lncRNA"; gene_name "DDX11L2"; level 2; tag "overlaps_pseudogene";
+
 gtf <- rtracklayer::import(GTF_FILE)
 
 # Filter for genes only and get coordinates
@@ -62,6 +75,9 @@ deseq2 <- read.delim(DESEQ2_FILE, header = TRUE, stringsAsFactors = FALSE)
 cat(sprintf("✓ Loaded %d genes from DESeq2\n", nrow(deseq2)))
 
 # Clean gene IDs
+# Original gene_id	    Pattern Matched (\\..*)	    Result gene_id_clean
+# ENSG00000290825.1	    .1	                        ENSG00000290825
+# ENSG00000223972.6	    .6	                        ENSG00000223972
 deseq2$gene_id_clean <- gsub("\\..*", "", deseq2$gene_id)
 
 # Define gene sets
@@ -73,6 +89,7 @@ all_expressed <- deseq2 %>%
 cat(sprintf("✓ All expressed genes: %d\n", nrow(all_expressed)))
 
 # 2. DEGs DOWN (significantly downregulated: padj < 0.05 & log2FC < 0)
+# usage: filter(x, filter, method = c("convolution", "recursive"), sides = 2, circular = FALSE, init
 degs_down <- deseq2 %>%
     filter(!is.na(padj), padj < 0.05, log2FoldChange < 0) %>%
     select(gene_id_clean, log2FoldChange, padj, gene_symbol)
@@ -108,10 +125,11 @@ create_tss_bed <- function(gene_data, genes_annotation, output_file, description
     # We'll use a small region around TSS for the BED file
     bed <- data.frame(
         chr = merged$seqnames,
-        start = merged$tss - 1,  # BED is 0-based
+        start = merged$tss - 1, # BED is 0-based
         end = merged$tss,
         name = ifelse(is.na(merged$gene_symbol) | merged$gene_symbol == "",
-                      merged$gene_id_clean, merged$gene_symbol),
+            merged$gene_id_clean, merged$gene_symbol
+        ),
         score = 0,
         strand = merged$strand
     )
@@ -131,19 +149,25 @@ create_tss_bed <- function(gene_data, genes_annotation, output_file, description
         quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE
     )
 
-    cat(sprintf("✓ Created %s: %d TSS regions (%s)\n",
-                basename(output_file), nrow(bed), description))
+    cat(sprintf(
+        "✓ Created %s: %d TSS regions (%s)\n",
+        basename(output_file), nrow(bed), description
+    ))
     return(nrow(bed))
 }
 
 # Create BED files
-n_all <- create_tss_bed(all_expressed, genes_df,
-                         file.path(OUTPUT_BASE, "all_expressed_genes_TSS.bed"),
-                         "all expressed genes")
+n_all <- create_tss_bed(
+    all_expressed, genes_df,
+    file.path(OUTPUT_BASE, "all_expressed_genes_TSS.bed"),
+    "all expressed genes"
+)
 
-n_down <- create_tss_bed(degs_down, genes_df,
-                          file.path(OUTPUT_BASE, "DEGs_DOWN_TSS.bed"),
-                          "downregulated DEGs")
+n_down <- create_tss_bed(
+    degs_down, genes_df,
+    file.path(OUTPUT_BASE, "DEGs_DOWN_TSS.bed"),
+    "downregulated DEGs"
+)
 
 # =============================================================================
 # SUMMARY
