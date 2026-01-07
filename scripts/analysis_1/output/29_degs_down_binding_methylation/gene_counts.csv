@@ -1,0 +1,4 @@
+"group","n_genes","description"
+"DEGs_DOWN_with_binding",685,"DEGs DOWN with TES/TEAD1 binding at promoter (±2kb)"
+"DEGs_DOWN_without_binding",3290,"DEGs DOWN without TES/TEAD1 binding at promoter"
+"random_control_no_binding",685,"Random expressed non-DE genes without binding (matched N)"

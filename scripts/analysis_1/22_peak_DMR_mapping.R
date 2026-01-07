@@ -1,25 +1,49 @@
 #!/usr/bin/env Rscript
 #
 # PEAK-DMR MAPPING ANALYSIS
-# Maps TES/TEAD1 binding peaks to DMRs
-# Outputs: Positions, distances, gene annotations, overlaps
+# -----------------------------------------------------------------------------
+# This script integrates two types of genomic data:
+# 1. CUT&Tag Peaks: Binding sites for TES and TEAD1 proteins.
+# 2. MeDIP-seq DMRs: Differentially Methylated Regions (DMRs) between conditions (e.g., TES vs GFP).
 #
+# The goal is to determine the spatial relationship between protein binding and DNA methylation changes.
+# Specifically, we want to answer:
+# - Do TES/TEAD1 binding sites overlap with DMRs?
+# - Are they simply "nearby" (within a certain distance)?
+# - Does protein binding correlate with hyper- or hypo-methylation?
+# - Which genes are associated with these overlapping/nearby features?
+#
+# Outputs:
+# - CSV Tables combining peak info with DMR info (distances, overlaps, gene annotations).
+# - Visualizations: Venn diagrams, distance histograms, bar charts of genomic distributions.
+# -----------------------------------------------------------------------------
 
+# Suppress startup messages to keep the console output clean
 suppressPackageStartupMessages({
+    # GenomicRanges: The core Bioconductor package for handling genomic intervals (chr, start, end).
+    # It allows for efficient overlap finding and distance calculations.
     library(GenomicRanges)
+    # rtracklayer: meaningful for importing/exporting genomic data formats (BED, GFF, BigWig).
     library(rtracklayer)
+    # ChIPseeker: A package for annotating genomic peaks (mapping them to nearest genes/genomic features).
     library(ChIPseeker)
+    # TxDb...: Transcript Database for hg38. Contains gene definitions (promoters, exons, introns).
     library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+    # org.Hs.eg.db: Genome wide annotation for Human. Used to map Entrez Gene IDs to Gene Symbols.
     library(org.Hs.eg.db)
+    # dplyr/tidyr: Standard data manipulation packages (tidyverse).
     library(dplyr)
     library(tidyr)
+    # ggplot2: The standard plotting grammar for R.
     library(ggplot2)
+    # VennDiagram: For visualizing intersections between sets (e.g., genes with Peaks vs DMRs).
     library(VennDiagram)
-    library(RColorBrewer)
-    library(pheatmap)
-    library(gridExtra)
+    library(RColorBrewer) # Color palettes
+    library(pheatmap) # Heatmaps
+    library(gridExtra) # For arranging multiple plots on a grid
 })
 
+# Set working directory to ensure relative paths work if used (though absolute paths are preferred for reproducibility)
 setwd("/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_integrated_analysis/scripts/analysis_1")
 
 cat("==========================================================\n")
@@ -31,97 +55,135 @@ cat("Analysis started:", as.character(Sys.time()), "\n\n")
 # PATH CONFIGURATION
 # =============================================================================
 
-# Input files
+# Input files: Absolute paths to ensure the script finds the data regardless of where it's run.
 TES_PEAKS <- "/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_CUTandTAG/results/11_combined_replicates_narrow/peaks/TES_consensus_peaks.bed"
 TEAD1_PEAKS <- "/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_CUTandTAG/results/11_combined_replicates_narrow/peaks/TEAD1_consensus_peaks.bed"
+# DMR file contains regions found to be differentially methylated by MEDIPS
 DMR_FILE <- "/beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/meDIP/results/07_differential_MEDIPS/TES_vs_GFP_DMRs_FDR05_FC2.csv"
 
-# Output directory
+# Output directory: Where all results will be saved.
 OUTPUT_BASE <- "output/22_peak_DMR_mapping"
 dir.create(OUTPUT_BASE, showWarnings = FALSE, recursive = TRUE)
 dir.create(file.path(OUTPUT_BASE, "tables"), showWarnings = FALSE)
 dir.create(file.path(OUTPUT_BASE, "plots"), showWarnings = FALSE)
 
-# Parameters
-OVERLAP_DISTANCE <- 0  # For direct overlaps
-PROXIMITY_DISTANCE <- 5000  # 5kb for nearby features
+# Parameters for analysis
+OVERLAP_DISTANCE <- 0 # 0 requires at least 1 bp overlap to count as "overlapping"
+PROXIMITY_DISTANCE <- 5000 # 5kb window to define "nearby" features (biologically relevant for enhancers/promoters)
 
 # =============================================================================
 # PHASE 1: LOAD DATA
 # =============================================================================
+# In this phase, we read flat files (BED, CSV) and convert them into Bioconductor "GRanges" objects.
+# GRanges objects are efficient structures that store chromosome, start, and end positions,
+# allowing for fast geometric operations like finding overlaps.
 
 cat("=== PHASE 1: Loading Data ===\n")
 
-# Load TES peaks
-tes_peaks_df <- read.table(TES_PEAKS, header = FALSE, stringsAsFactors = FALSE,
-                            col.names = c("chr", "start", "end", "replicate_count", "replicates"))
+# 1. Load TES peaks
+# We read the BED file into a standard dataframe first.
+tes_peaks_df <- read.table(TES_PEAKS,
+    header = FALSE, stringsAsFactors = FALSE,
+    col.names = c("chr", "start", "end", "replicate_count", "replicates")
+)
+# Enforce UCSC chromosome naming convention (e.g., "chr1" instead of "1")
 tes_peaks_df$chr <- paste0("chr", tes_peaks_df$chr)
+# Convert dataframe to GRanges object
 tes_peaks <- makeGRangesFromDataFrame(tes_peaks_df, keep.extra.columns = TRUE)
 cat(sprintf("  TES peaks loaded: %d\n", length(tes_peaks)))
 
-# Load TEAD1 peaks
-tead1_peaks_df <- read.table(TEAD1_PEAKS, header = FALSE, stringsAsFactors = FALSE,
-                              col.names = c("chr", "start", "end", "replicate_count", "replicates"))
+# 2. Load TEAD1 peaks
+tead1_peaks_df <- read.table(TEAD1_PEAKS,
+    header = FALSE, stringsAsFactors = FALSE,
+    col.names = c("chr", "start", "end", "replicate_count", "replicates")
+)
 tead1_peaks_df$chr <- paste0("chr", tead1_peaks_df$chr)
 tead1_peaks <- makeGRangesFromDataFrame(tead1_peaks_df, keep.extra.columns = TRUE)
 cat(sprintf("  TEAD1 peaks loaded: %d\n", length(tead1_peaks)))
 
-# Load DMRs
+# 3. Load DMRs
+# DMRs typically come from differential analysis (MEDIPS/DESeq2) as a CSV/Table.
 dmr_df <- read.csv(DMR_FILE, stringsAsFactors = FALSE)
 dmr_df$chr <- paste0("chr", dmr_df$chr)
+# Add a direction column for easier interpretation later
 dmr_df$direction <- ifelse(dmr_df$logFC > 0, "Hyper", "Hypo")
+# Create GRanges. Note we specify which columns hold the coordinates.
 dmrs <- makeGRangesFromDataFrame(dmr_df,
-                                  seqnames.field = "chr",
-                                  start.field = "start",
-                                  end.field = "stop",
-                                  keep.extra.columns = TRUE)
-cat(sprintf("  DMRs loaded: %d (Hyper: %d, Hypo: %d)\n",
-            length(dmrs), sum(dmr_df$direction == "Hyper"), sum(dmr_df$direction == "Hypo")))
+    seqnames.field = "chr",
+    start.field = "start",
+    end.field = "stop", # MEDIPS often uses 'stop' instead of 'end'
+    keep.extra.columns = TRUE
+)
+cat(sprintf(
+    "  DMRs loaded: %d (Hyper: %d, Hypo: %d)\n",
+    length(dmrs), sum(dmr_df$direction == "Hyper"), sum(dmr_df$direction == "Hypo")
+))
 
 cat("\n")
 
 # =============================================================================
 # PHASE 2: FIND OVERLAPS
 # =============================================================================
+# We need to answer: "Which peaks are sitting directly on top of, or very close to, a DMR?"
+# `findOverlaps()` is the core function for this. It returns a "Hits" object describing pairs of indices.
 
 cat("=== PHASE 2: Finding Overlaps ===\n")
 
-# Direct overlaps
+# A. Direct overlaps
+# This finds peaks that physically share at least 1 base pair with a DMR.
 tes_dmr_overlaps <- findOverlaps(tes_peaks, dmrs)
 tead1_dmr_overlaps <- findOverlaps(tead1_peaks, dmrs)
 
-cat(sprintf("  TES peaks overlapping DMRs: %d (%.1f%%)\n",
-            length(unique(queryHits(tes_dmr_overlaps))),
-            100 * length(unique(queryHits(tes_dmr_overlaps))) / length(tes_peaks)))
-cat(sprintf("  TEAD1 peaks overlapping DMRs: %d (%.1f%%)\n",
-            length(unique(queryHits(tead1_dmr_overlaps))),
-            100 * length(unique(queryHits(tead1_dmr_overlaps))) / length(tead1_peaks)))
-cat(sprintf("  DMRs overlapping TES peaks: %d (%.1f%%)\n",
-            length(unique(subjectHits(tes_dmr_overlaps))),
-            100 * length(unique(subjectHits(tes_dmr_overlaps))) / length(dmrs)))
-cat(sprintf("  DMRs overlapping TEAD1 peaks: %d (%.1f%%)\n",
-            length(unique(subjectHits(tead1_dmr_overlaps))),
-            100 * length(unique(subjectHits(tead1_dmr_overlaps))) / length(dmrs)))
+# queryHits() returns indices of the 'query' (peaks), subjectHits() returns indices of 'subject' (dmrs).
+cat(sprintf(
+    "  TES peaks overlapping DMRs: %d (%.1f%%)\n",
+    length(unique(queryHits(tes_dmr_overlaps))),
+    100 * length(unique(queryHits(tes_dmr_overlaps))) / length(tes_peaks)
+))
+cat(sprintf(
+    "  TEAD1 peaks overlapping DMRs: %d (%.1f%%)\n",
+    length(unique(queryHits(tead1_dmr_overlaps))),
+    100 * length(unique(queryHits(tead1_dmr_overlaps))) / length(tead1_peaks)
+))
+cat(sprintf(
+    "  DMRs overlapping TES peaks: %d (%.1f%%)\n",
+    length(unique(subjectHits(tes_dmr_overlaps))),
+    100 * length(unique(subjectHits(tes_dmr_overlaps))) / length(dmrs)
+))
+cat(sprintf(
+    "  DMRs overlapping TEAD1 peaks: %d (%.1f%%)\n",
+    length(unique(subjectHits(tead1_dmr_overlaps))),
+    100 * length(unique(subjectHits(tead1_dmr_overlaps))) / length(dmrs)
+))
 
-# Proximity analysis (within 5kb)
+# B. Proximity analysis (within 5kb)
+# Sometimes a binding event affects methylation 'near' it, not just directly under it.
+# We 'resize' the peaks to be wider (peak width + 2 * 5kb) centered on the original peak.
+# This creates a search window around each peak.
 tes_peaks_extended <- resize(tes_peaks, width = width(tes_peaks) + 2 * PROXIMITY_DISTANCE, fix = "center")
 tead1_peaks_extended <- resize(tead1_peaks, width = width(tead1_peaks) + 2 * PROXIMITY_DISTANCE, fix = "center")
 
 tes_dmr_nearby <- findOverlaps(tes_peaks_extended, dmrs)
 tead1_dmr_nearby <- findOverlaps(tead1_peaks_extended, dmrs)
 
-cat(sprintf("\n  TES peaks with DMR within 5kb: %d (%.1f%%)\n",
-            length(unique(queryHits(tes_dmr_nearby))),
-            100 * length(unique(queryHits(tes_dmr_nearby))) / length(tes_peaks)))
-cat(sprintf("  TEAD1 peaks with DMR within 5kb: %d (%.1f%%)\n",
-            length(unique(queryHits(tead1_dmr_nearby))),
-            100 * length(unique(queryHits(tead1_dmr_nearby))) / length(tead1_peaks)))
+cat(sprintf(
+    "\n  TES peaks with DMR within 5kb: %d (%.1f%%)\n",
+    length(unique(queryHits(tes_dmr_nearby))),
+    100 * length(unique(queryHits(tes_dmr_nearby))) / length(tes_peaks)
+))
+cat(sprintf(
+    "  TEAD1 peaks with DMR within 5kb: %d (%.1f%%)\n",
+    length(unique(queryHits(tead1_dmr_nearby))),
+    100 * length(unique(queryHits(tead1_dmr_nearby))) / length(tead1_peaks)
+))
 
 cat("\n")
 
 # =============================================================================
 # PHASE 3: CALCULATE DISTANCES
 # =============================================================================
+# Instead of yes/no overlaps, we often want the exact distance in base pairs.
+# `distanceToNearest()` finds the closest feature in 'subject' for every range in 'query'.
 
 cat("=== PHASE 3: Calculating Distances ===\n")
 
@@ -129,9 +191,11 @@ cat("=== PHASE 3: Calculating Distances ===\n")
 tes_nearest <- distanceToNearest(tes_peaks, dmrs)
 tead1_nearest <- distanceToNearest(tead1_peaks, dmrs)
 
-# Add distance info to peaks
+# Add this distance information to the GRanges metadata columns (mcols)
+# Initialize with NA (for cases where no nearest might be found, rare if genome-wide)
 tes_peaks$nearest_dmr_idx <- NA
 tes_peaks$nearest_dmr_distance <- NA
+# Update values using the indices returned by distanceToNearest
 tes_peaks$nearest_dmr_idx[queryHits(tes_nearest)] <- subjectHits(tes_nearest)
 tes_peaks$nearest_dmr_distance[queryHits(tes_nearest)] <- mcols(tes_nearest)$distance
 
@@ -140,25 +204,33 @@ tead1_peaks$nearest_dmr_distance <- NA
 tead1_peaks$nearest_dmr_idx[queryHits(tead1_nearest)] <- subjectHits(tead1_nearest)
 tead1_peaks$nearest_dmr_distance[queryHits(tead1_nearest)] <- mcols(tead1_nearest)$distance
 
-cat(sprintf("  Median distance from TES peak to nearest DMR: %.0f bp\n",
-            median(tes_peaks$nearest_dmr_distance, na.rm = TRUE)))
-cat(sprintf("  Median distance from TEAD1 peak to nearest DMR: %.0f bp\n",
-            median(tead1_peaks$nearest_dmr_distance, na.rm = TRUE)))
+cat(sprintf(
+    "  Median distance from TES peak to nearest DMR: %.0f bp\n",
+    median(tes_peaks$nearest_dmr_distance, na.rm = TRUE)
+))
+cat(sprintf(
+    "  Median distance from TEAD1 peak to nearest DMR: %.0f bp\n",
+    median(tead1_peaks$nearest_dmr_distance, na.rm = TRUE)
+))
 
 cat("\n")
 
 # =============================================================================
 # PHASE 4: GENE ANNOTATION
 # =============================================================================
+# Biological context: Integrating with Genes.
+# `annotatePeak` assigns genomic regions to gene features (Promoter, Intron, Exon, Distal Intergenic).
+# It uses the TSS (Transcription Start Site) distance to define promoters (default usually -3kb to +3kb).
 
 cat("=== PHASE 4: Annotating to Genes ===\n")
 
+# Load transcript database reference
 txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
 
 # Annotate TES peaks
 cat("  Annotating TES peaks...\n")
 tes_anno <- annotatePeak(tes_peaks, TxDb = txdb, annoDb = "org.Hs.eg.db", verbose = FALSE)
-tes_anno_df <- as.data.frame(tes_anno)
+tes_anno_df <- as.data.frame(tes_anno) # Convert result to dataframe for easier handling
 
 # Annotate TEAD1 peaks
 cat("  Annotating TEAD1 peaks...\n")
@@ -166,6 +238,7 @@ tead1_anno <- annotatePeak(tead1_peaks, TxDb = txdb, annoDb = "org.Hs.eg.db", ve
 tead1_anno_df <- as.data.frame(tead1_anno)
 
 # Annotate DMRs
+# Just like peaks, DMRs occur somewhere in the genome. We want to know which genes they affect.
 cat("  Annotating DMRs...\n")
 dmr_anno <- annotatePeak(dmrs, TxDb = txdb, annoDb = "org.Hs.eg.db", verbose = FALSE)
 dmr_anno_df <- as.data.frame(dmr_anno)
@@ -179,6 +252,8 @@ cat("\n")
 # =============================================================================
 # PHASE 5: CREATE COMPREHENSIVE TABLES
 # =============================================================================
+# Merging all the calculated data (coordinates, annotations, overlap flags, distances)
+# into clean CSV files for the user to explore in Excel or use in other scripts.
 
 cat("=== PHASE 5: Creating Comprehensive Tables ===\n")
 
@@ -190,26 +265,28 @@ tes_table <- data.frame(
     end = end(tes_peaks),
     width = width(tes_peaks),
     replicate_count = tes_peaks$replicate_count,
-    gene = tes_anno_df$SYMBOL,
-    gene_id = tes_anno_df$geneId,
-    annotation = tes_anno_df$annotation,
+    gene = tes_anno_df$SYMBOL, # From ChIPseeker annotation
+    gene_id = tes_anno_df$geneId, # Entrez ID
+    annotation = tes_anno_df$annotation, # e.g., "Promoter", "Intron"
     distance_to_TSS = tes_anno_df$distanceToTSS,
-    nearest_DMR_distance = tes_peaks$nearest_dmr_distance,
-    has_overlapping_DMR = 1:length(tes_peaks) %in% queryHits(tes_dmr_overlaps),
+    nearest_DMR_distance = tes_peaks$nearest_dmr_distance, # Calculated in Phase 3
+    has_overlapping_DMR = 1:length(tes_peaks) %in% queryHits(tes_dmr_overlaps), # Logic check
     has_nearby_DMR_5kb = 1:length(tes_peaks) %in% queryHits(tes_dmr_nearby),
     stringsAsFactors = FALSE
 )
 
-# Add DMR info for overlapping peaks
+# For peaks that *do* overlap a DMR, let's pull in the DMR's statistics (LogFC, etc.)
+# Note: A peak might overlap multiple DMRs. Here we take the *first* overlap for simplicity.
 tes_table$overlapping_DMR_logFC <- NA
 tes_table$overlapping_DMR_direction <- NA
 for (i in which(tes_table$has_overlapping_DMR)) {
+    # Get index of the first DMR overlapping this peak
     dmr_idx <- subjectHits(tes_dmr_overlaps)[queryHits(tes_dmr_overlaps) == i][1]
     tes_table$overlapping_DMR_logFC[i] <- dmrs$logFC[dmr_idx]
     tes_table$overlapping_DMR_direction[i] <- dmrs$direction[dmr_idx]
 }
 
-# Table 2: TEAD1 peaks with DMR information
+# Table 2: TEAD1 peaks with DMR information (Same logic as above)
 tead1_table <- data.frame(
     peak_id = paste0("TEAD1_peak_", 1:length(tead1_peaks)),
     chr = as.character(seqnames(tead1_peaks)),
@@ -227,9 +304,6 @@ tead1_table <- data.frame(
     stringsAsFactors = FALSE
 )
 
-# Add DMR info for overlapping peaks
-tead1_table$overlapping_DMR_logFC <- NA
-tead1_table$overlapping_DMR_direction <- NA
 for (i in which(tead1_table$has_overlapping_DMR)) {
     dmr_idx <- subjectHits(tead1_dmr_overlaps)[queryHits(tead1_dmr_overlaps) == i][1]
     tead1_table$overlapping_DMR_logFC[i] <- dmrs$logFC[dmr_idx]
@@ -237,6 +311,7 @@ for (i in which(tead1_table$has_overlapping_DMR)) {
 }
 
 # Table 3: DMRs with peak information
+# This is the reverse view: For every DMR, is there a TES or TEAD1 peak on it?
 dmr_table <- data.frame(
     dmr_id = paste0("DMR_", 1:length(dmrs)),
     chr = as.character(seqnames(dmrs)),
@@ -256,7 +331,7 @@ dmr_table <- data.frame(
     stringsAsFactors = FALSE
 )
 
-# Find nearest peaks for DMRs
+# Find nearest peaks for DMRs (Reverse distance calculation)
 dmr_to_tes <- distanceToNearest(dmrs, tes_peaks)
 dmr_to_tead1 <- distanceToNearest(dmrs, tead1_peaks)
 
@@ -265,7 +340,7 @@ dmr_table$nearest_TEAD1_peak_distance <- NA
 dmr_table$nearest_TES_peak_distance[queryHits(dmr_to_tes)] <- mcols(dmr_to_tes)$distance
 dmr_table$nearest_TEAD1_peak_distance[queryHits(dmr_to_tead1)] <- mcols(dmr_to_tead1)$distance
 
-# Write tables
+# Write tables to disk
 write.csv(tes_table, file.path(OUTPUT_BASE, "tables", "TES_peaks_with_DMR_info.csv"), row.names = FALSE)
 write.csv(tead1_table, file.path(OUTPUT_BASE, "tables", "TEAD1_peaks_with_DMR_info.csv"), row.names = FALSE)
 write.csv(dmr_table, file.path(OUTPUT_BASE, "tables", "DMRs_with_peak_info.csv"), row.names = FALSE)
@@ -275,6 +350,7 @@ cat("  Created: TEAD1_peaks_with_DMR_info.csv\n")
 cat("  Created: DMRs_with_peak_info.csv\n")
 
 # Table 4: Gene-level summary
+# Aggregating information by gene symbol. Useful to find "target genes" that have both binding and methylation changes.
 cat("\n  Creating gene-level summary...\n")
 
 # Get unique genes from all sources
@@ -292,12 +368,13 @@ gene_summary <- data.frame(
     stringsAsFactors = FALSE
 )
 
-# Count features per gene
+# Count how many of each feature map to each gene
+# (Sapply iterates over every gene - can be slow for very large lists, but fine here)
 gene_summary$TES_peak_count <- sapply(gene_summary$gene, function(g) sum(tes_anno_df$SYMBOL == g, na.rm = TRUE))
 gene_summary$TEAD1_peak_count <- sapply(gene_summary$gene, function(g) sum(tead1_anno_df$SYMBOL == g, na.rm = TRUE))
 gene_summary$DMR_count <- sapply(gene_summary$gene, function(g) sum(dmr_anno_df$SYMBOL == g, na.rm = TRUE))
 
-# Classify genes
+# Classification: Assign simplified categories to genes for easier filtering
 gene_summary$category <- "Other"
 gene_summary$category[gene_summary$has_TES_peak & gene_summary$has_DMR] <- "TES + DMR"
 gene_summary$category[gene_summary$has_TEAD1_peak & gene_summary$has_DMR] <- "TEAD1 + DMR"
@@ -309,7 +386,7 @@ gene_summary$category[!gene_summary$has_TES_peak & !gene_summary$has_TEAD1_peak 
 write.csv(gene_summary, file.path(OUTPUT_BASE, "tables", "gene_level_summary.csv"), row.names = FALSE)
 cat("  Created: gene_level_summary.csv\n")
 
-# Print category summary
+# Print a quick console summary of the categories
 cat("\n  Gene category distribution:\n")
 print(table(gene_summary$category))
 
@@ -318,17 +395,19 @@ cat("\n")
 # =============================================================================
 # PHASE 6: CREATE VISUALIZATIONS
 # =============================================================================
+# Visualizing the relationships is key for understanding the global patterns in the data.
 
 cat("=== PHASE 6: Creating Visualizations ===\n")
 
 # Plot 1: Venn Diagram - Peaks and DMRs at gene level
+# Shows the intersection of gene sets targeted by TES, TEAD1, and those with DMRs.
 cat("  Creating Venn diagram...\n")
 
 tes_genes <- unique(na.omit(tes_anno_df$SYMBOL))
 tead1_genes <- unique(na.omit(tead1_anno_df$SYMBOL))
 dmr_genes <- unique(na.omit(dmr_anno_df$SYMBOL))
 
-# Three-way Venn
+# Initialize PDF device
 pdf(file.path(OUTPUT_BASE, "plots", "venn_genes_peaks_DMRs.pdf"), width = 10, height = 8)
 
 venn_data <- list(
@@ -337,56 +416,70 @@ venn_data <- list(
     DMR = dmr_genes
 )
 
+# Compute Venn internal calculations and plotting parameters
 venn.plot <- venn.diagram(
     x = venn_data,
-    category.names = c(paste0("TES peaks\n(", length(tes_genes), " genes)"),
-                       paste0("TEAD1 peaks\n(", length(tead1_genes), " genes)"),
-                       paste0("DMRs\n(", length(dmr_genes), " genes)")),
-    filename = NULL,
+    category.names = c(
+        paste0("TES peaks\n(", length(tes_genes), " genes)"),
+        paste0("TEAD1 peaks\n(", length(tead1_genes), " genes)"),
+        paste0("DMRs\n(", length(dmr_genes), " genes)")
+    ),
+    filename = NULL, # Don't save to file directly, we use grid.draw() below
     output = TRUE,
     main = "Genes with TES/TEAD1 Peaks and DMRs",
     main.cex = 1.5,
-    fill = c("#E41A1C", "#377EB8", "#4DAF4A"),
-    alpha = 0.5,
+    fill = c("#E41A1C", "#377EB8", "#4DAF4A"), # Red, Blue, Green
+    alpha = 0.5, # Transparency
     cat.cex = 1.2,
     cat.fontface = "bold",
     margin = 0.1
 )
-grid.draw(venn.plot)
-dev.off()
+grid.draw(venn.plot) # Draw the object to the open PDF device
+dev.off() # Close the PDF
 
 cat("  Created: venn_genes_peaks_DMRs.pdf\n")
 
 # Plot 2: Distance distribution
+# Histograms showing how far the nearest DMR is from our peaks.
+# A skew towards the left (low distance) implies spatial correlation.
 cat("  Creating distance distribution plots...\n")
 
 pdf(file.path(OUTPUT_BASE, "plots", "distance_distributions.pdf"), width = 12, height = 8)
 
-par(mfrow = c(2, 2))
+par(mfrow = c(2, 2)) # 2x2 grid of plots
 
 # TES to nearest DMR
-hist(log10(tes_peaks$nearest_dmr_distance + 1), breaks = 50,
-     main = "Distance: TES Peak to Nearest DMR",
-     xlab = "log10(Distance + 1) [bp]", col = "#E41A1C", border = "white")
-abline(v = log10(5001), col = "blue", lty = 2, lwd = 2)
+# We log10 transform distance because genomic distances can span orders of magnitude (1bp to 100Mb).
+hist(log10(tes_peaks$nearest_dmr_distance + 1),
+    breaks = 50,
+    main = "Distance: TES Peak to Nearest DMR",
+    xlab = "log10(Distance + 1) [bp]", col = "#E41A1C", border = "white"
+)
+abline(v = log10(5001), col = "blue", lty = 2, lwd = 2) # Mark 5kb threshold
 legend("topright", "5kb threshold", col = "blue", lty = 2, lwd = 2)
 
 # TEAD1 to nearest DMR
-hist(log10(tead1_peaks$nearest_dmr_distance + 1), breaks = 50,
-     main = "Distance: TEAD1 Peak to Nearest DMR",
-     xlab = "log10(Distance + 1) [bp]", col = "#377EB8", border = "white")
+hist(log10(tead1_peaks$nearest_dmr_distance + 1),
+    breaks = 50,
+    main = "Distance: TEAD1 Peak to Nearest DMR",
+    xlab = "log10(Distance + 1) [bp]", col = "#377EB8", border = "white"
+)
 abline(v = log10(5001), col = "blue", lty = 2, lwd = 2)
 
 # DMR to nearest TES peak
-hist(log10(dmr_table$nearest_TES_peak_distance + 1), breaks = 50,
-     main = "Distance: DMR to Nearest TES Peak",
-     xlab = "log10(Distance + 1) [bp]", col = "#4DAF4A", border = "white")
+hist(log10(dmr_table$nearest_TES_peak_distance + 1),
+    breaks = 50,
+    main = "Distance: DMR to Nearest TES Peak",
+    xlab = "log10(Distance + 1) [bp]", col = "#4DAF4A", border = "white"
+)
 abline(v = log10(5001), col = "blue", lty = 2, lwd = 2)
 
 # DMR to nearest TEAD1 peak
-hist(log10(dmr_table$nearest_TEAD1_peak_distance + 1), breaks = 50,
-     main = "Distance: DMR to Nearest TEAD1 Peak",
-     xlab = "log10(Distance + 1) [bp]", col = "#984EA3", border = "white")
+hist(log10(dmr_table$nearest_TEAD1_peak_distance + 1),
+    breaks = 50,
+    main = "Distance: DMR to Nearest TEAD1 Peak",
+    xlab = "log10(Distance + 1) [bp]", col = "#984EA3", border = "white"
+)
 abline(v = log10(5001), col = "blue", lty = 2, lwd = 2)
 
 dev.off()
@@ -394,20 +487,27 @@ dev.off()
 cat("  Created: distance_distributions.pdf\n")
 
 # Plot 3: Bar chart of overlaps
+# Shows raw counts of overlaps.
 cat("  Creating overlap summary bar chart...\n")
 
 overlap_summary <- data.frame(
-    Category = c("TES peaks with DMR", "TES peaks without DMR",
-                 "TEAD1 peaks with DMR", "TEAD1 peaks without DMR",
-                 "DMRs with TES peak", "DMRs without TES peak",
-                 "DMRs with TEAD1 peak", "DMRs without TEAD1 peak"),
-    Count = c(sum(tes_table$has_overlapping_DMR), sum(!tes_table$has_overlapping_DMR),
-              sum(tead1_table$has_overlapping_DMR), sum(!tead1_table$has_overlapping_DMR),
-              sum(dmr_table$has_TES_peak), sum(!dmr_table$has_TES_peak),
-              sum(dmr_table$has_TEAD1_peak), sum(!dmr_table$has_TEAD1_peak)),
+    Category = c(
+        "TES peaks with DMR", "TES peaks without DMR",
+        "TEAD1 peaks with DMR", "TEAD1 peaks without DMR",
+        "DMRs with TES peak", "DMRs without TES peak",
+        "DMRs with TEAD1 peak", "DMRs without TEAD1 peak"
+    ),
+    Count = c(
+        sum(tes_table$has_overlapping_DMR), sum(!tes_table$has_overlapping_DMR),
+        sum(tead1_table$has_overlapping_DMR), sum(!tead1_table$has_overlapping_DMR),
+        sum(dmr_table$has_TES_peak), sum(!dmr_table$has_TES_peak),
+        sum(dmr_table$has_TEAD1_peak), sum(!dmr_table$has_TEAD1_peak)
+    ),
     Type = rep(c("With", "Without"), 4),
-    Feature = rep(c("TES peaks", "TES peaks", "TEAD1 peaks", "TEAD1 peaks",
-                    "DMRs (vs TES)", "DMRs (vs TES)", "DMRs (vs TEAD1)", "DMRs (vs TEAD1)"), each = 1)
+    Feature = rep(c(
+        "TES peaks", "TES peaks", "TEAD1 peaks", "TEAD1 peaks",
+        "DMRs (vs TES)", "DMRs (vs TES)", "DMRs (vs TEAD1)", "DMRs (vs TEAD1)"
+    ), each = 1)
 )
 
 p_overlap <- ggplot(overlap_summary, aes(x = Feature, y = Count, fill = Type)) +
@@ -415,13 +515,16 @@ p_overlap <- ggplot(overlap_summary, aes(x = Feature, y = Count, fill = Type)) +
     scale_fill_manual(values = c("With" = "#4DAF4A", "Without" = "#E41A1C")) +
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-    labs(title = "Peak-DMR Overlap Summary",
-         x = "", y = "Count", fill = "Overlap Status")
+    labs(
+        title = "Peak-DMR Overlap Summary",
+        x = "", y = "Count", fill = "Overlap Status"
+    )
 
 ggsave(file.path(OUTPUT_BASE, "plots", "overlap_summary_barplot.pdf"), p_overlap, width = 10, height = 6)
 cat("  Created: overlap_summary_barplot.pdf\n")
 
 # Plot 4: DMR direction at peaks
+# Crucial question: Is binding associated with HYPER-methylation or HYPO-methylation?
 cat("  Creating DMR direction analysis...\n")
 
 dmr_direction_at_peaks <- data.frame(
@@ -439,24 +542,27 @@ p_direction <- ggplot(dmr_direction_at_peaks, aes(x = Peak_Type, y = Count, fill
     geom_bar(stat = "identity", position = "dodge") +
     scale_fill_manual(values = c("Hyper" = "#E41A1C", "Hypo" = "#377EB8")) +
     theme_minimal() +
-    labs(title = "DMR Direction at Peak Sites",
-         subtitle = "Hyper = increased methylation in TES vs GFP",
-         x = "Peak Type", y = "Number of overlapping DMRs", fill = "DMR Direction")
+    labs(
+        title = "DMR Direction at Peak Sites",
+        subtitle = "Hyper = increased methylation in TES vs GFP",
+        x = "Peak Type", y = "Number of overlapping DMRs", fill = "DMR Direction"
+    )
 
 ggsave(file.path(OUTPUT_BASE, "plots", "DMR_direction_at_peaks.pdf"), p_direction, width = 8, height = 6)
 cat("  Created: DMR_direction_at_peaks.pdf\n")
 
 # Plot 5: Genomic annotation distribution
+# Where do these features fall in the genome? Promoters? Intergenic regions?
 cat("  Creating genomic annotation plots...\n")
 
 pdf(file.path(OUTPUT_BASE, "plots", "genomic_annotations.pdf"), width = 14, height = 10)
 
 par(mfrow = c(2, 2))
 
-# Simplify annotations
+# Helper function to clean up annotation strings (e.g., "Intron (uc001abc.1/123)" -> "Intron")
 simplify_anno <- function(anno) {
-    anno <- gsub(" \\(.*", "", anno)
-    anno <- gsub("Distal Intergenic", "Intergenic", anno)
+    anno <- gsub(" \\(.*", "", anno) # Remove text in parentheses
+    anno <- gsub("Distal Intergenic", "Intergenic", anno) # Simplify naming
     return(anno)
 }
 
@@ -464,16 +570,20 @@ tes_anno_simple <- simplify_anno(tes_anno_df$annotation)
 tead1_anno_simple <- simplify_anno(tead1_anno_df$annotation)
 dmr_anno_simple <- simplify_anno(dmr_anno_df$annotation)
 
+# Barplots for each feature type
 barplot(sort(table(tes_anno_simple), decreasing = TRUE),
-        las = 2, col = "#E41A1C", main = "TES Peak Annotations", cex.names = 0.8)
+    las = 2, col = "#E41A1C", main = "TES Peak Annotations", cex.names = 0.8
+)
 
 barplot(sort(table(tead1_anno_simple), decreasing = TRUE),
-        las = 2, col = "#377EB8", main = "TEAD1 Peak Annotations", cex.names = 0.8)
+    las = 2, col = "#377EB8", main = "TEAD1 Peak Annotations", cex.names = 0.8
+)
 
 barplot(sort(table(dmr_anno_simple), decreasing = TRUE),
-        las = 2, col = "#4DAF4A", main = "DMR Annotations", cex.names = 0.8)
+    las = 2, col = "#4DAF4A", main = "DMR Annotations", cex.names = 0.8
+)
 
-# Combined comparison
+# Combined comparison for side-by-side view
 anno_comparison <- data.frame(
     Annotation = rep(c("Promoter", "Intron", "Exon", "Intergenic", "3' UTR", "5' UTR"), 3),
     Feature = rep(c("TES", "TEAD1", "DMR"), each = 6),
@@ -499,23 +609,26 @@ anno_comparison <- data.frame(
     )
 )
 
-# Create matrix: rows = features (TES, TEAD1, DMR), cols = annotations
+# Convert to matrix for barplot
 anno_matrix <- matrix(anno_comparison$Percentage, nrow = 3, byrow = TRUE)
 colnames(anno_matrix) <- c("Promoter", "Intron", "Exon", "Intergenic", "3' UTR", "5' UTR")
 rownames(anno_matrix) <- c("TES", "TEAD1", "DMR")
 
-barplot(anno_matrix, beside = TRUE,
-        col = c("#E41A1C", "#377EB8", "#4DAF4A"),
-        legend.text = rownames(anno_matrix),
-        args.legend = list(x = "topright"),
-        main = "Genomic Distribution Comparison",
-        ylab = "Percentage", las = 2)
+barplot(anno_matrix,
+    beside = TRUE,
+    col = c("#E41A1C", "#377EB8", "#4DAF4A"),
+    legend.text = rownames(anno_matrix),
+    args.legend = list(x = "topright"),
+    main = "Genomic Distribution Comparison",
+    ylab = "Percentage", las = 2
+)
 
 dev.off()
 
 cat("  Created: genomic_annotations.pdf\n")
 
 # Plot 6: Scatter plot - Peak position vs nearest DMR distance
+# Visualizing if peaks in certain regions (by index) might be clustered near DMRs.
 cat("  Creating peak-DMR relationship scatter...\n")
 
 pdf(file.path(OUTPUT_BASE, "plots", "peak_DMR_scatter.pdf"), width = 12, height = 6)
@@ -524,29 +637,35 @@ par(mfrow = c(1, 2))
 
 # TES peaks colored by whether they overlap a DMR
 plot(1:nrow(tes_table), log10(tes_table$nearest_DMR_distance + 1),
-     col = ifelse(tes_table$has_overlapping_DMR, "#E41A1C", "#CCCCCC"),
-     pch = 16, cex = 0.5,
-     main = "TES Peaks: Distance to Nearest DMR",
-     xlab = "Peak index", ylab = "log10(Distance + 1) [bp]")
-abline(h = log10(5001), col = "blue", lty = 2)
+    col = ifelse(tes_table$has_overlapping_DMR, "#E41A1C", "#CCCCCC"),
+    pch = 16, cex = 0.5,
+    main = "TES Peaks: Distance to Nearest DMR",
+    xlab = "Peak index", ylab = "log10(Distance + 1) [bp]"
+)
+abline(h = log10(5001), col = "blue", lty = 2) # 5kb line
 legend("topright", c("Overlapping DMR", "No overlap", "5kb threshold"),
-       col = c("#E41A1C", "#CCCCCC", "blue"), pch = c(16, 16, NA), lty = c(NA, NA, 2))
+    col = c("#E41A1C", "#CCCCCC", "blue"), pch = c(16, 16, NA), lty = c(NA, NA, 2)
+)
 
 # TEAD1 peaks
 plot(1:nrow(tead1_table), log10(tead1_table$nearest_DMR_distance + 1),
-     col = ifelse(tead1_table$has_overlapping_DMR, "#377EB8", "#CCCCCC"),
-     pch = 16, cex = 0.5,
-     main = "TEAD1 Peaks: Distance to Nearest DMR",
-     xlab = "Peak index", ylab = "log10(Distance + 1) [bp]")
+    col = ifelse(tead1_table$has_overlapping_DMR, "#377EB8", "#CCCCCC"),
+    pch = 16, cex = 0.5,
+    main = "TEAD1 Peaks: Distance to Nearest DMR",
+    xlab = "Peak index", ylab = "log10(Distance + 1) [bp]"
+)
 abline(h = log10(5001), col = "blue", lty = 2)
 legend("topright", c("Overlapping DMR", "No overlap", "5kb threshold"),
-       col = c("#377EB8", "#CCCCCC", "blue"), pch = c(16, 16, NA), lty = c(NA, NA, 2))
+    col = c("#377EB8", "#CCCCCC", "blue"), pch = c(16, 16, NA), lty = c(NA, NA, 2)
+)
 
 dev.off()
 
 cat("  Created: peak_DMR_scatter.pdf\n")
 
 # Plot 7: Cumulative distribution of distances
+# "What fraction of peaks have a DMR within X distance?"
+# A steep rise at the start means high spatial correlation.
 cat("  Creating cumulative distance plot...\n")
 
 pdf(file.path(OUTPUT_BASE, "plots", "cumulative_distance.pdf"), width = 8, height = 6)
@@ -554,15 +673,19 @@ pdf(file.path(OUTPUT_BASE, "plots", "cumulative_distance.pdf"), width = 8, heigh
 tes_dist <- sort(tes_peaks$nearest_dmr_distance[!is.na(tes_peaks$nearest_dmr_distance)])
 tead1_dist <- sort(tead1_peaks$nearest_dmr_distance[!is.na(tead1_peaks$nearest_dmr_distance)])
 
-plot(tes_dist, (1:length(tes_dist))/length(tes_dist), type = "l", col = "#E41A1C", lwd = 2,
-     xlim = c(0, 100000), ylim = c(0, 1),
-     main = "Cumulative Distribution: Peak to Nearest DMR Distance",
-     xlab = "Distance to nearest DMR (bp)", ylab = "Cumulative fraction of peaks")
-lines(tead1_dist, (1:length(tead1_dist))/length(tead1_dist), col = "#377EB8", lwd = 2)
-abline(v = 5000, col = "gray", lty = 2)
-abline(v = 10000, col = "gray", lty = 2)
+# ECDF-like plot
+plot(tes_dist, (1:length(tes_dist)) / length(tes_dist),
+    type = "l", col = "#E41A1C", lwd = 2,
+    xlim = c(0, 100000), ylim = c(0, 1),
+    main = "Cumulative Distribution: Peak to Nearest DMR Distance",
+    xlab = "Distance to nearest DMR (bp)", ylab = "Cumulative fraction of peaks"
+)
+lines(tead1_dist, (1:length(tead1_dist)) / length(tead1_dist), col = "#377EB8", lwd = 2)
+abline(v = 5000, col = "gray", lty = 2) # 5kb
+abline(v = 10000, col = "gray", lty = 2) # 10kb
 legend("bottomright", c("TES peaks", "TEAD1 peaks", "5kb", "10kb"),
-       col = c("#E41A1C", "#377EB8", "gray", "gray"), lty = c(1, 1, 2, 2), lwd = 2)
+    col = c("#E41A1C", "#377EB8", "gray", "gray"), lty = c(1, 1, 2, 2), lwd = 2
+)
 
 dev.off()
 
@@ -573,6 +696,7 @@ cat("\n")
 # =============================================================================
 # PHASE 7: SUMMARY STATISTICS
 # =============================================================================
+# Final aggregated numbers to check success and get high-level insights.
 
 cat("=== PHASE 7: Summary Statistics ===\n\n")
 
@@ -602,22 +726,32 @@ summary_stats <- list(
     "genes_with_all_three" = length(Reduce(intersect, list(tes_genes, tead1_genes, dmr_genes)))
 )
 
-# Print summary
+# Print formatted summary to console
 cat("FEATURE COUNTS:\n")
 cat(sprintf("  TES peaks: %d\n", summary_stats$TES_peaks_total))
 cat(sprintf("  TEAD1 peaks: %d\n", summary_stats$TEAD1_peaks_total))
-cat(sprintf("  DMRs: %d (Hyper: %d, Hypo: %d)\n",
-            summary_stats$DMRs_total, summary_stats$DMRs_hyper, summary_stats$DMRs_hypo))
+cat(sprintf(
+    "  DMRs: %d (Hyper: %d, Hypo: %d)\n",
+    summary_stats$DMRs_total, summary_stats$DMRs_hyper, summary_stats$DMRs_hypo
+))
 
 cat("\nOVERLAP STATISTICS:\n")
-cat(sprintf("  TES peaks overlapping DMR: %d (%.1f%%)\n",
-            summary_stats$TES_peaks_overlapping_DMR, summary_stats$TES_peaks_overlapping_DMR_pct))
-cat(sprintf("  TEAD1 peaks overlapping DMR: %d (%.1f%%)\n",
-            summary_stats$TEAD1_peaks_overlapping_DMR, summary_stats$TEAD1_peaks_overlapping_DMR_pct))
-cat(sprintf("  TES peaks with DMR within 5kb: %d (%.1f%%)\n",
-            summary_stats$TES_peaks_nearby_DMR_5kb, summary_stats$TES_peaks_nearby_DMR_5kb_pct))
-cat(sprintf("  TEAD1 peaks with DMR within 5kb: %d (%.1f%%)\n",
-            summary_stats$TEAD1_peaks_nearby_DMR_5kb, summary_stats$TEAD1_peaks_nearby_DMR_5kb_pct))
+cat(sprintf(
+    "  TES peaks overlapping DMR: %d (%.1f%%)\n",
+    summary_stats$TES_peaks_overlapping_DMR, summary_stats$TES_peaks_overlapping_DMR_pct
+))
+cat(sprintf(
+    "  TEAD1 peaks overlapping DMR: %d (%.1f%%)\n",
+    summary_stats$TEAD1_peaks_overlapping_DMR, summary_stats$TEAD1_peaks_overlapping_DMR_pct
+))
+cat(sprintf(
+    "  TES peaks with DMR within 5kb: %d (%.1f%%)\n",
+    summary_stats$TES_peaks_nearby_DMR_5kb, summary_stats$TES_peaks_nearby_DMR_5kb_pct
+))
+cat(sprintf(
+    "  TEAD1 peaks with DMR within 5kb: %d (%.1f%%)\n",
+    summary_stats$TEAD1_peaks_nearby_DMR_5kb, summary_stats$TEAD1_peaks_nearby_DMR_5kb_pct
+))
 
 cat("\nDISTANCE STATISTICS:\n")
 cat(sprintf("  Median distance TES peak to nearest DMR: %.0f bp\n", summary_stats$median_TES_to_DMR_distance))
@@ -631,9 +765,11 @@ cat(sprintf("  Genes with TES peak + DMR: %d\n", summary_stats$genes_with_TES_an
 cat(sprintf("  Genes with TEAD1 peak + DMR: %d\n", summary_stats$genes_with_TEAD1_and_DMR))
 cat(sprintf("  Genes with TES + TEAD1 + DMR: %d\n", summary_stats$genes_with_all_three))
 
-# Save summary
+# Save summary stats to CSV
 write.csv(as.data.frame(summary_stats),
-          file.path(OUTPUT_BASE, "tables", "summary_statistics.csv"), row.names = FALSE)
+    file.path(OUTPUT_BASE, "tables", "summary_statistics.csv"),
+    row.names = FALSE
+)
 
 cat("\n")
 cat("==========================================================\n")
