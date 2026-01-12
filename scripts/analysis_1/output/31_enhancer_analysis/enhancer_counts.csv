@@ -1,0 +1,3 @@
+"Group","N_Peaks","Description"
+"Enhancers_DEGs_DOWN",10104,"Non-promoter peaks linked to DEGs DOWN"
+"Enhancers_Random_Control",9232,"Non-promoter peaks linked to Non-DE genes"

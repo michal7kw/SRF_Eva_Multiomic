@@ -1,0 +1,58 @@
+
+=== Methylation at BINDING DEGs Analysis ===
+Date: 2026-01-07 17:32:52.474809
+
+MODIFICATION: This analysis filters for DEGs with TES OR TEAD1 binding
+at promoters (within 2000 bp upstream, 500 bp downstream of TSS)
+
+Input Data:
+  RNA-seq: /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_RNA/results/05_deseq2/deseq2_results_TES_vs_GFP.txt
+  DMRs: /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/meDIP/results/07_differential_MEDIPS/TES_vs_GFP_DMRs_FDR05.csv
+  TES peaks: /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_CUTandTAG/results/11_combined_replicates_narrow/peaks/TES_consensus_peaks.bed
+  TEAD1 peaks: /beegfs/scratch/ric.sessa/kubacki.michal/SRF_Eva_top/SRF_Eva_CUTandTAG/results/11_combined_replicates_narrow/peaks/TEAD1_consensus_peaks.bed
+
+Gene Counts:
+  Total DEGs (padj < 0.05): 12370
+    - Upregulated: 6313
+    - Downregulated: 6057
+
+  Genes with TES/TEAD1 binding at promoter: 1140
+
+  *** BINDING DEGs (DEG + Bound): 519 ***
+    - Upregulated with binding: 165
+    - Downregulated with binding: 354
+
+DMR Statistics:
+  Total DMRs: 31920
+
+BigWig Methylation Signal Analysis (BINDING DEGs ONLY):
+  Binding DEGs with valid signal: 519
+
+  Methylation by Expression Direction:
+    UP-regulated genes:
+      Mean TES methylation: 9.3220
+      Mean GFP methylation: 10.2905
+      Mean difference (TES-GFP): -0.9685
+      N genes: 165
+    DOWN-regulated genes:
+      Mean TES methylation: 8.3938
+      Mean GFP methylation: 10.3817
+      Mean difference (TES-GFP): -1.9879
+      N genes: 354
+
+  Statistical Tests:
+    Wilcoxon test (UP vs DOWN meth diff):
+      p-value: 3.2023e-03
+    Spearman correlation (expression vs methylation):
+      rho: 0.1420
+      p-value: 1.1766e-03
+
+Output Files:
+  - Binding_DEG_methylation_signal.csv: Methylation signal per binding DEG
+  - Methylation_signal_summary.csv: Summary by direction
+  - 01_Methylation_signal_by_direction.pdf: Signal boxplots
+  - 02_Methylation_difference_by_direction.pdf: TES-GFP difference
+  - 03_Expression_vs_Methylation_scatter.pdf: Correlation plot
+  - 04_Methylation_difference_density.pdf: Density distributions
+  - ANALYSIS_SUMMARY.txt: This file
+
